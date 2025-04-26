@@ -1,0 +1,47 @@
+ARTIFACT_REVISION=dev
+PROJECT_NAME=simple-log-viewer
+PROJECT_DIR=$(shell pwd)
+USER_ID=$(shell id -u)
+USER_GROUP=$(shell id -g)
+ITERATIVE=-it
+ifdef CI
+	ITERATIVE=
+endif
+DOCKER_CONTAINER_RUN=docker container run \
+	$(ITERATIVE) \
+	--rm \
+	--network host \
+	-m 1024m \
+	-u $(USER_ID):$(USER_GROUP) \
+	-v $(PROJECT_DIR):/app \
+	-w /app silvanei/$(PROJECT_NAME):$(ARTIFACT_REVISION)
+
+.PHONY: default
+default: image;
+
+image:
+	docker build --target development -t silvanei/$(PROJECT_NAME):$(ARTIFACT_REVISION) .
+
+install:
+	$(DOCKER_CONTAINER_RUN) composer install
+
+serve:
+	docker compose up
+
+down:
+	docker compose down
+
+sh:
+	$(DOCKER_CONTAINER_RUN) sh
+
+test:
+	$(DOCKER_CONTAINER_RUN) composer test -- $(args)
+
+phpstan:
+	$(DOCKER_CONTAINER_RUN) composer phpstan
+
+phpcs:
+	$(DOCKER_CONTAINER_RUN) composer phpcs
+
+check:
+	$(DOCKER_CONTAINER_RUN) composer check

@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src
+#        - tests
+    ignoreErrors:
+        - '#Binary operation "." between mixed and ''<span class=\"json…'' results in an error.#'
+        - '#Binary operation "." between non-falsy-string and mixed results in an error.#'
+        - '#Parameter \#1 \$string of function htmlspecialchars expects string, mixed given.#'
+        - '#Method S3\\Log\\Viewer\\Handler\\RouterHandler::dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed.#'

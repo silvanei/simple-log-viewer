@@ -1,0 +1,269 @@
+/* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+    /* Light Theme */
+    --background: #ffffff;
+    --surface: #f8f9fa;
+    --text: #24292e;
+    --border: #e1e4e8;
+    --secondary-text: #6a737d;
+    --error: #ff4444;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --success: #28a745;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Dark Theme - LiveTail Style */
+        --background: #0D1117;
+        --surface: #161B22;
+        --text: #E6EDF3;
+        --border: #30363D;
+        --secondary-text: #848D97;
+        --error: #FF7B72;
+        --info: #79C0FF;
+        --warning: #D29922;
+    }
+}
+
+/* Base Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+}
+
+/* Search Input */
+.controls {
+    margin-bottom: 1.5rem;
+}
+
+input[type="search"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+}
+
+input[type="search"]::placeholder {
+    color: var(--secondary-text);
+    opacity: 0.8;
+}
+
+input[type="search"]:focus {
+    outline: none;
+    border-color: var(--info);
+    box-shadow: 0 0 0 2px rgba(121, 192, 255, 0.2);
+}
+
+/* Log Entries */
+.log-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.log-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 2px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.log-header:hover {
+    background: rgba(177, 186, 196, 0.08);
+}
+
+.level {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.level.info { color: var(--info); }
+.level.error { color: var(--error); }
+.level.warning { color: var(--warning); }
+
+.datetime {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    opacity: 0.9;
+}
+
+.channel {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    opacity: 0.9;
+}
+
+.message {
+    font-size: 0.875rem;
+    color: var(--text);
+    flex-grow: 1;
+}
+
+.log-content {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--background);
+    padding: 16px !important;
+    border-top: 1px solid var(--border);
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.log-content.collapsed {
+    display: none;
+}
+
+/* Toggle Button */
+.log-header button {
+    background: none;
+    border: none;
+    padding: 4px;
+    margin-left: auto;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.log-header button:hover {
+    color: var(--text);
+}
+
+.log-header:hover button{
+    color: var(--text);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* Scrollbar */
+.log-content::-webkit-scrollbar {
+    height: 6px;
+}
+
+.log-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .log-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .timestamp {
+        order: 1;
+        width: 100%;
+        padding-left: 28px;
+    }
+
+    .message {
+        font-size: 0.8125rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+}
+
+/* Adicione estas regras ao CSS */
+.json-key {
+    color: #79C0FF; /* Azul para chaves */
+}
+
+.json-string {
+    color: #7EE787; /* Verde para strings */
+}
+
+.json-number {
+    color: #FFA657; /* Laranja para números */
+}
+
+.json-boolean {
+    color: #FF7B72; /* Vermelho para booleanos */
+}
+
+.json-null {
+    color: #848D97; /* Cinza para null */
+}
+
+.json-punctuation {
+    color: #E6EDF3; /* Cor para pontuação */
+    opacity: 0.8;
+}
+
+/* Ajustes para light theme */
+@media (prefers-color-scheme: light) {
+    .json-key { color: #0366d6; }
+    .json-string { color: #22863a; }
+    .json-number { color: #e36209; }
+    .json-boolean { color: #d73a49; }
+    .json-null { color: #6a737d; }
+    .json-punctuation { color: #24292e; }
+}
+
+/* Estilo para blocos aninhados */
+.json-indent {
+    display: inline-block;
+    width: 1.5em;
+}
+
+.json-block {
+    padding-left: 1.5em;
+    position: relative;
+}
+
+.json-block::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+    opacity: 0.3;
+}

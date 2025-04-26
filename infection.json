@@ -1,0 +1,16 @@
+{
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "logs": {
+        "text": "storage/infection/infection.txt",
+        "html": "storage/infection/infection.html"
+    },
+    "mutators": {
+        "@default": true,
+        "@cast": false
+    },
+    "testFramework": "phpunit"
+}

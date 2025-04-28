@@ -1,5 +1,3 @@
-ARTIFACT_REVISION=dev
-PROJECT_NAME=simple-log-viewer
 PROJECT_DIR=$(shell pwd)
 USER_ID=$(shell id -u)
 USER_GROUP=$(shell id -g)
@@ -14,13 +12,13 @@ DOCKER_CONTAINER_RUN=docker container run \
 	-m 1024m \
 	-u $(USER_ID):$(USER_GROUP) \
 	-v $(PROJECT_DIR):/app \
-	-w /app silvanei/$(PROJECT_NAME):$(ARTIFACT_REVISION)
+	-w /app silvanei/simple-log-viewer:dev
 
 .PHONY: default
 default: image;
 
 image:
-	docker build --target development -t silvanei/$(PROJECT_NAME):$(ARTIFACT_REVISION) .
+	docker build --target development -t silvanei/simple-log-viewer:dev .
 
 install:
 	$(DOCKER_CONTAINER_RUN) composer install

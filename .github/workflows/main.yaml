@@ -4,25 +4,8 @@ on:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache Composer Downloads
-        uses: actions/cache@v4
-        with:
-          path: vendor/
-          key: ${{ runner.OS }}-composer-${{ hashFiles('**/composer.lock') }}
-
-      - name: Build development image
-        run: make image
-
-      - name: Composer install
-        run: make
 
   code-linter:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,13 +20,12 @@ jobs:
         run: make image
 
       - name: Composer install
-        run: make
+        run: make install
 
       - name: Run linter
         run: make phpcs
 
   code-static-analyse:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,13 +40,12 @@ jobs:
         run: make image
 
       - name: Composer install
-        run: make
+        run: make install
 
       - name: Run static analyse
         run: make phpstan
 
   unit-test:
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +60,7 @@ jobs:
         run: make image
 
       - name: Composer install
-        run: make
+        run: make install
 
       - name: Run unit tests
         run: make test

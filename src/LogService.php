@@ -7,6 +7,7 @@ namespace S3\Log\Viewer;
 use Clue\React\Sse\BufferedChannel;
 use JsonException;
 use PDO;
+use PDOException;
 use React\EventLoop\Loop;
 use React\Stream\ThroughStream;
 
@@ -76,15 +77,19 @@ readonly class LogService
             );
         }
 
-        $stmt->execute();
-        /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string}[] $rows */
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt->execute();
+            /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string}[] $rows */
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $html = '';
-        foreach ($rows as $line) {
-            $html .= $this->renderLog($line);
+            $html = '';
+            foreach ($rows as $line) {
+                $html .= $this->renderLog($line);
+            }
+            return $html;
+        } catch (PDOException) {
+            return '';
         }
-        return $html;
     }
 
     /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $line */

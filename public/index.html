@@ -39,15 +39,20 @@
     </div>
 
     <script>
-        const storedTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        document.documentElement.setAttribute('data-theme', storedTheme);
+        const themeStorageKey = 'logViewerTheme';
+        const savedTheme = localStorage.getItem(themeStorageKey);
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const initialTheme = savedTheme || systemTheme;
+
+        document.documentElement.classList.add(initialTheme);
 
         document.getElementById('theme-toggle').addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
 
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            document.documentElement.classList.remove(isDark ? 'dark' : 'light');
+            document.documentElement.classList.add(newTheme);
+            localStorage.setItem(themeStorageKey, newTheme);
         });
     </script>
 </body>

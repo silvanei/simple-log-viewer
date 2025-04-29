@@ -1,8 +1,8 @@
 /* styles.css */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-:root {
-    /* Light Theme */
+/* Light Theme (default) */
+html {
     --background: #ffffff;
     --surface: #f8f9fa;
     --text: #24292e;
@@ -12,20 +12,35 @@
     --info: #17a2b8;
     --warning: #ffc107;
     --success: #28a745;
+
+    /* JSON Syntax */
+    --json-key: #0366d6;
+    --json-string: #22863a;
+    --json-number: #e36209;
+    --json-boolean: #d73a49;
+    --json-null: #6a737d;
+    --json-punctuation: #24292e;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        /* Dark Theme - LiveTail Style */
-        --background: #0D1117;
-        --surface: #161B22;
-        --text: #E6EDF3;
-        --border: #30363D;
-        --secondary-text: #848D97;
-        --error: #FF7B72;
-        --info: #79C0FF;
-        --warning: #D29922;
-    }
+/* Dark Theme */
+html.dark {
+    --background: #0D1117;
+    --surface: #161B22;
+    --text: #E6EDF3;
+    --border: #30363D;
+    --secondary-text: #848D97;
+    --error: #FF7B72;
+    --info: #79C0FF;
+    --warning: #D29922;
+    --success: #86efac;
+
+    /* JSON Syntax */
+    --json-key: #79C0FF;
+    --json-string: #7EE787;
+    --json-number: #FFA657;
+    --json-boolean: #FF7B72;
+    --json-null: #848D97;
+    --json-punctuation: #E6EDF3;
 }
 
 /* Base Styles */
@@ -35,6 +50,7 @@ body {
     background: var(--background);
     color: var(--text);
     line-height: 1.6;
+    transition: background-color 0.2s ease, color 0.3s ease;
 }
 
 .container {
@@ -47,7 +63,6 @@ h1 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    color: var(--text);
 }
 
 /* Search Input */
@@ -165,10 +180,6 @@ input[type="search"]:focus {
     color: var(--text);
 }
 
-.log-header:hover button{
-    color: var(--text);
-}
-
 .rotate-180 {
     transform: rotate(180deg);
 }
@@ -210,43 +221,14 @@ input[type="search"]:focus {
     }
 }
 
-/* Adicione estas regras ao CSS */
-.json-key {
-    color: #79C0FF; /* Azul para chaves */
-}
+/* JSON Syntax Highlighting */
+.json-key { color: var(--json-key); }
+.json-string { color: var(--json-string); }
+.json-number { color: var(--json-number); }
+.json-boolean { color: var(--json-boolean); }
+.json-null { color: var(--json-null); }
+.json-punctuation { color: var(--json-punctuation); }
 
-.json-string {
-    color: #7EE787; /* Verde para strings */
-}
-
-.json-number {
-    color: #FFA657; /* Laranja para números */
-}
-
-.json-boolean {
-    color: #FF7B72; /* Vermelho para booleanos */
-}
-
-.json-null {
-    color: #848D97; /* Cinza para null */
-}
-
-.json-punctuation {
-    color: #E6EDF3; /* Cor para pontuação */
-    opacity: 0.8;
-}
-
-/* Ajustes para light theme */
-@media (prefers-color-scheme: light) {
-    .json-key { color: #0366d6; }
-    .json-string { color: #22863a; }
-    .json-number { color: #e36209; }
-    .json-boolean { color: #d73a49; }
-    .json-null { color: #6a737d; }
-    .json-punctuation { color: #24292e; }
-}
-
-/* Estilo para blocos aninhados */
 .json-indent {
     display: inline-block;
     width: 1.5em;
@@ -277,7 +259,7 @@ header {
 }
 
 .theme-toggle {
-    background: rgba(136, 136, 136, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
     padding: 0.5rem;
     cursor: pointer;
@@ -299,33 +281,20 @@ header {
     background: rgba(0, 0, 0, 0.05);
 }
 
-.moon { display: none; }
+/* Ícones */
 .sun { display: block; }
+.moon { display: none; }
 
-[data-theme="dark"] .moon { display: block; }
-[data-theme="dark"] .sun { display: none; }
+html.dark .sun { display: none; }
+html.dark .moon { display: block; }
 
-/* Dark Mode Styles */
-[data-theme="dark"] {
-    --background: #0D1117;
-    --surface: #161B22;
-    --text: #E6EDF3;
-    --border: #30363D;
-    --secondary-text: #848D97;
-    --error: #FF7B72;
-    --info: #79C0FF;
-    --warning: #D29922;
-    --success: #86efac;
-}
-
-[data-theme="dark"] .theme-toggle {
+/* Dark Mode Toggle Adjustments */
+html.dark .theme-toggle {
     background: rgba(255, 255, 255, 0.05);
-    border-color: #454F5E;
+    border-color: var(--border);
 }
-[data-theme="dark"] .theme-toggle:hover {
+
+html.dark .theme-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: #64748b;
-}
-[data-theme="dark"] .theme-toggle svg {
-    stroke: #E6EDF3;
 }

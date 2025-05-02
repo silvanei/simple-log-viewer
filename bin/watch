@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+function execute() {
+    docker compose down -t 0
+    docker compose up -d
+}
+
+function sigintHandler() {
+  docker compose down
+  exit 0
+}
+
+trap 'sigintHandler' SIGINT
+
+execute
+
+inotifywait --quiet --recursive --monitor --event modify --exclude ".php~$" --format "%w%f" src/ |
+  while read change; do
+      echo "Updated file: ${change}"
+      execute
+  done

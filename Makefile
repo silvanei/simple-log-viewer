@@ -24,7 +24,10 @@ install:
 	$(DOCKER_CONTAINER_RUN) composer install
 
 serve:
-	docker compose up
+	docker compose up -d
+
+serve-watch:
+	./bin/watch
 
 down:
 	docker compose down

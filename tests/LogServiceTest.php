@@ -118,13 +118,13 @@ class LogServiceTest extends TestCase
         $method = $ref->getMethod('renderLog');
         $method->setAccessible(true);
 
-        $line = ['datetime' => '2025-04-28T13:00:00Z','channel' => 'test','level' => 'WARN','message' => 'hello','context' => '{"num":123,"str":"ok","bool":false,"nul":null}'];
+        $line = ['datetime' => '2025-04-28T13:00:00Z','channel' => 'test', 'level' => 'WARN', 'message' => 'hello', 'context' => '{"num":123,"str":"ok","bool":false,"nul":null}'];
         $html = $method->invoke($this->service, $line);
 
-        $this->assertStringContainsString(' <span class="json-key">"num"</span>: <span class="json-number">123</span>', $html);
-        $this->assertStringContainsString(' <span class="json-key">"str"</span>: <span class="json-string">"ok"</span>', $html);
-        $this->assertStringContainsString(' <span class="json-key">"bool"</span>: <span class="json-boolean">false</span>', $html);
-        $this->assertStringContainsString(' <span class="json-key">"nul"</span>: <span class="json-null">null</span>', $html);
+        $this->assertStringContainsString(' <span class="highlight-key">num</span>: <span class="highlight-number">123</span>', $html);
+        $this->assertStringContainsString(' <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>', $html);
+        $this->assertStringContainsString(' <span class="highlight-key">bool</span>: <span class="highlight-boolean">false</span>', $html);
+        $this->assertStringContainsString(' <span class="highlight-key">nul</span>: <span class="highlight-null">null</span>', $html);
     }
 
     public function testRenderLogLowercasesLevel(): void
@@ -149,17 +149,5 @@ class LogServiceTest extends TestCase
 
         $this->service->channel($stream, $id);
         $stream->emit('close', []);
-    }
-
-    public function testHighlightJsonHandlesEncodeException(): void
-    {
-        $ref = new \ReflectionClass(LogService::class);
-        $method = $ref->getMethod('highlightJson');
-        $method->setAccessible(true);
-
-        $decoded = ['bad' => "\xB1\x31"];
-        $html = $method->invoke($this->service, $decoded);
-
-        $this->assertEquals('<span class="json-error">Error encoding JSON: Malformed UTF-8 characters, possibly incorrectly encoded</span>', $html);
     }
 }

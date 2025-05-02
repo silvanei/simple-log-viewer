@@ -13,13 +13,13 @@ html {
     --warning: #ffc107;
     --success: #28a745;
 
-    /* JSON Syntax */
-    --json-key: #0366d6;
-    --json-string: #22863a;
-    --json-number: #e36209;
-    --json-boolean: #d73a49;
-    --json-null: #6a737d;
-    --json-punctuation: #24292e;
+    /* highlight Syntax */
+    --highlight-key: #0366d6;
+    --highlight-string: #22863a;
+    --highlight-number: #e36209;
+    --highlight-boolean: #d73a49;
+    --highlight-null: #6a737d;
+    --highlight-punctuation: #24292e;
 }
 
 /* Dark Theme */
@@ -34,13 +34,13 @@ html.dark {
     --warning: #D29922;
     --success: #86efac;
 
-    /* JSON Syntax */
-    --json-key: #79C0FF;
-    --json-string: #7EE787;
-    --json-number: #FFA657;
-    --json-boolean: #FF7B72;
-    --json-null: #848D97;
-    --json-punctuation: #E6EDF3;
+    /* highlight Syntax */
+    --highlight-key: #79C0FF;
+    --highlight-string: #7EE787;
+    --highlight-number: #FFA657;
+    --highlight-boolean: #FF7B72;
+    --highlight-null: #848D97;
+    --highlight-punctuation: #E6EDF3;
 }
 
 /* Base Styles */
@@ -157,11 +157,19 @@ input[type="search"]:focus {
     padding: 16px !important;
     border-top: 1px solid var(--border);
     margin: 0;
-    white-space: pre-wrap;
+    /*white-space: pre-wrap;*/
     overflow-x: auto;
 }
 
 .log-content.collapsed {
+    display: none;
+}
+
+.highlight-toggle {
+    margin: 0;
+}
+
+.log-content .highlight-toggle-display {
     display: none;
 }
 
@@ -176,7 +184,22 @@ input[type="search"]:focus {
     transition: transform 0.2s ease;
 }
 
+.log-content button {
+    background: none;
+    border: none;
+    padding: 0px;
+    margin-left: auto;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: inline-flex;
+}
+
 .log-header button:hover {
+    color: var(--text);
+}
+
+.log-content button:hover {
     color: var(--text);
 }
 
@@ -221,25 +244,25 @@ input[type="search"]:focus {
     }
 }
 
-/* JSON Syntax Highlighting */
-.json-key { color: var(--json-key); }
-.json-string { color: var(--json-string); }
-.json-number { color: var(--json-number); }
-.json-boolean { color: var(--json-boolean); }
-.json-null { color: var(--json-null); }
-.json-punctuation { color: var(--json-punctuation); }
+/* highlight Syntax */
+.highlight-key { color: var(--highlight-key); }
+.highlight-string { color: var(--highlight-string); }
+.highlight-number { color: var(--highlight-number); }
+.highlight-boolean { color: var(--highlight-boolean); }
+.highlight-null { color: var(--highlight-null); }
+.highlight-punctuation { color: var(--highlight-punctuation); }
 
-.json-indent {
+.highlight-indent {
     display: inline-block;
     width: 1.5em;
 }
 
-.json-block {
+.highlight-block {
     padding-left: 1.5em;
     position: relative;
 }
 
-.json-block::before {
+.highlight-block::before {
     content: "";
     position: absolute;
     left: 0;

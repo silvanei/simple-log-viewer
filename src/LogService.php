@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace S3\Log\Viewer;
 
 use Clue\React\Sse\BufferedChannel;
-use JsonException;
 use PDO;
 use PDOException;
 use React\EventLoop\Loop;
@@ -111,36 +110,44 @@ readonly class LogService
                     </svg>
                 </button>
                 <span class="datetime">{$line['datetime']}</span>
-                <span class="channel">{$line['channel']}</span>
+                <span class="channel">[{$line['channel']}]</span>
                 <span class="level $level">$level</span>
                 <span class="message">{$line['message']}</span>
             </div>
-            <pre class="log-content collapsed">{$this->highlightJson($context)}</pre>
+            <pre class="log-content collapsed">{$this->formatContent($context)}</pre>
         </div>
         HTML;
     }
 
-    /** @param array<string|int, mixed> $decoded */
-    private function highlightJson(array $decoded): string
+    /** @param array<string|int, mixed> $context */
+    private function formatContent(array $context, int $deep = 1, bool $isList = false): string
     {
-        try {
-            $formattedJson = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            return '<span class="json-error">Error encoding JSON: ' . htmlspecialchars($e->getMessage()) . '</span>';
+        $button = <<<HTML
+        <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="16">
+                <path 
+                    fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                    clip-rule="evenodd"
+                />
+            </svg>
+        </button>
+
+        HTML;
+
+        $tab = str_repeat(' ', $deep * 2);
+        $html = '';
+        foreach ($context as $key => $value) {
+            $html .= $isList ? $tab : $tab . '<span class="highlight-key">' . $key . '</span>: ';
+            $html .= match (true) {
+                is_array($value) && array_is_list($value) => $button . '<span class="highlight-toggle">' . $this->formatContent($value, $deep + 1, true) . '</span>',
+                is_array($value) => $button . '<span class="highlight-toggle">' . $this->formatContent($value, $deep + 1) . '</span>',
+                is_string($value) => '<span class="highlight-string">"' . htmlspecialchars(str_replace("\n", "\n  $tab", $value)) . '"</span>'  . "\n",
+                is_numeric($value) => '<span class="highlight-number">' . $value . '</span>' . "\n",
+                is_null($value) => '<span class="highlight-null">null</span>' . "\n",
+                is_bool($value) => '<span class="highlight-boolean">' . ($value ? 'true' : 'false') . '</span>' . "\n",
+                default => '<span class="highlight-string">"Type not mapped"</span>' . "\n",
+            };
         }
-
-        $patterns = [
-            '/^( *)"(.*?)":/m' => fn(array $m) => $m[1] . '<span class="json-key">"' . htmlspecialchars($m[2]) . '"</span>:',
-            '/: "((.*?|[^"\\\\]).*)"/m' => fn(array $m) => ': <span class="json-string">"' . htmlspecialchars($m[1]) . '"</span>',
-            '/(:\s*)(-?\d+(\.\d+)?([eE][+-]?\d+)?)/m' => fn(array $m) => $m[1] . '<span class="json-number">' . $m[2] . '</span>',
-            '/(:\s*)(true|false)/m' => fn(array $m) => $m[1] . '<span class="json-boolean">' . $m[2] . '</span>',
-            '/(:\s*)null/m' => fn(array $m) => $m[1] . '<span class="json-null">null</span>',
-        ];
-
-        foreach ($patterns as $pattern => $callback) {
-            $formattedJson = preg_replace_callback($pattern, $callback, $formattedJson ?? '');
-        }
-
-        return $formattedJson ?? '';
+        return $html;
     }
 }

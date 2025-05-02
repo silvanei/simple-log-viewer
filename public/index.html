@@ -54,6 +54,50 @@
             document.documentElement.classList.add(newTheme);
             localStorage.setItem(themeStorageKey, newTheme);
         });
+
+        window.copyJSON = async function(event) {
+            const btn = event.currentTarget;
+            const logContent = btn.closest('.log-content');
+            const encodedData = logContent?.dataset?.json;
+
+            if (!encodedData) {
+                showFeedback(btn, 'No data to copy!', false);
+                return;
+            }
+
+            try {
+                const decoded = atob(encodedData);
+                // Fallback para navegadores antigos
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(decoded);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = decoded;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+                showFeedback(btn, 'Copied!', true);
+            } catch (error) {
+                showFeedback(btn, 'Copy failed!', false);
+                console.error('Copy error:', error);
+            }
+        }
+
+        function showFeedback(button, text, success) {
+            const originalHTML = button.innerHTML;
+            const color = success ? 'var(--text)' : 'var(--error)';
+
+            button.innerHTML = `<span style="color:${color}">${text}</span>`;
+            button.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.pointerEvents = 'auto';
+            }, 1000);
+        }
+
     </script>
 </body>
 </html>

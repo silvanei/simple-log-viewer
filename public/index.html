@@ -103,7 +103,7 @@
             const isExpanding = !btn.classList.contains('expanded');
             const logContent = btn.closest('.log-content');
             const highlights = Element.prototype.querySelectorAll.call(logContent, '.highlight-toggle');
-            const btnToggle = Element.prototype.querySelectorAll.call(logContent, '.btn-toggle');
+            const iconToggle = Element.prototype.querySelectorAll.call(logContent, '.icon-toggle');
 
             btn.classList.toggle('expanded');
             btn.querySelector('span').textContent = isExpanding ? 'Collapse All' : 'Expand All';
@@ -114,7 +114,7 @@
                     el.classList.add('highlight-toggle-display');
             });
 
-            btnToggle.forEach(el => {
+            iconToggle.forEach(el => {
                 isExpanding ?
                     el.classList.add('rotate-180') :
                     el.classList.remove('rotate-180');

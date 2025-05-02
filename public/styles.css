@@ -194,7 +194,7 @@ input[type="search"]:focus {
     display: inline-flex;
 }
 
-.log-content .group-buttons {
+.log-content .log-actions {
     padding-left: 14px;
     padding-bottom: 8px;
 }
@@ -324,4 +324,13 @@ html.dark .theme-toggle {
 html.dark .theme-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: #64748b;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+
+.toggle-highlight-btn.expanded .toggle-icon {
+    transform: rotate(180deg);
 }

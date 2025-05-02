@@ -154,7 +154,6 @@ input[type="search"]:focus {
     line-height: 1.5;
     color: var(--text);
     background: var(--background);
-    padding: 16px !important;
     border-top: 1px solid var(--border);
     margin: 0;
     /*white-space: pre-wrap;*/
@@ -193,6 +192,11 @@ input[type="search"]:focus {
     cursor: pointer;
     transition: transform 0.2s ease;
     display: inline-flex;
+}
+
+.log-content .group-buttons {
+    padding-left: 14px;
+    padding-bottom: 8px;
 }
 
 .log-header button:hover {

@@ -97,6 +97,8 @@ readonly class LogService
         $level = strtolower($line['level']);
         /** @var array<string|int, mixed> $context */
         $context = json_decode($line['context'], true);
+        $jsonEncoded = base64_encode($line['context']);
+        $jsonContent = htmlspecialchars($jsonEncoded);
 
         return <<<HTML
         <div class="log-entry">
@@ -114,7 +116,18 @@ readonly class LogService
                 <span class="level $level">$level</span>
                 <span class="message">{$line['message']}</span>
             </div>
-            <pre class="log-content collapsed">{$this->formatContent($context)}</pre>
+            <div class="log-content collapsed" data-json="$jsonContent">
+                <pre>{$this->formatContent($context)}</pre>
+                <div class="group-buttons">
+                    <button class="copy-json-btn" _="on click copyJSON(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Copy JSON
+                    </button>
+                </div>
+            </div>
         </div>
         HTML;
     }
@@ -139,8 +152,9 @@ readonly class LogService
         foreach ($context as $key => $value) {
             $html .= $isList ? $tab : $tab . '<span class="highlight-key">' . $key . '</span>: ';
             $html .= match (true) {
-                is_array($value) && array_is_list($value) => $button . '<span class="highlight-toggle">' . $this->formatContent($value, $deep + 1, true) . '</span>',
-                is_array($value) => $button . '<span class="highlight-toggle">' . $this->formatContent($value, $deep + 1) . '</span>',
+                is_array($value) && array_is_list($value)
+                    => $button . '<span class="highlight-toggle-display highlight-toggle">' . $this->formatContent($value, $deep + 1, true) . '</span>',
+                is_array($value) => $button . '<span class="highlight-toggle-display highlight-toggle">' . $this->formatContent($value, $deep + 1) . '</span>',
                 is_string($value) => '<span class="highlight-string">"' . htmlspecialchars(str_replace("\n", "\n  $tab", $value)) . '"</span>'  . "\n",
                 is_numeric($value) => '<span class="highlight-number">' . $value . '</span>' . "\n",
                 is_null($value) => '<span class="highlight-null">null</span>' . "\n",

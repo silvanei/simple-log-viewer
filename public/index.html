@@ -98,6 +98,22 @@
             }, 1000);
         }
 
+        function toggleHighlight(event) {
+            const btn = event.currentTarget;
+            const isExpanding = !btn.classList.contains('expanded');
+            const logContent = btn.closest('.log-content');
+            const highlights = Element.prototype.querySelectorAll.call(logContent, '.highlight-toggle');
+
+            btn.classList.toggle('expanded');
+            btn.querySelector('span').textContent = isExpanding ? 'Collapse All' : 'Expand All';
+
+            highlights.forEach(el => {
+                isExpanding ?
+                    el.classList.remove('highlight-toggle-display') :
+                    el.classList.add('highlight-toggle-display');
+            });
+        }
+
     </script>
 </body>
 </html>

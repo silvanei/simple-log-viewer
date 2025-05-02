@@ -118,7 +118,16 @@ readonly class LogService
             </div>
             <div class="log-content collapsed" data-json="$jsonContent">
                 <pre>{$this->formatContent($context)}</pre>
-                <div class="group-buttons">
+                <div class="log-actions">
+                    <button class="toggle-highlight-btn" _="on click toggleHighlight(event)">
+                        <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                            <path 
+                                fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                        <span>Expand All</span>
+                    </button>
                     <button class="copy-json-btn" _="on click copyJSON(event)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>

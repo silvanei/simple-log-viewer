@@ -36,7 +36,7 @@ readonly class LogService
         $stream->on('close', fn() => $this->channel->disconnect($stream));
     }
 
-    /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $log */
+    /** @param array{'datetime':? string, 'channel':? string, 'level':? string, 'message':? string, 'context':? array<mixed>} $log */
     public function add(array $log): void
     {
         $stmt = $this->storage->prepare(<<<QUERY

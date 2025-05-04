@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\Controller;
 
+use Generator;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use S3\Log\Viewer\Controller\ApiLogsAction;
 use S3\Log\Viewer\LogService;
@@ -20,99 +25,97 @@ class ApiLogsActionTest extends TestCase
         'context' => []
     ];
 
-    /** @throws Exception */
-    public function testInvokeWithValidDataReturns201Response(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode(self::VALID_DATA));
+    private ServerRequestInterface&MockObject $request;
+    private LogService&MockObject $logService;
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->once())
+    /** @throws Exception */
+    #[Before]
+    protected function init(): void
+    {
+        $this->request = $this->createMock(ServerRequestInterface::class);
+        $this->request
+            ->method('getHeaderLine')
+            ->with('Content-Type')
+            ->willReturn('application/json');
+
+        $this->logService = $this->createMock(LogService::class);
+    }
+
+    public function testWithValidDataReturns201Response(): void
+    {
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode(self::VALID_DATA));
+        $this->logService->expects($this->once())
             ->method('add')
             ->with(self::VALID_DATA);
 
-        $response = (new ApiLogsAction($logService))($request);
+        $response = $this->executeAction();
 
         $this->assertSame(201, $response->getStatusCode());
         $this->assertSame('Received log', (string) $response->getBody());
         $this->assertEmpty($response->getHeader('Content-Type'));
     }
 
-    /** @throws Exception */
     public function testInvokeWithInvalidJsonReturns400Response(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn('invalid json');
+        $this->request
+            ->method('getBody')
+            ->willReturn('invalid json');
+        $this->logService
+            ->expects($this->never())
+            ->method('add');
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->never())->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
+        $response = $this->executeAction();
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertEquals('Syntax error', (string) $response->getBody());
         $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
     }
 
-    /** @throws Exception */
     public function testInvokeWhenLogServiceThrowsExceptionReturns400(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode(self::VALID_DATA));
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode(self::VALID_DATA));
+        $this->logService
+            ->method('add')
+            ->willThrowException(new \RuntimeException($expectedMessage = 'Service unavailable'));
 
-        $exception = new \RuntimeException('Service unavailable');
-
-        $logService = $this->createMock(LogService::class);
-        $logService->method('add')->willThrowException($exception);
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
+        $response = $this->executeAction();
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame($exception->getMessage(), (string) $response->getBody());
+        $this->assertSame($expectedMessage, (string) $response->getBody());
         $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
     }
 
     /** @throws Exception */
     public function testInvokeWithUnsupportedMediaTypeReturns415Response(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('text/plain');
+        $this->request = $this->createMock(ServerRequestInterface::class);
+        $this->request
+            ->method('getHeaderLine')
+            ->with('Content-Type')
+            ->willReturn('text/plain');
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->never())->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
+        $response = $this->executeAction();
 
         $this->assertSame(415, $response->getStatusCode());
         $this->assertSame('Unsupported Media Type', (string) $response->getBody());
         $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
     }
 
-    /** @throws Exception */
-    public function testInvokeWithValidationErrorsReturns400Response(): void
+    public function testInvokeWithMissingRequiredFieldsReturns400Response(): void
     {
-        $invalidData = [
-            'datetime' => 'invalid-datetime',
-            'channel' => 'ch',
-            'level' => 'invalid-level',
-            'message' => 'te',
-        ];
+        $invalidData = [];
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode($invalidData));
+        $this->logService
+            ->expects($this->never())
+            ->method('add');
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->never())->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
+        $response = $this->executeAction();
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
@@ -123,166 +126,157 @@ class ApiLogsActionTest extends TestCase
         $this->assertStringContainsString('Invalid or missing context', (string) $response->getBody());
     }
 
-    /** @throws Exception */
-    public function testInvokeWithInvalidChannelLengthReturns400Response(): void
+    public static function channelDataProvider(): Generator
     {
-        $invalidData = self::VALID_DATA;
-        $invalidData['channel'] = str_repeat('a', 256);
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->once())->method('add');
-        $action = new ApiLogsAction($logService);
-
-        $response = $action->__invoke($request);
-
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing channel', (string) $response->getBody());
-
-        $invalidData['channel'] = str_repeat('a', 255);
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $response = $action->__invoke($request);
-
-        $this->assertSame(201, $response->getStatusCode());
+        yield 'Before min length' => [
+            'channel' => str_repeat('a', 2),
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing channel'
+        ];
+        yield 'Min length' => [
+            'channel' => str_repeat('a', 3),
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Max length' => [
+            'channel' => str_repeat('a', 255),
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'After max length' => [
+            'channel' => str_repeat('a', 256),
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing channel'
+        ];
     }
 
-    /** @throws Exception */
-    public function testInvokeWithInvalidMessageLengthReturns400Response(): void
+    #[DataProvider('channelDataProvider')]
+    public function testInvokeWithChannelLength(string $channel, int $expectedStatusCode, string $expectedResponseBody): void
     {
-        $invalidData = self::VALID_DATA;
-        $invalidData['message'] = 'ab';
+        $invalidData = [...self::VALID_DATA, ...['channel' => $channel]];
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode($invalidData));
+        $this->logService
+            ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
+            ->method('add');
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
+        $response = $this->executeAction();
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->once())->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
-
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing message', (string) $response->getBody());
-
-        $invalidData['message'] = str_repeat('a', 256); // Exceeds maximum length
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
-
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing message', (string) $response->getBody());
-
-        $invalidData['message'] = 'abc';
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
-
-        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame($expectedStatusCode, $response->getStatusCode());
+        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
     }
 
-    /** @throws Exception */
-    public function testInvokeWithChannelLengthEdgeCases(): void
+    public static function levelDataProvider(): Generator
     {
-        $invalidData = self::VALID_DATA;
-        $invalidData['channel'] = 'abc'; // Minimum valid length
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->exactly(1))->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
-
-        $this->assertSame(201, $response->getStatusCode());
-
-        $invalidData['channel'] = 'ab'; // Invalid length
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $response = $action->__invoke($request);
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing channel', (string) $response->getBody());
-
-        $invalidData['channel'] = str_repeat('a', 256); // Exceeds maximum length
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $response = $action->__invoke($request);
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing channel', (string) $response->getBody());
+        yield 'DEBUG' => [
+            'level' => 'debug',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'INFO' => [
+            'level' => 'info',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'NOTICE' => [
+            'level' => 'notice',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'WARNING' => [
+            'level' => 'warning',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'ERROR' => [
+            'level' => 'error',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'CRITICAL' => [
+            'level' => 'critical',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'ALERT' => [
+            'level' => 'alert',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'EMERGENCY' => [
+            'level' => 'emergency',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'INVALID-LEVEL' => [
+            'level' => 'invalid-level',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing level'
+        ];
     }
 
-    /** @throws Exception */
-    public function testInvokeWithLevelEdgeCases(): void
+    #[DataProvider('levelDataProvider')]
+    public function testInvokeWithLevelLength(string $level, int $expectedStatusCode, string $expectedResponseBody): void
     {
-        $invalidData = self::VALID_DATA;
-        $invalidData['level'] = 'debug'; // Valid level but lowercase
+        $invalidData = [...self::VALID_DATA, ...['level' => $level]];
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode($invalidData));
+        $this->logService
+            ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
+            ->method('add');
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
+        $response = $this->executeAction();
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->exactly(1))->method('add');
-
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
-
-        $this->assertSame(201, $response->getStatusCode());
-
-        $invalidData['level'] = 'invalid'; // Invalid level
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $response = $action->__invoke($request);
-        $this->assertSame(400, $response->getStatusCode()); // Adjusted to correctly validate the invalid level case
-        $this->assertStringContainsString('Invalid or missing level', (string) $response->getBody());
+        $this->assertSame($expectedStatusCode, $response->getStatusCode());
+        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
     }
 
-    /** @throws Exception */
-    public function testInvokeWithMessageLengthEdgeCases(): void
+    public static function messageDataProvider(): Generator
     {
-        $invalidData = self::VALID_DATA;
-        $invalidData['message'] = str_repeat('a', 255); // Maximum valid length
+        yield 'Before min length' => [
+            'message' => str_repeat('a', 2),
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing message'
+        ];
+        yield 'Min length' => [
+            'message' => str_repeat('a', 3),
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Max length' => [
+            'message' => str_repeat('a', 255),
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'After max length' => [
+            'message' => str_repeat('a', 256),
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing message'
+        ];
+    }
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
+    #[DataProvider('messageDataProvider')]
+    public function testInvokeWithMessageLength(string $message, int $expectedStatusCode, string $expectedResponseBody): void
+    {
+        $invalidData = [...self::VALID_DATA, ...['message' => $message]];
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode($invalidData));
+        $this->logService
+            ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
+            ->method('add');
 
-        $logService = $this->createMock(LogService::class);
-        $logService->expects($this->exactly(1))->method('add');
+        $response = $this->executeAction();
 
-        $action = new ApiLogsAction($logService);
-        $response = $action->__invoke($request);
+        $this->assertSame($expectedStatusCode, $response->getStatusCode());
+        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+    }
 
-        $this->assertSame(201, $response->getStatusCode());
-
-        $invalidData['message'] = ''; // Invalid length
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Content-Type')->willReturn('application/json');
-        $request->method('getBody')->willReturn(json_encode($invalidData));
-
-        $response = $action->__invoke($request);
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('Invalid or missing message', (string) $response->getBody());
+    private function executeAction(): ResponseInterface
+    {
+        $action = new ApiLogsAction($this->logService);
+        return $action->__invoke($this->request);
     }
 }

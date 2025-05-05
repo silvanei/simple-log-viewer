@@ -1,40 +1,99 @@
 # Real-time Log Viewer
 
-Provide a simple log viewer for development environment.
+A simple, real-time log viewer for development environments. This application provides a web interface to view and search logs in real-time, with support for formatted context data and log level highlighting.
 
-> **Requires [Docker](https://www.docker.com/)**
+## Features
 
-🏗️ To build the development docker image:
+- 🔄 Real-time log streaming
+- 🔍 Full-text search capability
+- 📊 Formatted context visualization with expand/collapse
+- 🎨 Dark/Light theme support
+- 🎯 Log level highlighting
+- 🔒 SQLite storage for persistence
+- 🚀 Fast and lightweight
+- 🐳 Docker support
+
+## Requirements
+
+- [Docker](https://www.docker.com/)
+
+## Quick Start
+
+1. Start the application:
 ```bash
-make
+docker compose up -d
 ```
 
-📦 To install the composer dependencies, run the command below:
+2. Access the web interface:
+```
+http://localhost:8080
+```
+
+## Development Setup
+
+1. Build the development docker image:
+```bash
+make image
+```
+
+2. Install dependencies:
 ```bash
 make install
 ```
 
-👨‍💻 To start the application, run the command below:
+3. Start the application in development mode:
 ```bash
 make serve
 ```
 
-📦 To connect on PHP container, run the command below:
+Or with auto-reload on file changes:
+```bash
+make serve-watch
+```
+
+4. Access the PHP container shell:
 ```bash
 make sh
 ```
 
-🧹 Keep a modern codebase with **PHP Linter**:
+## Code Quality Tools
+
+- Run PHP CodeSniffer:
 ```bash
 make phpcs
 ```
 
-⚗️ Run static analysis using **PHPStan**:
+- Run PHPStan static analysis:
 ```bash
 make phpstan
 ```
 
-✅ Run unit tests with **PHPUnit**
+- Run unit tests:
 ```bash
 make test
 ```
+
+## API Documentation
+
+For detailed information about sending logs to the viewer, see the [API Documentation](docs/API.md).
+
+## Environmental Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| DATABASE_DSN | :memory: | SQLite database path. Use :memory: for in-memory storage |
+| TZ | America/Sao_Paulo | Timezone for log timestamps |
+
+## Architecture
+
+The application is built using:
+- PHP 8.3
+- ReactPHP for async HTTP server
+- SQLite with FTS5 for full-text search
+- Server-Sent Events (SSE) for real-time updates
+- HTMX for dynamic UI updates
+- Hyperscript for client-side interactions
+
+## License
+
+This project is licensed under the MIT License.

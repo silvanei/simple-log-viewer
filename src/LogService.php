@@ -159,7 +159,7 @@ readonly class LogService
         $tab = str_repeat(' ', $deep * 2);
         $html = '';
         foreach ($context as $key => $value) {
-            $html .= $isList ? $tab : $tab . '<span class="highlight-key">' . $key . '</span>: ';
+            $html .= $isList ? "$tab- " : $tab . '<span class="highlight-key">' . $key . '</span>: ';
             $html .= match (true) {
                 is_array($value) && array_is_list($value)
                     => $button . '<span class="highlight-toggle-display highlight-toggle">' . $this->formatContent($value, $deep + 1, true) . '</span>',

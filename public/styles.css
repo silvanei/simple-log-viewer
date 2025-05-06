@@ -5,7 +5,7 @@
 html {
     --background: #ffffff;
     --surface: #f8f9fa;
-    --text: #24292e;
+    --text: #1f2328;
     --border: #e1e4e8;
     --secondary-text: #6a737d;
     --error: #ff4444;
@@ -21,14 +21,14 @@ html {
     --highlight-number: #e36209;
     --highlight-boolean: #d73a49;
     --highlight-null: #6a737d;
-    --highlight-punctuation: #24292e;
+    --highlight-punctuation: #1f2328;
 }
 
 /* Dark Theme */
 html.dark {
     --background: #0D1117;
     --surface: #161B22;
-    --text: #E6EDF3;
+    --text: #d1d7e0;;
     --border: #30363D;
     --secondary-text: #848D97;
     --error: #FF7B72;
@@ -44,7 +44,7 @@ html.dark {
     --highlight-number: #FFA657;
     --highlight-boolean: #FF7B72;
     --highlight-null: #848D97;
-    --highlight-punctuation: #E6EDF3;
+    --highlight-punctuation: #d1d7e0;;
 }
 
 /* Base Styles */

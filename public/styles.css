@@ -12,6 +12,8 @@ html {
     --info: #17a2b8;
     --warning: #ffc107;
     --success: #28a745;
+    --highlight: rgba(0, 0, 0, 0.05);
+    --highlight-hover: rgba(0, 0, 0, 0.1);
 
     /* highlight Syntax */
     --highlight-key: #0366d6;
@@ -33,6 +35,8 @@ html.dark {
     --info: #79C0FF;
     --warning: #D29922;
     --success: #86efac;
+    --highlight: rgba(255, 255, 255, 0.05);
+    --highlight-hover: rgba(255, 255, 255, 0.1);
 
     /* highlight Syntax */
     --highlight-key: #79C0FF;
@@ -72,13 +76,15 @@ h1 {
 
 input[type="search"] {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--surface);
     color: var(--text);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.875rem;
+    height: 40px;
+    box-sizing: border-box;
     transition: border-color 0.2s ease;
 }
 
@@ -91,6 +97,63 @@ input[type="search"]:focus {
     outline: none;
     border-color: var(--info);
     box-shadow: 0 0 0 2px rgba(121, 192, 255, 0.2);
+}
+
+/* Search Container and Button */
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-input-container input {
+    flex: 1;
+    margin-right: 8px;
+}
+
+.search-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    transition: all 0.2s ease;
+}
+
+.search-button:hover {
+    background: var(--highlight-hover);
+    border-color: #64748b;
+}
+
+.search-button svg {
+    stroke: var(--text);
+    width: 20px;
+    height: 20px;
+}
+
+.notification-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--error);
+    border-radius: 50%;
+}
+
+.notification-dot.hidden {
+    display: none;
 }
 
 /* Log Entries */
@@ -285,7 +348,7 @@ header {
 }
 
 .theme-toggle {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--surface);
     border: 1px solid var(--border);
     padding: 0.5rem;
     cursor: pointer;
@@ -297,31 +360,26 @@ header {
     transition: all 0.2s ease;
 }
 
-.theme-toggle svg {
-    stroke: var(--text);
-    width: 20px;
-    height: 20px;
-}
-
 .theme-toggle:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--highlight-hover);
+    border-color: #64748b;
 }
 
 /* Ícones */
 .sun { display: block; }
-.moon { display: none; }
+.moon { display: none; color: var(--text); }
 
 html.dark .sun { display: none; }
 html.dark .moon { display: block; }
 
 /* Dark Mode Toggle Adjustments */
 html.dark .theme-toggle {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface);
     border-color: var(--border);
 }
 
 html.dark .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--highlight-hover);
     border-color: #64748b;
 }
 

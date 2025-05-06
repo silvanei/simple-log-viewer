@@ -22,20 +22,27 @@
             </button>
         </header>
         <div class="controls">
-            <div hx-ext="sse" sse-connect="/logs-stream">
-                <label>
+            <div class="search-container">
+                <label class="search-input-container">
                     <input type="search"
+                           id="search-input"
                            name="search"
                            placeholder="Search for logs"
                            hx-get="/search"
-                           hx-trigger="sse:message, input changed delay:500ms, keyup[key=='Enter'], load"
+                           hx-trigger="search-trigger"
                            hx-target="#search-results">
+                    <button id="search-button" class="search-button" onclick="triggerSearch()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span class="notification-dot hidden"></span>
+                    </button>
                 </label>
             </div>
-
         </div>
 
-        <div id="search-results"></div>
+        <div id="search-results" hx-ext="sse" sse-connect="/logs-stream" sse-swap="message"></div>
     </div>
 
     <script>
@@ -67,7 +74,6 @@
 
             try {
                 const decoded = atob(encodedData);
-                // Fallback para navegadores antigos
                 if (navigator.clipboard) {
                     await navigator.clipboard.writeText(decoded);
                 } else {
@@ -120,6 +126,50 @@
                     el.classList.remove('rotate-180');
             });
         }
+
+        let hasNewLogs = false;
+
+        function triggerSearch() {
+            const searchInput = document.getElementById('search-input');
+            htmx.trigger(searchInput, 'search-trigger');
+            document.querySelector('.notification-dot').classList.add('hidden');
+            hasNewLogs = false;
+        }
+
+        document.getElementById('search-results').addEventListener('htmx:sseBeforeMessage', function(evt) {
+            evt.preventDefault();
+            const searchInput = document.getElementById('search-input');
+            
+            if (!searchInput.value.trim()) {
+                triggerSearch();
+            } else {
+                hasNewLogs = true;
+                document.querySelector('.notification-dot').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('search-results').addEventListener('htmx:sseOpen', function(evt) {
+            const searchInput = document.getElementById('search-input');
+            
+            if (!searchInput.value.trim()) {
+                triggerSearch();
+            } else {
+                hasNewLogs = true;
+                document.querySelector('.notification-dot').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            if (!e.target.value.trim()) {
+                triggerSearch();
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                triggerSearch();
+            }
+        });
 
     </script>
 </body>

@@ -8,6 +8,7 @@ use S3\Log\Viewer\Controller\HomeAction;
 use S3\Log\Viewer\Controller\SearchAction;
 use S3\Log\Viewer\Controller\StreamAction;
 use S3\Log\Viewer\LogService;
+use S3\Log\Viewer\Storage\LogStorageSQLite;
 
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';
@@ -18,7 +19,7 @@ require 'vendor/autoload.php';
         touch($databaseDsn);
     }
     $storage = new PDO("sqlite:$databaseDsn");
-    $logService = new LogService($storage);
+    $logService = new LogService(new LogStorageSQLite($storage));
 
     $application = new Application();
     $application->get('/', new HomeAction());

@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use Clue\React\Sse\BufferedChannel;
 use S3\Log\Viewer\Application;
 use S3\Log\Viewer\Controller\ApiLogsAction;
 use S3\Log\Viewer\Controller\ClearLogsAction;
 use S3\Log\Viewer\Controller\HomeAction;
 use S3\Log\Viewer\Controller\SearchAction;
 use S3\Log\Viewer\Controller\StreamAction;
+use S3\Log\Viewer\EventDispatcher\GenericEventDispatcher;
+use S3\Log\Viewer\EventDispatcher\Handler\StreamChannelHandler;
 use S3\Log\Viewer\LogService;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
 
@@ -20,7 +23,10 @@ require 'vendor/autoload.php';
         touch($databaseDsn);
     }
     $storage = new PDO("sqlite:$databaseDsn");
-    $logService = new LogService(new LogStorageSQLite($storage));
+
+    $channel = new BufferedChannel();
+    $eventDispatcher = new GenericEventDispatcher(new StreamChannelHandler($channel));
+    $logService = new LogService(new LogStorageSQLite($storage), $eventDispatcher);
 
     $application = new Application();
     $application->get('/', new HomeAction());

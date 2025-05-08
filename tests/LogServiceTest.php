@@ -12,10 +12,12 @@ use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Stream\ThroughStream;
 use S3\Log\Viewer\LogService;
+use S3\Log\Viewer\Storage\LogStorage;
+use S3\Log\Viewer\Storage\LogStorageSQLite;
 
 class LogServiceTest extends TestCase
 {
-    private PDO $pdo;
+    private LogStorage $logStorage;
     private BufferedChannel&MockObject $channelMock;
     private LogService $service;
 
@@ -27,69 +29,20 @@ class LogServiceTest extends TestCase
         Loop::set($loopMock);
 
         // PDO in-memory e mock do canal SSE
-        $this->pdo = new PDO('sqlite::memory:');
+        $this->logStorage = new LogStorageSQLite(new PDO('sqlite::memory:'));
         $this->channelMock = $this->createMock(BufferedChannel::class);
 
-        $this->service = new LogService($this->pdo, $this->channelMock);
-    }
-
-    public function testConstructorCreatesFts5Table(): void
-    {
-        $stmt = $this->pdo->query("PRAGMA table_info('logs')");
-        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN, 1);
-
-        $this->assertContains('datetime', $columns);
-        $this->assertContains('channel', $columns);
-        $this->assertContains('level', $columns);
-        $this->assertContains('message', $columns);
-        $this->assertContains('context', $columns);
-    }
-
-    public function testConstructorSetsErrModeAndForeignKeys(): void
-    {
-        $errMode = $this->pdo->getAttribute(PDO::ATTR_ERRMODE);
-        $this->assertSame(PDO::ERRMODE_EXCEPTION, $errMode, 'Errmode should be ERRMODE_EXCEPTION');
-
-        $foreign = $this->pdo->query('PRAGMA foreign_keys')->fetchColumn();
-        $this->assertEquals('1', (string)$foreign, 'Foreign keys should be enabled');
-    }
-
-    public function testAddInsertsAndEmitsMessage(): void
-    {
-        $log = [
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel'  => 'app',
-            'level'    => 'INFO',
-            'message'  => 'Test message',
-            'context'  => ['foo' => 'bar'],
-        ];
-
-        $this->channelMock
-            ->expects($this->once())
-            ->method('writeMessage')
-            ->with('Received new log');
-
-        $this->service->add($log);
-
-        $row = $this->pdo->query("SELECT datetime, channel, level, message, context FROM logs")->fetch(PDO::FETCH_ASSOC);
-        $this->assertSame($log['datetime'], $row['datetime']);
-        $this->assertSame($log['channel'], $row['channel']);
-        $this->assertSame($log['level'], $row['level']);
-        $this->assertSame($log['message'], $row['message']);
-        $this->assertSame(json_encode($log['context'], JSON_UNESCAPED_UNICODE), $row['context']);
+        $this->service = new LogService($this->logStorage, $this->channelMock);
     }
 
     public function testSearchWithoutFilterReturnsAll(): void
     {
         $entries = [
-            ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => '{"x":1}'],
-            ['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => '{"y":2}'],
+            ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]],
+            ['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2]],
         ];
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO logs (datetime, channel, level, message, context) VALUES (:datetime,:channel,:level,:message,:context)"
-        );
         foreach ($entries as $e) {
-            $stmt->execute($e);
+            $this->service->add($e);
         }
 
         $html = $this->service->search('');

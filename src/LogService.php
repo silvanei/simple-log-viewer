@@ -5,29 +5,16 @@ declare(strict_types=1);
 namespace S3\Log\Viewer;
 
 use Clue\React\Sse\BufferedChannel;
-use PDO;
-use PDOException;
 use React\EventLoop\Loop;
 use React\Stream\ThroughStream;
+use S3\Log\Viewer\Storage\LogStorage;
 
 readonly class LogService
 {
     public function __construct(
-        private PDO $storage,
+        private LogStorage $storage,
         private BufferedChannel $channel = new BufferedChannel()
     ) {
-        $this->storage->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->storage->exec('PRAGMA foreign_keys = ON');
-        $this->storage->exec(<<<SQL
-            CREATE VIRTUAL TABLE IF NOT EXISTS logs USING fts5(
-                datetime,
-                channel,
-                level,
-                message,
-                context
-            );
-            SQL
-        );
     }
 
     public function channel(ThroughStream $stream, string $id): void
@@ -36,59 +23,23 @@ readonly class LogService
         $stream->on('close', fn() => $this->channel->disconnect($stream));
     }
 
-    /** @param array{'datetime':? string, 'channel':? string, 'level':? string, 'message':? string, 'context':? array<mixed>} $log */
+    /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>} $log */
     public function add(array $log): void
     {
-        $stmt = $this->storage->prepare(<<<QUERY
-            INSERT INTO logs (datetime, channel, level, message, context) 
-            VALUES (:datetime, :channel, :level, :message, :context)
-            QUERY
-        );
-        $stmt->bindValue(':datetime', $log['datetime']);
-        $stmt->bindValue(':channel', $log['channel']);
-        $stmt->bindValue(':level', $log['level']);
-        $stmt->bindValue(':message', $log['message']);
-        $stmt->bindValue(':context', json_encode($log['context'], JSON_UNESCAPED_UNICODE));
-        $stmt->execute();
+        $this->storage->add($log);
 
         $this->channel->writeMessage('Received new log');
     }
 
     public function search(string $filter): string
     {
-        if ($filter) {
-            $stmt = $this->storage->prepare(<<<SQL
-                SELECT datetime, channel, level, message, context
-                FROM logs
-                WHERE logs MATCH :q
-                ORDER BY bm25(logs), logs.datetime DESC
-                LIMIT 100
-                SQL
-            );
-            $stmt->bindValue(':q', $filter, PDO::PARAM_STR);
-        } else {
-            $stmt = $this->storage->prepare(<<<SQL
-                SELECT datetime, channel, level, message, context
-                FROM logs
-                ORDER BY logs.datetime DESC
-                LIMIT 100
-                SQL
-            );
+        /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string}[] $rows */
+        $rows = $this->storage->search($filter);
+        $html = '';
+        foreach ($rows as $line) {
+            $html .= $this->renderLog($line);
         }
-
-        try {
-            $stmt->execute();
-            /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string}[] $rows */
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $html = '';
-            foreach ($rows as $line) {
-                $html .= $this->renderLog($line);
-            }
-            return $html;
-        } catch (PDOException) {
-            return '';
-        }
+        return $html;
     }
 
     /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $line */

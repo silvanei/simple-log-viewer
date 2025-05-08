@@ -13,4 +13,6 @@ interface LogStorage
 
     /** @return array{datetime: string, channel: string, level: string, message: string, context: string}[] */
     public function search(string $filter): array;
+
+    public function clear(): void;
 }

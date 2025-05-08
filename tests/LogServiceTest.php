@@ -103,4 +103,19 @@ class LogServiceTest extends TestCase
         $this->service->channel($stream, $id);
         $stream->emit('close', []);
     }
+
+    public function testClearLogsAndNotifiesChannel(): void
+    {
+        $this->service->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
+        $this->service->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
+
+        $this->channelMock
+            ->expects($this->once())
+            ->method('writeMessage')
+            ->with('Logs cleared');
+
+        $this->service->clear();
+
+        $this->assertEmpty($this->service->search(''));
+    }
 }

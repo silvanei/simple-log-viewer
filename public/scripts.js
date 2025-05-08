@@ -144,7 +144,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Clear logs functionality
+async function clearLogs() {
+    try {
+        const response = await fetch('/api/logs/clear', {
+            method: 'POST',
+        });
+        
+        if (response.ok) {
+            triggerSearch(); // Refresh the logs view
+        } else {
+            console.error('Failed to clear logs');
+        }
+    } catch (error) {
+        console.error('Error clearing logs:', error);
+    }
+}
+
 // Expose functions needed by HTML
 window.copyJSON = copyJSON;
 window.toggleHighlight = toggleHighlight;
 window.triggerSearch = triggerSearch;
+window.clearLogs = clearLogs;

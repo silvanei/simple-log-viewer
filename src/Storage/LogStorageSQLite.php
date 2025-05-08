@@ -72,4 +72,9 @@ final readonly class LogStorageSQLite implements LogStorage
             return [];
         }
     }
+
+    public function clear(): void
+    {
+        $this->storage->exec('DELETE FROM logs');
+    }
 }

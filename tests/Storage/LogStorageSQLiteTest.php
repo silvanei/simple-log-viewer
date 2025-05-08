@@ -110,4 +110,16 @@ class LogStorageSQLiteTest extends TestCase
         $this->assertSame('foo', $data[0]['message']);
         $this->assertSame(json_encode([], JSON_UNESCAPED_UNICODE), $data[0]['context']);
     }
+
+    public function testClear_ShouldRemovesAllLogs(): void
+    {
+        $this->logStorageSQLite->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
+        $this->logStorageSQLite->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
+
+        $this->assertCount(2, $this->logStorageSQLite->search(''));
+
+        $this->logStorageSQLite->clear();
+
+        $this->assertEmpty($this->logStorageSQLite->search(''));
+    }
 }

@@ -42,6 +42,12 @@ readonly class LogService
         return $html;
     }
 
+    public function clear(): void
+    {
+        $this->storage->clear();
+        $this->channel->writeMessage('Logs cleared');
+    }
+
     /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $line */
     private function renderLog(array $line): string
     {

@@ -116,7 +116,7 @@ input[type="search"]:focus {
     margin-right: 8px;
 }
 
-.search-button {
+.search-button, .clear-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,15 +131,19 @@ input[type="search"]:focus {
     transition: all 0.2s ease;
 }
 
-.search-button:hover {
+.search-button:hover, .clear-button:hover {
     background: var(--highlight-hover);
     border-color: #64748b;
 }
 
-.search-button svg {
+.search-button svg, .clear-button svg {
     stroke: var(--text);
     width: 20px;
     height: 20px;
+}
+
+.clear-button {
+    margin-left: 8px;
 }
 
 .notification-dot {

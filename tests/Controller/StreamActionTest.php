@@ -22,7 +22,7 @@ class StreamActionTest extends TestCase
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
-            ->method('channel')
+            ->method('createChannelStream')
             ->with($mockStream, '123');
 
         $action = new StreamAction($logService);
@@ -48,7 +48,7 @@ class StreamActionTest extends TestCase
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
-            ->method('channel')
+            ->method('createChannelStream')
             ->with($mockStream, '');
 
         $action = new StreamAction($logService);

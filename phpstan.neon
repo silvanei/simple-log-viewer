@@ -2,7 +2,6 @@ parameters:
     level: max
     paths:
         - src
-#        @TODO adicionar suporte aos testes
-#        - tests
+        - tests
     ignoreErrors:
         - '#Method S3\\Log\\Viewer\\Handler\\RouterHandler::dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed.#'

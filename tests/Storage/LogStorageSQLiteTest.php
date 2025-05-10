@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer\Storage;
 
 use PDO;
+use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use S3\Log\Viewer\Storage\LogStorage;
@@ -64,8 +65,10 @@ class LogStorageSQLiteTest extends TestCase
     {
         $this->logStorageSQLite->add(['datetime' => '2025-04-28T12:00:00Z', 'channel' => 'app', 'level' => 'INFO', 'message' => 'Test message', 'context' => ['foo' => 'bar']]);
 
+        $stmt = $this->pdo->query("SELECT datetime, channel, level, message, context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
         /** @var array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>} $row */
-        $row = $this->pdo->query("SELECT datetime, channel, level, message, context FROM logs")->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $this->assertSame('2025-04-28T12:00:00Z', $row['datetime']);
         $this->assertSame('app', $row['channel']);

@@ -49,12 +49,15 @@ class LogServiceTest extends TestCase
 
     public function testRenderLogOutputsHtmlWithHighlightedJson(): void
     {
-        $ref = new \ReflectionClass(LogService::class);
-        $method = $ref->getMethod('renderLog');
-        $method->setAccessible(true);
+        $this->service->add([
+            'datetime' => '2025-04-28T13:00:00Z',
+            'channel' => 'test',
+            'level' => 'WARN',
+            'message' => 'hello',
+            'context' => ['num' => 123, 'str' => 'ok', 'bool' => false, 'nul' => null]
+        ]);
 
-        $line = ['datetime' => '2025-04-28T13:00:00Z','channel' => 'test', 'level' => 'WARN', 'message' => 'hello', 'context' => '{"num":123,"str":"ok","bool":false,"nul":null}'];
-        $html = $method->invoke($this->service, $line);
+        $html = $this->service->search('');
 
         $this->assertStringContainsString(' <span class="highlight-key">num</span>: <span class="highlight-number">123</span>', $html);
         $this->assertStringContainsString(' <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>', $html);
@@ -64,12 +67,9 @@ class LogServiceTest extends TestCase
 
     public function testRenderLogLowercasesLevel(): void
     {
-        $ref = new \ReflectionClass(LogService::class);
-        $method = $ref->getMethod('renderLog');
-        $method->setAccessible(true);
+        $this->service->add(['datetime' => '2025-04-28T14:00:00Z', 'channel' => 'test', 'level' => 'ERROR', 'message' => 'oops', 'context' => []]);
 
-        $line = ['datetime' => '2025-04-28T14:00:00Z','channel' => 'test','level' => 'ERROR','message' => 'oops','context' => '{}'];
-        $html = $method->invoke($this->service, $line);
+        $html = $this->service->search('');
 
         $this->assertStringContainsString('<span class="level error">error</span>', $html);
     }

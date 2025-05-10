@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use S3\Log\Viewer\EventDispatcher\EventHandler;
 use S3\Log\Viewer\EventDispatcher\GenericEventDispatcher;
 use stdClass;
-use Test\S3\Log\Viewer\support\EventDispatcher\StdClassEventHandler;
+use Test\Support\S3\Log\Viewer\EventDispatcher\StdClassEventHandler;
 
 class GenericEventDispatcherTest extends TestCase
 {

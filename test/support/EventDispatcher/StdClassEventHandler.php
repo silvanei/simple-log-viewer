@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Test\S3\Log\Viewer\support\EventDispatcher;
+namespace Test\Support\S3\Log\Viewer\EventDispatcher;
 
 use S3\Log\Viewer\EventDispatcher\EventHandler;
 use stdClass;

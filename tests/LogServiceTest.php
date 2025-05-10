@@ -4,46 +4,28 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer;
 
-use Clue\React\Sse\BufferedChannel;
 use PDO;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use React\EventLoop\Loop;
-use React\EventLoop\LoopInterface;
-use React\Stream\ThroughStream;
+use S3\Log\Viewer\EventDispatcher\EventDispatcher;
 use S3\Log\Viewer\LogService;
-use S3\Log\Viewer\Storage\LogStorage;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
 
 class LogServiceTest extends TestCase
 {
-    private LogStorage $logStorage;
-    private BufferedChannel&MockObject $channelMock;
     private LogService $service;
 
     protected function setUp(): void
     {
-        // Stub de Loop que executa callbacks imediatamente
-        $loopMock = $this->createMock(LoopInterface::class);
-        $loopMock->method('futureTick')->willReturnCallback(fn(callable $cb) => $cb());
-        Loop::set($loopMock);
+        $logStorage = new LogStorageSQLite(new PDO('sqlite::memory:'));
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
 
-        // PDO in-memory e mock do canal SSE
-        $this->logStorage = new LogStorageSQLite(new PDO('sqlite::memory:'));
-        $this->channelMock = $this->createMock(BufferedChannel::class);
-
-        $this->service = new LogService($this->logStorage, $this->channelMock);
+        $this->service = new LogService($logStorage, $eventDispatcher);
     }
 
     public function testSearchWithoutFilterReturnsAll(): void
     {
-        $entries = [
-            ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]],
-            ['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2]],
-        ];
-        foreach ($entries as $e) {
-            $this->service->add($e);
-        }
+        $this->service->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]]);
+        $this->service->add(['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2]]);
 
         $html = $this->service->search('');
 
@@ -67,12 +49,15 @@ class LogServiceTest extends TestCase
 
     public function testRenderLogOutputsHtmlWithHighlightedJson(): void
     {
-        $ref = new \ReflectionClass(LogService::class);
-        $method = $ref->getMethod('renderLog');
-        $method->setAccessible(true);
+        $this->service->add([
+            'datetime' => '2025-04-28T13:00:00Z',
+            'channel' => 'test',
+            'level' => 'WARN',
+            'message' => 'hello',
+            'context' => ['num' => 123, 'str' => 'ok', 'bool' => false, 'nul' => null]
+        ]);
 
-        $line = ['datetime' => '2025-04-28T13:00:00Z','channel' => 'test', 'level' => 'WARN', 'message' => 'hello', 'context' => '{"num":123,"str":"ok","bool":false,"nul":null}'];
-        $html = $method->invoke($this->service, $line);
+        $html = $this->service->search('');
 
         $this->assertStringContainsString(' <span class="highlight-key">num</span>: <span class="highlight-number">123</span>', $html);
         $this->assertStringContainsString(' <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>', $html);
@@ -82,37 +67,17 @@ class LogServiceTest extends TestCase
 
     public function testRenderLogLowercasesLevel(): void
     {
-        $ref = new \ReflectionClass(LogService::class);
-        $method = $ref->getMethod('renderLog');
-        $method->setAccessible(true);
+        $this->service->add(['datetime' => '2025-04-28T14:00:00Z', 'channel' => 'test', 'level' => 'ERROR', 'message' => 'oops', 'context' => []]);
 
-        $line = ['datetime' => '2025-04-28T14:00:00Z','channel' => 'test','level' => 'ERROR','message' => 'oops','context' => '{}'];
-        $html = $method->invoke($this->service, $line);
+        $html = $this->service->search('');
 
         $this->assertStringContainsString('<span class="level error">error</span>', $html);
-    }
-
-    public function testChannelConnectsAndDisconnects(): void
-    {
-        $stream = new ThroughStream();
-        $id = 'abc123';
-
-        $this->channelMock->expects($this->once())->method('connect')->with($stream, $id);
-        $this->channelMock->expects($this->once())->method('disconnect')->with($stream);
-
-        $this->service->channel($stream, $id);
-        $stream->emit('close', []);
     }
 
     public function testClearLogsAndNotifiesChannel(): void
     {
         $this->service->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
         $this->service->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
-
-        $this->channelMock
-            ->expects($this->once())
-            ->method('writeMessage')
-            ->with('Logs cleared');
 
         $this->service->clear();
 

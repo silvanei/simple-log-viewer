@@ -21,7 +21,7 @@ readonly class StreamAction implements ActionHandler
     {
         $stream = new ThroughStream();
         $id = $request->getHeaderLine('Last-Event-ID');
-        $this->logService->channel($stream, $id);
+        $this->logService->createChannelStream($stream, $id);
 
         return new Response(
             200,

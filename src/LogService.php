@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer;
 
-use Clue\React\Sse\BufferedChannel;
-use React\EventLoop\Loop;
 use React\Stream\ThroughStream;
+use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
+use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
+use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
+use S3\Log\Viewer\EventDispatcher\EventDispatcher;
 use S3\Log\Viewer\Storage\LogStorage;
 
 readonly class LogService
 {
     public function __construct(
         private LogStorage $storage,
-        private BufferedChannel $channel = new BufferedChannel()
+        private EventDispatcher $eventDispatcher,
     ) {
     }
 
-    public function channel(ThroughStream $stream, string $id): void
+    public function createChannelStream(ThroughStream $stream, string $id): void
     {
-        Loop::get()->futureTick(fn() => $this->channel->connect($stream, $id));
-        $stream->on('close', fn() => $this->channel->disconnect($stream));
+        $this->eventDispatcher->dispatch(new StreamCreated($stream, $id));
     }
 
     /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>} $log */
     public function add(array $log): void
     {
         $this->storage->add($log);
-
-        $this->channel->writeMessage('Received new log');
+        $this->eventDispatcher->dispatch(new LogReceived());
     }
 
     public function search(string $filter): string
@@ -45,7 +45,7 @@ readonly class LogService
     public function clear(): void
     {
         $this->storage->clear();
-        $this->channel->writeMessage('Logs cleared');
+        $this->eventDispatcher->dispatch(new LogCleared());
     }
 
     /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $line */

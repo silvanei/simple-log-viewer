@@ -32,6 +32,7 @@
     </rule>
 
     <!-- Paths to check -->
+    <file>bin</file>
     <file>src</file>
-    <file>tests</file>
+    <file>test</file>
 </ruleset>

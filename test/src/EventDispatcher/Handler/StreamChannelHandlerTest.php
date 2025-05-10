@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EventDispatcher\Handler;
+namespace Test\S3\Log\Viewer\EventDispatcher\Handler;
 
 use Clue\React\Sse\BufferedChannel;
 use PHPUnit\Framework\MockObject\MockObject;

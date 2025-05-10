@@ -16,8 +16,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Test\\S3\\Log\\Viewer\\": "tests/",
-      "Test\\Support\\S3\\Log\\Viewer\\": "tests/support/"
+      "Test\\S3\\Log\\Viewer\\": "test/src/",
+      "Test\\Support\\S3\\Log\\Viewer\\": "test/support/"
     }
   },
   "require": {

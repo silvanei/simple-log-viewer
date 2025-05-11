@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer;
 
 use PDO;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use React\Stream\ThroughStream;
+use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
+use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
+use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventDispatcher;
 use S3\Log\Viewer\LogService;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
@@ -13,13 +18,45 @@ use S3\Log\Viewer\Storage\LogStorageSQLite;
 class LogServiceTest extends TestCase
 {
     private LogService $service;
+    private EventDispatcher&MockObject $eventDispatcher;
 
     protected function setUp(): void
     {
         $logStorage = new LogStorageSQLite(new PDO('sqlite::memory:'));
-        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcher::class);
+        $this->service = new LogService($logStorage, $this->eventDispatcher);
+    }
 
-        $this->service = new LogService($logStorage, $eventDispatcher);
+    public function testCreateChannelStream_ShouldDispatchStreamCreated(): void
+    {
+        $stream = new ThroughStream();
+        $id = 'abc123';
+        $this->eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(new StreamCreated($stream, $id));
+
+        $this->service->createChannelStream($stream, $id);
+    }
+
+    public function testAdd_ShouldDispatchLogReceived(): void
+    {
+        $this->eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(new LogReceived());
+
+        $this->service->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => []]);
+    }
+
+    public function testClear_ShouldDispatchLogCleared(): void
+    {
+        $this->eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(new LogCleared());
+
+        $this->service->clear();
     }
 
     public function testSearchWithoutFilterReturnsAll(): void
@@ -54,15 +91,81 @@ class LogServiceTest extends TestCase
             'channel' => 'test',
             'level' => 'WARN',
             'message' => 'hello',
-            'context' => ['num' => 123, 'str' => 'ok', 'bool' => false, 'nul' => null]
+            'context' => ['num' => 123, 'str' => 'ok', 'str_nl' => "foo\nbar", 'bool' => false, 'nul' => null, 'array' => ['num' => 123, 'str' => 'ok'], 'list' => ['a', 'b', 'c']],
         ]);
 
         $html = $this->service->search('');
 
-        $this->assertStringContainsString(' <span class="highlight-key">num</span>: <span class="highlight-number">123</span>', $html);
-        $this->assertStringContainsString(' <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>', $html);
-        $this->assertStringContainsString(' <span class="highlight-key">bool</span>: <span class="highlight-boolean">false</span>', $html);
-        $this->assertStringContainsString(' <span class="highlight-key">nul</span>: <span class="highlight-null">null</span>', $html);
+
+        $this->assertEquals(
+            <<<HTML
+            <div class="log-entry">
+                <div class="log-header" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on first in me">
+                    <button>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="16">
+                            <path 
+                                fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </button>
+                    <span class="datetime">2025-04-28T13:00:00Z</span>
+                    <span class="channel">[test]</span>
+                    <span class="level warn">warn</span>
+                    <span class="message">hello</span>
+                </div>
+                <div class="log-content collapsed" data-json="eyJudW0iOjEyMywic3RyIjoib2siLCJzdHJfbmwiOiJmb29cbmJhciIsImJvb2wiOmZhbHNlLCJudWwiOm51bGwsImFycmF5Ijp7Im51bSI6MTIzLCJzdHIiOiJvayJ9LCJsaXN0IjpbImEiLCJiIiwiYyJdfQ==">
+                    <pre>  <span class="highlight-key">num</span>: <span class="highlight-number">123</span>
+              <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>
+              <span class="highlight-key">str_nl</span>: <span class="highlight-string">"foo
+                bar"</span>
+              <span class="highlight-key">bool</span>: <span class="highlight-boolean">false</span>
+              <span class="highlight-key">nul</span>: <span class="highlight-null">null</span>
+              <span class="highlight-key">array</span>: <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 icon-toggle" viewBox="0 0 20 20" fill="currentColor" width="16">
+                    <path 
+                        fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                        clip-rule="evenodd"
+                    />
+                </svg>
+            </button>
+            <span class="highlight-toggle-display highlight-toggle">    <span class="highlight-key">num</span>: <span class="highlight-number">123</span>
+                <span class="highlight-key">str</span>: <span class="highlight-string">"ok"</span>
+            </span>  <span class="highlight-key">list</span>: <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 icon-toggle" viewBox="0 0 20 20" fill="currentColor" width="16">
+                    <path 
+                        fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                        clip-rule="evenodd"
+                    />
+                </svg>
+            </button>
+            <span class="highlight-toggle-display highlight-toggle">    - <span class="highlight-string">"a"</span>
+                - <span class="highlight-string">"b"</span>
+                - <span class="highlight-string">"c"</span>
+            </span></pre>
+                    <div class="log-actions">
+                        <button class="toggle-highlight-btn" _="on click toggleHighlight(event)">
+                            <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                <path 
+                                    fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                            <span>Expand All</span>
+                        </button>
+                        <button class="copy-json-btn" _="on click copyJSON(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            </svg>
+                            Copy JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+            HTML,
+            $html
+        );
     }
 
     public function testRenderLogLowercasesLevel(): void

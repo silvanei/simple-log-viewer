@@ -26,6 +26,7 @@
             <property name="ignoreComments" value="true" />
             <property name="lineLimit" value="180"/>
         </properties>
+        <exclude-pattern>*Test\.php$</exclude-pattern>
     </rule>
     <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter.FoundInImplementedInterface">
         <exclude-pattern>*\.php$</exclude-pattern>

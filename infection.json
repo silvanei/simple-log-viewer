@@ -2,6 +2,9 @@
     "source": {
         "directories": [
             "src"
+        ],
+        "excludes": [
+            "/Application\\.php/"
         ]
     },
     "logs": {
@@ -9,8 +12,16 @@
         "html": "storage/infection/infection.html"
     },
     "mutators": {
+        "global-ignore": [
+            "FooClass::__construct"
+        ],
         "@default": true,
-        "@cast": false
+        "@cast": false,
+        "MatchArmRemoval": {
+            "ignoreSourceCodeByRegex": [
+                "default => '',"
+            ]
+        }
     },
     "testFramework": "phpunit"
 }

@@ -118,14 +118,35 @@ readonly class LogService
         foreach ($context as $key => $value) {
             $html .= $isList ? "$tab- " : $tab . '<span class="highlight-key">' . $key . '</span>: ';
             $html .= match (true) {
-                is_array($value) && array_is_list($value)
-                    => $button . '<span class="highlight-toggle-display highlight-toggle">' . $this->formatContent($value, $deep + 1, true) . '</span>',
-                is_array($value) => $button . '<span class="highlight-toggle-display highlight-toggle">' . $this->formatContent($value, $deep + 1) . '</span>',
-                is_string($value) => '<span class="highlight-string">"' . htmlspecialchars(str_replace("\n", "\n  $tab", $value)) . '"</span>'  . "\n",
-                is_numeric($value) => '<span class="highlight-number">' . $value . '</span>' . "\n",
-                is_null($value) => '<span class="highlight-null">null</span>' . "\n",
-                is_bool($value) => '<span class="highlight-boolean">' . ($value ? 'true' : 'false') . '</span>' . "\n",
-                default => '<span class="highlight-string">"Type not mapped"</span>' . "\n",
+                is_array($value) && array_is_list($value) => sprintf(
+                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
+                    $button,
+                    $this->formatContent($value, $deep + 1, true),
+                ),
+                is_array($value) => sprintf(
+                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
+                    $button,
+                    $this->formatContent($value, $deep + 1),
+                ),
+                is_string($value) => sprintf(
+                    '<span class="highlight-string">"%s"</span>%s',
+                    htmlspecialchars(str_replace("\n", "\n  $tab", $value)),
+                    "\n"
+                ),
+                is_numeric($value) => sprintf(
+                    '<span class="highlight-number">%s</span>%s',
+                    $value, "\n"
+                ),
+                is_null($value) => sprintf(
+                    '<span class="highlight-null">null</span>%s',
+                    "\n"
+                ),
+                is_bool($value) => sprintf(
+                    '<span class="highlight-boolean">%s</span>%s',
+                    $value ? 'true' : 'false',
+                    "\n"
+                ),
+                default => '',
             };
         }
         return $html;

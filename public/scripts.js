@@ -18,8 +18,34 @@ function toggleTheme() {
     localStorage.setItem(themeStorageKey, newTheme);
 }
 
-// Search functionality
 let hasNewLogs = false;
+let isLogsPaused = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const pauseButton = document.getElementById('pause-button');
+    if (pauseButton) {
+        pauseButton.classList.toggle('paused', isLogsPaused);
+    }
+});
+
+function togglePauseLogs() {
+    const pauseButton = document.getElementById('pause-button');
+    const playIcon = pauseButton.querySelector('.play-icon');
+    const pauseIcon = pauseButton.querySelector('.pause-icon');
+    
+    isLogsPaused = !isLogsPaused;
+    pauseButton.classList.toggle('paused', isLogsPaused);
+    
+    playIcon.classList.toggle('hidden', !isLogsPaused);
+    pauseIcon.classList.toggle('hidden', isLogsPaused);
+    
+    if (!isLogsPaused) {
+        if (hasNewLogs) {
+            triggerSearch();
+        }
+        updateNotificationDot(false);
+    }
+}
 
 function triggerSearch() {
     const searchInput = document.getElementById('search-input');
@@ -38,7 +64,7 @@ function updateNotificationDot(show) {
 }
 
 function handleNewLogs(searchInput) {
-    if (!searchInput.value.trim()) {
+    if (!isLogsPaused) {
         triggerSearch();
     } else {
         hasNewLogs = true;
@@ -122,11 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Search input events
     const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', (e) => {
-        if (!e.target.value.trim()) {
-            triggerSearch();
-        }
-    });
+    const pauseButton = document.getElementById('pause-button');
+    
+    if (pauseButton) {
+        pauseButton.addEventListener('click', togglePauseLogs);
+    }
+
+    // Só atualize a busca quando pressionar Enter
     searchInput.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') {
             triggerSearch();

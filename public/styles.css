@@ -116,7 +116,7 @@ input[type="search"]:focus {
     margin-right: 8px;
 }
 
-.search-button, .clear-button {
+.search-button, .clear-button, .pause-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,15 +131,45 @@ input[type="search"]:focus {
     transition: all 0.2s ease;
 }
 
-.search-button:hover, .clear-button:hover {
+.search-button:hover, .clear-button:hover, .pause-button:hover {
     background: var(--highlight-hover);
     border-color: #64748b;
 }
 
-.search-button svg, .clear-button svg {
+.search-button svg, .clear-button svg, .pause-button svg {
     stroke: var(--text);
     width: 20px;
     height: 20px;
+}
+
+.pause-button {
+    margin-right: 8px;
+}
+
+.pause-icon,
+.play-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pause-icon svg,
+.play-icon svg {
+    stroke: var(--text);
+    width: 20px;
+    height: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.pause-button.paused .pause-icon {
+    display: none;
+}
+
+.pause-button.paused .play-icon {
+    display: flex;
 }
 
 .clear-button {

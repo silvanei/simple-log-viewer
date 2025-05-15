@@ -14,7 +14,7 @@ DOCKER_CONTAINER_RUN=docker container run \
 	-v $(PROJECT_DIR):/app \
 	-w /app silvanei/simple-log-viewer:dev
 
-.PHONY: default
+.PHONY: default test
 default: image;
 
 image:
@@ -22,6 +22,9 @@ image:
 
 install:
 	$(DOCKER_CONTAINER_RUN) composer install
+
+update:
+	$(DOCKER_CONTAINER_RUN) composer update
 
 serve:
 	docker compose up -d

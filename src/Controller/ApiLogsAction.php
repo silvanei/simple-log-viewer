@@ -26,7 +26,7 @@ readonly class ApiLogsAction implements ActionHandler
                 return new Response(415, ['Content-Type' => 'text/html'], 'Unsupported Media Type');
             }
 
-            /** @var array{datetime?: string, channel?: string, level?: string, message?: string, context?: mixed} $data */
+            /** @var array{datetime?: string, channel?: string, level?: string, message?: string, context?: mixed, extra?: mixed} $data */
             $data = json_decode((string)$request->getBody(), associative: true, flags: JSON_THROW_ON_ERROR);
 
             $errors = [];
@@ -52,11 +52,15 @@ readonly class ApiLogsAction implements ActionHandler
                 $errors['context'] = 'Invalid or missing context';
             }
 
+            if (! v::optional(v::arrayType())->validate($data['extra'] ?? null)) {
+                $errors['extra'] = 'Invalid extra field';
+            }
+
             if (! empty($errors)) {
                 return new Response(400, ['Content-Type' => 'application/json'], json_encode(['errors' => $errors]) ?: '');
             }
 
-            /** @var array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>} $data */
+            /** @var array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>} $data */
             $this->logService->add($data);
 
             return new Response(201, body: 'Received log');

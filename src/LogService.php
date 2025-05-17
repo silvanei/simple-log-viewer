@@ -24,7 +24,7 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new StreamCreated($stream, $id));
     }
 
-    /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>} $log */
+    /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>} $log */
     public function add(array $log): void
     {
         $this->storage->add($log);
@@ -33,7 +33,7 @@ readonly class LogService
 
     public function search(string $filter): string
     {
-        /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string}[] $rows */
+        /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string, 'extra': string}[] $rows */
         $rows = $this->storage->search($filter);
         $html = '';
         foreach ($rows as $line) {
@@ -48,13 +48,14 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new LogCleared());
     }
 
-    /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string} $line */
+    /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string, 'extra': string} $line */
     private function renderLog(array $line): string
     {
-        $level = strtolower($line['level']);
-        /** @var array<string|int, mixed> $context */
-        $context = json_decode($line['context'], true);
-        $jsonEncoded = base64_encode($line['context']);
+        $line['level'] = strtolower($line['level']);
+        $line['context'] = json_decode($line['context'], true);
+        $line['extra'] = json_decode($line['extra'], true);
+
+        $jsonEncoded = base64_encode(json_encode($line) ?: '');
         $jsonContent = htmlspecialchars($jsonEncoded);
 
         return <<<HTML
@@ -70,11 +71,11 @@ readonly class LogService
                 </button>
                 <span class="datetime">{$line['datetime']}</span>
                 <span class="channel">[{$line['channel']}]</span>
-                <span class="level $level">$level</span>
+                <span class="level {$line['level']}">{$line['level']}</span>
                 <span class="message">{$line['message']}</span>
             </div>
             <div class="log-content collapsed" data-json="$jsonContent">
-                <pre>{$this->formatContent($context)}</pre>
+                <pre>{$this->formatContent($line)}</pre>
                 <div class="log-actions">
                     <button class="toggle-highlight-btn" _="on click toggleHighlight(event)">
                         <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">

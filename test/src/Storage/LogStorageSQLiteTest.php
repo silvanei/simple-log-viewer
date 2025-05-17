@@ -47,7 +47,8 @@ class LogStorageSQLiteTest extends TestCase
                             channel,
                             level,
                             message,
-                            context
+                            context,
+                            extra
                         );
                         SQL,
                     default => 'Not mapped statement',

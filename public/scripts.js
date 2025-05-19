@@ -127,15 +127,11 @@ function toggleHighlight(event) {
     btn.querySelector('span').textContent = isExpanding ? 'Collapse All' : 'Expand All';
 
     highlights.forEach(el => {
-        isExpanding ?
-            el.classList.remove('highlight-toggle-display') :
-            el.classList.add('highlight-toggle-display');
+        el.classList.toggle('highlight-toggle-display', !isExpanding);
     });
 
     iconToggle.forEach(el => {
-        isExpanding ?
-            el.classList.add('rotate-180') :
-            el.classList.remove('rotate-180');
+        el.classList.toggle('rotate-180', isExpanding);
     });
 }
 

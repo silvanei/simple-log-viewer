@@ -63,8 +63,8 @@ readonly class LogService
             <div class="log-header" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on first in me">
                 <button>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="16">
-                        <path 
-                            fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                        <path
+                            fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                             clip-rule="evenodd"
                         />
                     </svg>
@@ -75,12 +75,12 @@ readonly class LogService
                 <span class="message">{$line['message']}</span>
             </div>
             <div class="log-content collapsed" data-json="$jsonContent">
-                <pre>{$this->formatContent($line)}</pre>
+                <ul>{$this->formatContent($line)}</ul>
                 <div class="log-actions">
                     <button class="toggle-highlight-btn" _="on click toggleHighlight(event)">
                         <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                            <path 
-                                fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                            <path
+                                fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                 clip-rule="evenodd"
                             />
                         </svg>
@@ -100,55 +100,55 @@ readonly class LogService
     }
 
     /** @param array<string|int, mixed> $context */
-    private function formatContent(array $context, int $deep = 1, bool $isList = false): string
+    private function formatContent(array $context, bool $isList = false): string
     {
         $button = <<<HTML
-        <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
+        <button class="toggle-btn" _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 icon-toggle" viewBox="0 0 20 20" fill="currentColor" width="16">
-                <path 
-                    fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                <path
+                    fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                     clip-rule="evenodd"
                 />
             </svg>
         </button>
-
         HTML;
 
-        $tab = str_repeat(' ', $deep * 2);
         $html = '';
         foreach ($context as $key => $value) {
-            $html .= $isList ? "$tab- " : $tab . '<span class="highlight-key">' . $key . '</span>: ';
+            $html .= $isList
+                ? '<li class="list-item">'
+                : '<li class="tree-item"><span class="highlight-key">' . $key . '</span>: ';
+
             $html .= match (true) {
                 is_array($value) && array_is_list($value) => sprintf(
-                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
+                    '%s%s<ul class="nested-list highlight-toggle-display highlight-toggle">%s</ul>',
                     $button,
-                    $this->formatContent($value, $deep + 1, true),
+                    "\n",
+                    $this->formatContent($value, true)
                 ),
                 is_array($value) => sprintf(
-                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
+                    '%s%s<ul class="nested-list highlight-toggle-display highlight-toggle">%s</ul>',
                     $button,
-                    $this->formatContent($value, $deep + 1),
+                    "\n",
+                    $this->formatContent($value)
                 ),
                 is_string($value) => sprintf(
-                    '<span class="highlight-string">"%s"</span>%s',
-                    htmlspecialchars(str_replace("\n", "\n  $tab", $value)),
-                    "\n"
+                    '<span class="highlight-string">"%s"</span>',
+                    htmlspecialchars(str_replace("\n", "\n  ", $value))
                 ),
                 is_numeric($value) => sprintf(
-                    '<span class="highlight-number">%s</span>%s',
-                    $value, "\n"
+                    '<span class="highlight-number">%s</span>',
+                    $value
                 ),
-                is_null($value) => sprintf(
-                    '<span class="highlight-null">null</span>%s',
-                    "\n"
-                ),
+                is_null($value) => '<span class="highlight-null">null</span>',
                 is_bool($value) => sprintf(
-                    '<span class="highlight-boolean">%s</span>%s',
-                    $value ? 'true' : 'false',
-                    "\n"
+                    '<span class="highlight-boolean">%s</span>',
+                    $value ? 'true' : 'false'
                 ),
                 default => '',
             };
+
+            $html .= '</li>' . "\n";
         }
         return $html;
     }

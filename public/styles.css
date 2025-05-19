@@ -8,7 +8,7 @@ html {
     --text: #1f2328;
     --border: #e1e4e8;
     --secondary-text: #6a737d;
-    
+
     /* Log levels */
     --debug: #6a737d;      /* secondary-text */
     --info: #17a2b8;       /* Cyan */
@@ -18,7 +18,7 @@ html {
     --critical: #e11d48;   /* Rose 600 */
     --alert: #be123c;      /* Rose 700 */
     --emergency: #881337;  /* Rose 900 */
-    
+
     --success: #28a745;
     --highlight: rgba(0, 0, 0, 0.05);
     --highlight-hover: rgba(0, 0, 0, 0.1);
@@ -39,7 +39,7 @@ html.dark {
     --text: #d1d7e0;;
     --border: #30363D;
     --secondary-text: #848D97;
-    
+
     /* Log levels */
     --debug: #848D97;      /* secondary-text */
     --info: #79C0FF;       /* Bright Blue */
@@ -49,7 +49,7 @@ html.dark {
     --critical: #fb7185;   /* Rose 400 - mais brilhante para dark mode */
     --alert: #f43f5e;      /* Rose 500 */
     --emergency: #e11d48;  /* Rose 600 */
-    
+
     --success: #86efac;
     --highlight: rgba(255, 255, 255, 0.05);
     --highlight-hover: rgba(255, 255, 255, 0.1);
@@ -266,6 +266,7 @@ input[type="search"]:focus {
 }
 
 .log-content {
+    --indent-size: 1rem;
     display: block;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.8125rem;
@@ -276,6 +277,7 @@ input[type="search"]:focus {
     margin: 0;
     /*white-space: pre-wrap;*/
     overflow-x: auto;
+    padding: 0.75rem;
 }
 
 .log-content.collapsed {
@@ -286,8 +288,9 @@ input[type="search"]:focus {
     margin: 0;
 }
 
+/* Hidden state - higher specificity */
 .log-content .highlight-toggle-display {
-    display: none;
+    display: none !important;
 }
 
 /* Toggle Button */
@@ -301,6 +304,7 @@ input[type="search"]:focus {
     transition: transform 0.2s ease;
 }
 
+/* Log Content */
 .log-content button {
     background: none;
     border: none;
@@ -313,8 +317,70 @@ input[type="search"]:focus {
 }
 
 .log-content .log-actions {
-    padding-left: 14px;
-    padding-bottom: 8px;
+    padding-top: 10px;
+}
+
+/* Log Content List Structure */
+/* Base list styles */
+.log-content ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* List items */
+/* .log-content li {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    min-height: 1.25em;
+} */
+
+/* List items with toggle button */
+.log-content li > .toggle-btn {
+    flex: 0 0 auto;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Key-value pairs */
+/* .log-content .key-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+} */
+
+/* Nested lists */
+.log-content .nested-list {
+    width: 100%;
+    padding-left: var(--indent-size);
+}
+
+/* List items that represent array items */
+/* .log-content .list-item {
+    padding-left: var(--indent-size);
+} */
+
+.log-content .list-item::before {
+    content: "- ";
+    color: var(--text);
+}
+
+/* Toggle container */
+.highlight-toggle {
+    width: 100%;
+}
+
+/* Hidden elements */
+.highlight-toggle-display {
+    display: none;
 }
 
 .log-header button:hover {
@@ -368,7 +434,7 @@ input[type="search"]:focus {
 
 /* highlight Syntax */
 .highlight-key { color: var(--highlight-key); }
-.highlight-string { color: var(--highlight-string); }
+.highlight-string { color: var(--highlight-string); white-space: pre;}
 .highlight-number { color: var(--highlight-number); }
 .highlight-boolean { color: var(--highlight-boolean); }
 .highlight-null { color: var(--highlight-null); }

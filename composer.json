@@ -12,7 +12,10 @@
   "autoload": {
     "psr-4": {
       "S3\\Log\\Viewer\\": "src/"
-    }
+    },
+    "files": [
+      "env.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

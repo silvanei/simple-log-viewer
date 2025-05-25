@@ -4,5 +4,7 @@ parameters:
         - bin
         - src
         - test
+    scanFiles:
+        - env.php
     ignoreErrors:
         - '#Method S3\\Log\\Viewer\\Handler\\RouterHandler::dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed.#'

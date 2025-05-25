@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer;
 
+use JsonException;
 use React\Stream\ThroughStream;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
@@ -31,15 +32,17 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new LogReceived());
     }
 
-    public function search(string $filter): string
+    /** @return array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>}[] */
+    public function search(string $filter): array
     {
-        /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string, 'extra': string}[] $rows */
-        $rows = $this->storage->search($filter);
-        $html = '';
-        foreach ($rows as $line) {
-            $html .= $this->renderLog($line);
-        }
-        return $html;
+        return array_map(
+            function (array $row): array {
+                $row['context'] = $this->jsonDecode($row['context']);
+                $row['extra'] = $this->jsonDecode($row['extra']);
+                return $row;
+            },
+            $this->storage->search($filter)
+        );
     }
 
     public function clear(): void
@@ -48,108 +51,15 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new LogCleared());
     }
 
-    /** @param array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string, 'extra': string} $line */
-    private function renderLog(array $line): string
+    /** @return array<int|string, mixed> */
+    private function jsonDecode(string $json): array
     {
-        $line['level'] = strtolower($line['level']);
-        $line['context'] = json_decode($line['context'], true);
-        $line['extra'] = json_decode($line['extra'], true);
-
-        $jsonEncoded = base64_encode(json_encode($line) ?: '');
-        $jsonContent = htmlspecialchars($jsonEncoded);
-
-        return <<<HTML
-        <div class="log-entry">
-            <div class="log-header" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on first in me">
-                <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="16">
-                        <path 
-                            fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                </button>
-                <span class="datetime">{$line['datetime']}</span>
-                <span class="channel">[{$line['channel']}]</span>
-                <span class="level {$line['level']}">{$line['level']}</span>
-                <span class="message">{$line['message']}</span>
-            </div>
-            <div class="log-content collapsed" data-json="$jsonContent">
-                <pre>{$this->formatContent($line)}</pre>
-                <div class="log-actions">
-                    <button class="toggle-highlight-btn" _="on click toggleHighlight(event)">
-                        <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                            <path 
-                                fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        <span>Expand All</span>
-                    </button>
-                    <button class="copy-json-btn" _="on click copyJSON(event)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                        </svg>
-                        Copy JSON
-                    </button>
-                </div>
-            </div>
-        </div>
-        HTML;
-    }
-
-    /** @param array<string|int, mixed> $context */
-    private function formatContent(array $context, int $deep = 1, bool $isList = false): string
-    {
-        $button = <<<HTML
-        <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 icon-toggle" viewBox="0 0 20 20" fill="currentColor" width="16">
-                <path 
-                    fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                    clip-rule="evenodd"
-                />
-            </svg>
-        </button>
-
-        HTML;
-
-        $tab = str_repeat(' ', $deep * 2);
-        $html = '';
-        foreach ($context as $key => $value) {
-            $html .= $isList ? "$tab- " : $tab . '<span class="highlight-key">' . $key . '</span>: ';
-            $html .= match (true) {
-                is_array($value) && array_is_list($value) => sprintf(
-                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
-                    $button,
-                    $this->formatContent($value, $deep + 1, true),
-                ),
-                is_array($value) => sprintf(
-                    '%s<span class="highlight-toggle-display highlight-toggle">%s</span>',
-                    $button,
-                    $this->formatContent($value, $deep + 1),
-                ),
-                is_string($value) => sprintf(
-                    '<span class="highlight-string">"%s"</span>%s',
-                    htmlspecialchars(str_replace("\n", "\n  $tab", $value)),
-                    "\n"
-                ),
-                is_numeric($value) => sprintf(
-                    '<span class="highlight-number">%s</span>%s',
-                    $value, "\n"
-                ),
-                is_null($value) => sprintf(
-                    '<span class="highlight-null">null</span>%s',
-                    "\n"
-                ),
-                is_bool($value) => sprintf(
-                    '<span class="highlight-boolean">%s</span>%s',
-                    $value ? 'true' : 'false',
-                    "\n"
-                ),
-                default => '',
-            };
+        try {
+            /** @var array<int|string, mixed> $data */
+            $data = json_decode($json, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return [];
         }
-        return $html;
+        return $data;
     }
 }

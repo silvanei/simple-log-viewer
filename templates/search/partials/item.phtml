@@ -1,0 +1,29 @@
+<?php
+use S3\Log\Viewer\View\Search\SearchViewModel;
+/** @var SearchViewModel $this */
+?>
+<ul class="nested-list">
+    <?php foreach ($this->entry as $key => $value) : ?>
+        <li>
+            <?php if ($this->isList === true): ?>
+                <span class="highlight-punctuation">- </span>
+            <?php else: ?>
+                <span class="highlight-key"><?= $this->escape($key) ?></span><span class="highlight-punctuation">: </span>
+            <?php endif; ?>
+            <?php if (is_array($value)): ?>
+                <button _="on click toggle .highlight-toggle-display on next .highlight-toggle then toggle .rotate-180 on first in me">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 icon-toggle" viewBox="0 0 20 20" fill="currentColor" width="16">
+                        <path
+                            fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </button>
+                <span class="highlight-toggle-display highlight-toggle">
+                    <?= $this->partial('search/partials/item', ['entry' => $value, 'isList' => array_is_list($value)]) ?>
+                </span>
+            <?php endif; ?>
+            <span class="<?= $this->highlightClass($value) ?>"><?= $this->escape($this->renderValue($value)) ?></span>
+        </li>
+    <?php endforeach; ?>
+</ul>

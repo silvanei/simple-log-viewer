@@ -37,9 +37,9 @@ class HomeActionTest extends TestCase
             <meta charset="UTF-8">
             <title>Log Viewer</title>
             <link rel="icon" type="image/x-icon" href="/favicon.ico">
-            <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
-            <script src="https://unpkg.com/htmx-ext-sse@2.2.2" crossorigin="anonymous"></script>
-            <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+            <script src="/htmx.min.js"></script>
+            <script src="/htmx-ext-sse.js"></script>
+            <script src="/hyperscript.min.js"></script>
             <link rel="stylesheet" href="/styles.css">
             <script src="/scripts.js" defer></script>
         </head>

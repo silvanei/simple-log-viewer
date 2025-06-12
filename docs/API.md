@@ -37,13 +37,14 @@ Content-Type: application/json
 
 #### Response Codes
 
-- `201`: Log received successfully
-- `400`: Invalid request (validation errors)
-- `415`: Unsupported Media Type (when Content-Type is not application/json)
+- `201 Created`: Log received successfully.
+- `400 Bad Request`: Invalid request body or validation errors. The response body may contain details about the validation errors.
+- `415 Unsupported Media Type`: The `Content-Type` header was not `application/json`.
+- `500 Internal Server Error`: An unexpected error occurred on the server.
 
 #### Example Requests
 
-1. Successful log entry:
+1. Successful log entry (`curl`):
 ```bash
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
@@ -59,7 +60,7 @@ curl -X POST http://localhost:8080/api/logs \
   }'
 ```
 
-2. Debug log with array context:
+2. Debug log with array context (`curl`):
 ```bash
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
@@ -77,7 +78,7 @@ curl -X POST http://localhost:8080/api/logs \
   }'
 ```
 
-3. Error log example:
+3. Error log example (`curl`):
 ```bash
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
@@ -93,4 +94,33 @@ curl -X POST http://localhost:8080/api/logs \
       "retry_attempt": 3
     }
   }'
+```
+
+4. Example using Python (`requests` library):
+```python
+import requests
+import json
+
+url = "http://localhost:8080/api/logs"
+headers = {"Content-Type": "application/json"}
+data = {
+    "datetime": "2025-05-04T12:03:00+00:00",
+    "channel": "payment_gateway",
+    "level": "warning",
+    "message": "Transaction timed out",
+    "context": {
+        "transaction_id": "txn_12345",
+        "amount": 99.99,
+        "currency": "USD"
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(data))
+
+print(f"Status Code: {response.status_code}")
+try:
+    print(f"Response Body: {response.json()}")
+except requests.exceptions.JSONDecodeError:
+    print(f"Response Body: {response.text}")
+
 ```

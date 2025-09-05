@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE**: Updated datetime field validation in API logs endpoint to require RFC 3339 Extended format with microseconds
-  - Previous format: `2025-05-04T12:00:00+00:00` (RFC 3339 basic)
-  - New format: `2025-05-04T12:00:00.000+00:00` (RFC 3339 Extended with microseconds)
-  - The microseconds portion is now **required** even if it's zero
-  - Updated API documentation with detailed format requirements and examples
-  - Updated all tests to use the new format
-  - Added comprehensive test coverage for datetime validation edge cases
+- Enhanced datetime field validation in API logs endpoint to support both ISO 8601 and RFC 3339 Extended formats
+  - **Backward Compatible**: Still accepts ISO 8601 format: `2025-05-04T12:00:00+00:00` (original format)
+  - **New Support**: Also accepts RFC 3339 Extended format: `2025-05-04T12:00:00.000+00:00` (with microseconds)
+  - No breaking changes - existing integrations continue to work without modification
+  - Updated API documentation with detailed format requirements and examples for both formats
+  - Added comprehensive test coverage for both datetime validation formats
+  - Enhanced validation logic to accept either format automatically
 
 ### Added
 - Detailed datetime format validation examples in API documentation
@@ -23,26 +23,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation of supported and unsupported datetime formats
 
 ### Technical Details
-- Changed validation from `v::dateTime()` to `v::dateTime(DateTimeInterface::RFC3339_EXTENDED)`
-- Supported microsecond formats: `.000`, `.123` (3 digits maximum)
+- Enhanced validation to support both `v::dateTime('Y-m-d\TH:i:sP')` (ISO 8601) and `v::dateTime(DateTimeInterface::RFC3339_EXTENDED)` formats
+- **ISO 8601 format**: `2025-05-04T12:00:00+00:00` (backward compatible)
+- **RFC 3339 Extended format**: `2025-05-04T12:00:00.000+00:00` (new option)
+- Supported microsecond formats for RFC 3339 Extended: `.000`, `.123` (3 digits maximum)
 - Unsupported formats: 6-digit microseconds, Z notation for UTC
 - All timezone offsets are supported: `+00:00`, `-03:00`, `+05:30`, etc.
 
-### Migration Guide
-If you're currently sending logs to the API, you need to update your datetime format:
+### Usage Examples
+Both formats are now supported - no migration required:
 
-**Before:**
+**ISO 8601 format (continues to work):**
 ```json
 {
   "datetime": "2025-05-04T12:00:00+00:00"
 }
 ```
 
-**After:**
+**RFC 3339 Extended format (new option):**
 ```json
 {
   "datetime": "2025-05-04T12:00:00.000+00:00"
 }
 ```
 
-See the [API Documentation](docs/API.md#generating-valid-datetime-strings) for language-specific examples.
+See the [API Documentation](docs/API.md#datetime-format-support) for detailed format specifications and language-specific examples.

@@ -18,11 +18,11 @@ use S3\Log\Viewer\LogService;
 class ApiLogsActionTest extends TestCase
 {
     private const array VALID_DATA = [
-        'datetime' => '2025-05-04T12:00:00.000+00:00',
+        'datetime' => '2025-05-04T12:00:00+00:00',
         'channel' => 'channel',
         'level' => 'info',
         'message' => 'test',
-        'context' => []
+        'context' => [],
     ];
 
     private ServerRequestInterface&MockObject $request;
@@ -265,12 +265,27 @@ class ApiLogsActionTest extends TestCase
             'expectedStatusCode' => 201,
             'expectedResponseBody' => 'Received log'
         ];
-        yield 'Invalid RFC3339 basic without microseconds' => [
+        yield 'Valid ISO8601 basic format UTC' => [
             'datetime' => '2025-05-04T12:00:00+00:00',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Valid ISO8601 basic format with negative timezone' => [
+            'datetime' => '2025-05-04T12:00:00-03:00',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Valid ISO8601 basic format with positive timezone' => [
+            'datetime' => '2025-05-04T12:00:00+05:30',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Invalid ISO8601 with UTC Z notation' => [
+            'datetime' => '2025-05-04T12:00:00Z',
             'expectedStatusCode' => 400,
             'expectedResponseBody' => 'Invalid or missing datetime'
         ];
-        yield 'Invalid datetime format' => [
+        yield 'Invalid datetime format with space separator' => [
             'datetime' => '2025-05-04 12:00:00',
             'expectedStatusCode' => 400,
             'expectedResponseBody' => 'Invalid or missing datetime'

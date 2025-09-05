@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer\Controller;
 
+use DateTimeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Message\Response;
@@ -31,7 +32,7 @@ readonly class ApiLogsAction implements ActionHandler
 
             $errors = [];
 
-            if (! v::dateTime('Y-m-d\TH:i:sP')->validate($data['datetime'] ?? null)) {
+            if (! v::dateTime(DateTimeInterface::RFC3339_EXTENDED)->validate($data['datetime'] ?? null)) {
                 $errors['datetime'] = 'Invalid or missing datetime';
             }
 

@@ -18,7 +18,7 @@ use S3\Log\Viewer\LogService;
 class ApiLogsActionTest extends TestCase
 {
     private const array VALID_DATA = [
-        'datetime' => '2025-05-04T12:00:00+00:00',
+        'datetime' => '2025-05-04T12:00:00.000+00:00',
         'channel' => 'channel',
         'level' => 'info',
         'message' => 'test',
@@ -223,6 +223,83 @@ class ApiLogsActionTest extends TestCase
         $this->request
             ->method('getBody')
             ->willReturn(json_encode($invalidData));
+        $this->logService
+            ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
+            ->method('add');
+
+        $response = $this->executeAction();
+
+        $this->assertSame($expectedStatusCode, $response->getStatusCode());
+        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+    }
+
+    public static function datetimeDataProvider(): Generator
+    {
+        yield 'Valid RFC3339 Extended with microseconds' => [
+            'datetime' => '2025-05-04T12:00:00.000+00:00',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Valid RFC3339 Extended with milliseconds' => [
+            'datetime' => '2025-05-04T12:00:00.123+00:00',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Invalid RFC3339 Extended with full microseconds' => [
+            'datetime' => '2025-05-04T12:00:00.123456+00:00',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+        yield 'Invalid RFC3339 Extended with UTC Z notation' => [
+            'datetime' => '2025-05-04T12:00:00.000Z',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+        yield 'Valid RFC3339 Extended with different timezone' => [
+            'datetime' => '2025-05-04T12:00:00.000-03:00',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Valid RFC3339 Extended with positive timezone' => [
+            'datetime' => '2025-05-04T12:00:00.000+05:30',
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => 'Received log'
+        ];
+        yield 'Invalid RFC3339 basic without microseconds' => [
+            'datetime' => '2025-05-04T12:00:00+00:00',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+        yield 'Invalid datetime format' => [
+            'datetime' => '2025-05-04 12:00:00',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+        yield 'Invalid datetime string' => [
+            'datetime' => 'invalid-date',
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+        yield 'Missing datetime' => [
+            'datetime' => null,
+            'expectedStatusCode' => 400,
+            'expectedResponseBody' => 'Invalid or missing datetime'
+        ];
+    }
+
+    #[DataProvider('datetimeDataProvider')]
+    public function testInvokeWithDatetimeValidation(?string $datetime, int $expectedStatusCode, string $expectedResponseBody): void
+    {
+        $testData = [...self::VALID_DATA];
+        if ($datetime === null) {
+            unset($testData['datetime']);
+        } else {
+            $testData['datetime'] = $datetime;
+        }
+
+        $this->request
+            ->method('getBody')
+            ->willReturn(json_encode($testData));
         $this->logService
             ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
             ->method('add');

@@ -14,7 +14,7 @@ Content-Type: application/json
 
 ```json
 {
-  "datetime": "2025-05-04T12:00:00+00:00",
+  "datetime": "2025-05-04T12:00:00.000+00:00",
   "channel": "application",
   "level": "info",
   "message": "User logged in successfully",
@@ -29,7 +29,7 @@ Content-Type: application/json
 
 | Field | Type | Validation Rules | Description |
 |-------|------|-----------------|-------------|
-| `datetime` | string | ISO 8601 format (Y-m-d\TH:i:sP) | The timestamp when the log was generated |
+| `datetime` | string | RFC 3339 Extended format (Y-m-d\TH:i:s.vP) with microseconds | The timestamp when the log was generated |
 | `channel` | string | Length: 3-255 chars | The source or category of the log |
 | `level` | string | One of: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY | The severity level of the log |
 | `message` | string | Length: 3-255 chars | The log message |
@@ -49,7 +49,7 @@ Content-Type: application/json
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
   -d '{
-    "datetime": "2025-05-04T12:00:00+00:00",
+    "datetime": "2025-05-04T12:00:00.000+00:00",
     "channel": "application",
     "level": "info",
     "message": "User logged in successfully",
@@ -65,7 +65,7 @@ curl -X POST http://localhost:8080/api/logs \
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
   -d '{
-    "datetime": "2025-05-04T12:01:00+00:00",
+    "datetime": "2025-05-04T12:01:00.000+00:00",
     "channel": "system",
     "level": "debug",
     "message": "Cache hit ratio statistics",
@@ -83,7 +83,7 @@ curl -X POST http://localhost:8080/api/logs \
 curl -X POST http://localhost:8080/api/logs \
   -H "Content-Type: application/json" \
   -d '{
-    "datetime": "2025-05-04T12:02:00+00:00",
+    "datetime": "2025-05-04T12:02:00.000+00:00",
     "channel": "database",
     "level": "error",
     "message": "Database connection failed",
@@ -104,7 +104,7 @@ import json
 url = "http://localhost:8080/api/logs"
 headers = {"Content-Type": "application/json"}
 data = {
-    "datetime": "2025-05-04T12:03:00+00:00",
+    "datetime": "2025-05-04T12:03:00.000+00:00",
     "channel": "payment_gateway",
     "level": "warning",
     "message": "Transaction timed out",

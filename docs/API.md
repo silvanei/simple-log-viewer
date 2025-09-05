@@ -29,7 +29,7 @@ Content-Type: application/json
 
 | Field | Type | Validation Rules | Description |
 |-------|------|-----------------|-------------|
-| `datetime` | string | RFC 3339 Extended format (Y-m-d\TH:i:s.vP) with microseconds | The timestamp when the log was generated |
+| `datetime` | string | ISO 8601 format (Y-m-d\TH:i:sP) or RFC 3339 Extended format (Y-m-d\TH:i:s.vP) | The timestamp when the log was generated |
 | `channel` | string | Length: 3-255 chars | The source or category of the log |
 | `level` | string | One of: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY | The severity level of the log |
 | `message` | string | Length: 3-255 chars | The log message |

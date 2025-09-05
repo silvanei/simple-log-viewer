@@ -32,7 +32,10 @@ readonly class ApiLogsAction implements ActionHandler
 
             $errors = [];
 
-            if (! v::dateTime(DateTimeInterface::RFC3339_EXTENDED)->validate($data['datetime'] ?? null)) {
+            $datetimeValid = v::dateTime('Y-m-d\TH:i:sP')->validate($data['datetime'] ?? null) ||
+                           v::dateTime(DateTimeInterface::RFC3339_EXTENDED)->validate($data['datetime'] ?? null);
+
+            if (! $datetimeValid) {
                 $errors['datetime'] = 'Invalid or missing datetime';
             }
 

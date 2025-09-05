@@ -77,6 +77,8 @@ make test
 
 For detailed information about sending logs to the viewer, see the [API Documentation](docs/API.md).
 
+**⚠️ Important:** As of the latest version, the datetime field validation has been updated to require **RFC 3339 Extended format** with microseconds. Please ensure your datetime strings include microseconds (e.g., `2025-05-04T12:00:00.000+00:00` instead of `2025-05-04T12:00:00+00:00`). See the API documentation for complete format requirements and examples.
+
 ## Environmental Variables
 
 | Variable | Default | Description |

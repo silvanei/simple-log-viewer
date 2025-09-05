@@ -8,7 +8,7 @@ html {
     --text: #1f2328;
     --border: #e1e4e8;
     --secondary-text: #6a737d;
-    
+
     /* Log levels */
     --debug: #6a737d;      /* secondary-text */
     --info: #17a2b8;       /* Cyan */
@@ -18,7 +18,7 @@ html {
     --critical: #e11d48;   /* Rose 600 */
     --alert: #be123c;      /* Rose 700 */
     --emergency: #881337;  /* Rose 900 */
-    
+
     --success: #28a745;
     --highlight: rgba(0, 0, 0, 0.05);
     --highlight-hover: rgba(0, 0, 0, 0.1);
@@ -39,7 +39,7 @@ html.dark {
     --text: #d1d7e0;;
     --border: #30363D;
     --secondary-text: #848D97;
-    
+
     /* Log levels */
     --debug: #848D97;      /* secondary-text */
     --info: #79C0FF;       /* Bright Blue */
@@ -49,7 +49,7 @@ html.dark {
     --critical: #fb7185;   /* Rose 400 - mais brilhante para dark mode */
     --alert: #f43f5e;      /* Rose 500 */
     --emergency: #e11d48;  /* Rose 600 */
-    
+
     --success: #86efac;
     --highlight: rgba(255, 255, 255, 0.05);
     --highlight-hover: rgba(255, 255, 255, 0.1);
@@ -74,7 +74,6 @@ body {
 }
 
 .container {
-    max-width: 1600px;
     margin: 0 auto;
     padding: 1.5rem 1rem;
 }

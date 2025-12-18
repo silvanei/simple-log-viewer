@@ -28,18 +28,18 @@ class SearchViewModelTest extends TestCase
     {
         $viewModel = new SearchViewModel(template: 'dummy');
 
-        $this->assertSame('"Hello"', $viewModel->renderValue(value: 'Hello'));
-        $this->assertSame("\"Line1\n  Line2\"", $viewModel->renderValue(value: "Line1\nLine2"));
-        $this->assertSame('"42"', $viewModel->renderValue(value: '42'));
-        $this->assertSame('"3.14"', $viewModel->renderValue(value: '3.14'));
+        $this->assertSame('Hello', $viewModel->renderValue(value: 'Hello'));
+        $this->assertSame("Line1\nLine2", $viewModel->renderValue(value: "Line1\nLine2"));
+        $this->assertSame('42', $viewModel->renderValue(value: '42'));
+        $this->assertSame('3.14', $viewModel->renderValue(value: '3.14'));
         $this->assertSame('42', $viewModel->renderValue(value: 42));
         $this->assertSame('3.14', $viewModel->renderValue(value: 3.14));
         $this->assertSame('null', $viewModel->renderValue(value: null));
-        $this->assertSame('"null"', $viewModel->renderValue(value: 'null'));
+        $this->assertSame('null', $viewModel->renderValue(value: 'null'));
         $this->assertSame('true', $viewModel->renderValue(value: true));
-        $this->assertSame('"true"', $viewModel->renderValue(value: 'true'));
+        $this->assertSame('true', $viewModel->renderValue(value: 'true'));
         $this->assertSame('false', $viewModel->renderValue(value: false));
-        $this->assertSame('"false"', $viewModel->renderValue(value: 'false'));
+        $this->assertSame('false', $viewModel->renderValue(value: 'false'));
         $this->assertSame('', $viewModel->renderValue(value: []));
     }
 }

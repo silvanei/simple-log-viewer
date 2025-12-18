@@ -6,6 +6,11 @@ namespace S3\Log\Viewer\View\Search;
 
 use S3\Log\Viewer\View\TemplateEngine;
 
+use function is_array;
+use function is_string;
+use function is_null;
+use function is_bool;
+
 final readonly class SearchViewModel
 {
     use TemplateEngine;
@@ -24,12 +29,29 @@ final readonly class SearchViewModel
     public function renderValue(mixed $value): string
     {
         return match (true) {
-            is_string($value) => sprintf('"%s"', str_replace("\n", "\n  ", $value)),
+            is_string($value) => sprintf('%s', $value),
             is_numeric($value) => sprintf('%s', $value),
             is_null($value) => 'null',
             $value === true => 'true',
             $value === false => 'false',
             default => '',
         };
+    }
+    /**
+     * @param mixed[] $input
+     * @return mixed[]
+     */
+    public function flattenWithDots(array $input, string $prefix = ''): array
+    {
+        $result = [];
+        foreach ($input as $key => $value) {
+            $newKey = $prefix === '' ? $key : "$prefix.$key";
+            if (is_array($value)) {
+                $result += $this->flattenWithDots($value, $newKey);
+            } else {
+                $result[$newKey] = $value;
+            }
+        }
+        return $result;
     }
 }

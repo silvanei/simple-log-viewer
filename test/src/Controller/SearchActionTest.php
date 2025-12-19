@@ -67,7 +67,10 @@ class SearchActionTest extends TestCase
 
         $testFilter = 'error';
         $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getQueryParams')->willReturn(['search' => $testFilter]);
+        $request
+            ->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn(['search' => $testFilter]);
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
@@ -92,7 +95,10 @@ class SearchActionTest extends TestCase
         $exception = new RuntimeException($errorMessage);
 
         $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getQueryParams')->willReturn(['search' => 'test']);
+        $request
+            ->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn(['search' => 'test']);
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())

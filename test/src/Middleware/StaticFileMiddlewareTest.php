@@ -34,6 +34,7 @@ class StaticFileMiddlewareTest extends TestCase
         $this->request = $this->createMock(ServerRequestInterface::class);
         $this->uri = $this->createMock(UriInterface::class);
         $this->request
+            ->expects($this->once())
             ->method('getUri')
             ->willReturn($this->uri);
         $this->next = $this->createMock(ActionHandler::class);
@@ -58,8 +59,7 @@ class StaticFileMiddlewareTest extends TestCase
         $content  = "file-content-$extension";
         file_put_contents("$this->publicDir/$filename", $content);
 
-        $this->uri->method('getPath')->willReturn("/$filename");
-        $this->request->method('getMethod')->willReturn('GET');
+        $this->uri->expects($this->once())->method('getPath')->willReturn("/$filename");
         $this->next->expects($this->never())->method('__invoke');
 
         $response = ($this->middleware)($this->request, $this->next);
@@ -72,8 +72,7 @@ class StaticFileMiddlewareTest extends TestCase
 
     public function testSkipsNonexistentFile(): void
     {
-        $this->uri->method('getPath')->willReturn('/no-such.file');
-        $this->request->method('getMethod')->willReturn('GET');
+        $this->uri->expects($this->once())->method('getPath')->willReturn('/no-such.file');
         $this->next
             ->expects($this->once())
             ->method('__invoke')
@@ -89,8 +88,7 @@ class StaticFileMiddlewareTest extends TestCase
     {
         $outsideFile = sys_get_temp_dir() . '/secret.txt';
         touch($outsideFile);
-        $this->uri->method('getPath')->willReturn('/../secret.txt');
-        $this->request->method('getMethod')->willReturn('GET');
+        $this->uri->expects($this->once())->method('getPath')->willReturn('/../secret.txt');
         $this->next
             ->expects($this->once())
             ->method('__invoke')

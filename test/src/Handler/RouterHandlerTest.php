@@ -28,12 +28,20 @@ class RouterHandlerTest extends TestCase
         $this->request    = $this->createMock(ServerRequestInterface::class);
 
         $this->request
+            ->expects($this->once())
             ->method('getMethod')
             ->willReturn('GET');
 
         $uri = $this->createMock(UriInterface::class);
-        $uri->method('getPath')->willReturn('/foo');
-        $this->request->method('getUri')->willReturn($uri);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo');
+
+        $this->request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
     }
 
     public function testReturnsResponseFromFoundRoute(): void

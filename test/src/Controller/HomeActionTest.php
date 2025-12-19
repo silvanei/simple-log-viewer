@@ -12,7 +12,7 @@ class HomeActionTest extends TestCase
 {
     public function testInvoke_ShouldReturnsResponseWith200StatusCode(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $homeAction = new HomeAction();
         $response = $homeAction->__invoke($request);
 
@@ -21,7 +21,7 @@ class HomeActionTest extends TestCase
 
     public function testInvokeSetsCorrectContentTypeHeader(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $homeAction = new HomeAction();
         $response = $homeAction->__invoke($request);
 
@@ -95,14 +95,14 @@ class HomeActionTest extends TestCase
                 </button>
             </label>
         </div>    </div>
-        
+
             <div id="search-results" hx-ext="sse" sse-connect="/logs-stream" sse-swap="message"></div>
         </div>
         </body>
         </html>
         HTML;
 
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $homeAction = new HomeAction();
         $response = $homeAction->__invoke($request);
 

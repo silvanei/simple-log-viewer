@@ -475,3 +475,8 @@ html.dark .theme-toggle:hover {
 .nested-list li:last-child span {
     border-bottom: none;
 }
+
+mark {
+    padding: 0 .15em;
+    border-radius: 3px;
+}

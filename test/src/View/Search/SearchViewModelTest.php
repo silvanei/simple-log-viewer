@@ -14,8 +14,8 @@ class SearchViewModelTest extends TestCase
         $viewModel = new SearchViewModel(template: 'dummy');
 
         $this->assertSame('highlight-string', $viewModel->highlightClass(value: 'text'));
-        $this->assertSame('highlight-string', $viewModel->highlightClass(value: '123'));
-        $this->assertSame('highlight-string', $viewModel->highlightClass(value: '45.67'));
+        $this->assertSame('highlight-number', $viewModel->highlightClass(value: '123'));
+        $this->assertSame('highlight-number', $viewModel->highlightClass(value: '45.67'));
         $this->assertSame('highlight-number', $viewModel->highlightClass(value: 123));
         $this->assertSame('highlight-number', $viewModel->highlightClass(value: 45.67));
         $this->assertSame('highlight-null', $viewModel->highlightClass(value: null));

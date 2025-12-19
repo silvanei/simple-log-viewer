@@ -48,7 +48,8 @@ class LogStorageSQLiteTest extends TestCase
                             level,
                             message,
                             context,
-                            extra
+                            extra,
+                            tokenize='unicode61 remove_diacritics 2'
                         );
                         SQL,
                     default => 'Not mapped statement',
@@ -90,13 +91,13 @@ class LogStorageSQLiteTest extends TestCase
         $this->assertSame('b', $data[0]['channel']);
         $this->assertSame('ERROR', $data[0]['level']);
         $this->assertSame('m2', $data[0]['message']);
-        $this->assertSame(json_encode(['y' => 2], JSON_UNESCAPED_UNICODE), $data[0]['context']);
+        $this->assertSame(json_encode(['y' => '2'], JSON_UNESCAPED_UNICODE), $data[0]['context']);
 
         $this->assertSame('2025-04-28T10:00:00Z', $data[1]['datetime']);
         $this->assertSame('a', $data[1]['channel']);
         $this->assertSame('DEBUG', $data[1]['level']);
         $this->assertSame('m1', $data[1]['message']);
-        $this->assertSame(json_encode(['x' => 1], JSON_UNESCAPED_UNICODE), $data[1]['context']);
+        $this->assertSame(json_encode(['x' => '1'], JSON_UNESCAPED_UNICODE), $data[1]['context']);
     }
 
     public function testSearch_ShouldReturnMatchesOnlyRelevant_WhenFiltered(): void
@@ -111,7 +112,7 @@ class LogStorageSQLiteTest extends TestCase
         $this->assertSame('2025-04-28T08:00:00Z', $data[0]['datetime']);
         $this->assertSame('ch', $data[0]['channel']);
         $this->assertSame('INFO', $data[0]['level']);
-        $this->assertSame('foo', $data[0]['message']);
+        $this->assertSame('⟦foo⟧', $data[0]['message']);
         $this->assertSame(json_encode([], JSON_UNESCAPED_UNICODE), $data[0]['context']);
     }
 

@@ -68,8 +68,8 @@ class LogServiceTest extends TestCase
 
         $this->assertSame(
             [
-                ['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2, 'foo' => 'bar'], 'extra' => []],
-                ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1, 'foo' => 'bar'], 'extra' => []],
+                ['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => '2', 'foo' => 'bar'], 'extra' => []],
+                ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => '1', 'foo' => 'bar'], 'extra' => []],
             ],
             $response
         );
@@ -85,7 +85,7 @@ class LogServiceTest extends TestCase
 
         $this->assertSame(
             [
-                ['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => [], 'extra' => []],
+                ['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => '⟦foo⟧','context' => [], 'extra' => []],
             ],
             $response
         );

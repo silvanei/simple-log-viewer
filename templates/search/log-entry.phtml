@@ -10,9 +10,9 @@
                     />
                 </svg>
             </button>
-            <span class="datetime"><?= $entry['datetime'] ?></span>
-            <span class="channel">[<?= $entry['channel'] ?>]</span>
-            <span class="level <?= strtolower($entry['level']) ?>"><?= $entry['level'] ?></span>
+            <span class="datetime"><?= $this->escape($entry['datetime']) ?></span>
+            <span class="channel">[<?= $this->escape($entry['channel']) ?>]</span>
+            <span class="level <?= strtolower($entry['level']) ?>"><?= $this->escape($entry['level']) ?></span>
             <span class="message"><?= $this->escape($entry['message']) ?></span>
         </div>
         <div class="log-content collapsed" data-json="<?= $this->escape(base64_encode(json_encode($entry) ?: '')) ?>">

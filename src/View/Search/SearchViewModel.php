@@ -8,7 +8,7 @@ use S3\Log\Viewer\View\TemplateEngine;
 
 use function is_array;
 use function is_string;
-use function is_null;
+use function sprintf;
 use function is_bool;
 
 final readonly class SearchViewModel
@@ -17,11 +17,15 @@ final readonly class SearchViewModel
 
     public function highlightClass(mixed $value): string
     {
+        if (is_string($value)) {
+            $value = str_replace(['⟦', '⟧'], ['', ''], $value);
+        }
+
         return match (true) {
-            is_string($value) => "highlight-string",
             is_numeric($value) => "highlight-number",
-            is_null($value) => "highlight-null",
+            $value === null => "highlight-null",
             is_bool($value) => "highlight-boolean",
+            is_string($value) => "highlight-string",
             default => '',
         };
     }
@@ -29,11 +33,11 @@ final readonly class SearchViewModel
     public function renderValue(mixed $value): string
     {
         return match (true) {
-            is_string($value) => sprintf('%s', $value),
             is_numeric($value) => sprintf('%s', $value),
-            is_null($value) => 'null',
+            $value === null => 'null',
             $value === true => 'true',
             $value === false => 'false',
+            is_string($value) => sprintf('%s', $value),
             default => '',
         };
     }

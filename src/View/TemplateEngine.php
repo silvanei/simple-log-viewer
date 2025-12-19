@@ -39,7 +39,18 @@ trait TemplateEngine
 
     private function escape(string $value): string
     {
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $value = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $value = str_replace(['⟦', '⟧'], ['<mark>', '</mark>'], $value);
+
+        if (str_contains($value, '<mark>') && ! str_contains($value, '</mark>')) {
+            $value = "$value</mark>";
+        }
+
+        if (str_contains($value, '</mark>') && ! str_contains($value, '<mark>')) {
+            $value = "<mark>$value";
+        }
+
+        return $value;
     }
 
     private function resolvePath(): string

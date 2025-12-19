@@ -7,6 +7,10 @@ namespace S3\Log\Viewer\Storage;
 use PDO;
 use PDOException;
 
+use function is_array;
+use function is_int;
+use function is_float;
+
 final readonly class LogStorageSQLite implements LogStorage
 {
     public function __construct(private PDO $storage)
@@ -20,7 +24,8 @@ final readonly class LogStorageSQLite implements LogStorage
                 level,
                 message,
                 context,
-                extra
+                extra,
+                tokenize='unicode61 remove_diacritics 2'
             );
             SQL
         );
@@ -30,7 +35,7 @@ final readonly class LogStorageSQLite implements LogStorage
     public function add(array $log): void
     {
         $stmt = $this->storage->prepare(<<<QUERY
-            INSERT INTO logs (datetime, channel, level, message, context, extra) 
+            INSERT INTO logs (datetime, channel, level, message, context, extra)
             VALUES (:datetime, :channel, :level, :message, :context, :extra)
             QUERY
         );
@@ -38,8 +43,8 @@ final readonly class LogStorageSQLite implements LogStorage
         $stmt->bindValue(':channel', $log['channel']);
         $stmt->bindValue(':level', $log['level']);
         $stmt->bindValue(':message', $log['message']);
-        $stmt->bindValue(':context', json_encode($log['context'], JSON_UNESCAPED_UNICODE));
-        $stmt->bindValue(':extra', json_encode($log['extra'] ?? [], JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':context', json_encode($this->normalizeNumbersAsText($log['context']), JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':extra', json_encode($this->normalizeNumbersAsText($log['extra'] ?? []), JSON_UNESCAPED_UNICODE));
         $stmt->execute();
     }
 
@@ -47,7 +52,13 @@ final readonly class LogStorageSQLite implements LogStorage
     {
         if ($filter) {
             $stmt = $this->storage->prepare(<<<SQL
-                SELECT datetime, channel, level, message, context, extra
+                SELECT
+                    highlight(logs, 0, '⟦', '⟧') AS datetime,
+                    highlight(logs, 1, '⟦', '⟧') AS channel,
+                    highlight(logs, 2, '⟦', '⟧') AS level,
+                    highlight(logs, 3, '⟦', '⟧') AS message,
+                    highlight(logs, 4, '⟦', '⟧') AS context,
+                    highlight(logs, 5, '⟦', '⟧') AS extra
                 FROM logs
                 WHERE logs MATCH :q
                 ORDER BY bm25(logs), logs.datetime DESC
@@ -78,5 +89,21 @@ final readonly class LogStorageSQLite implements LogStorage
     public function clear(): void
     {
         $this->storage->exec('DELETE FROM logs');
+    }
+
+    private function normalizeNumbersAsText(mixed $data): mixed
+    {
+        if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                $data[$k] = $this->normalizeNumbersAsText($v);
+            }
+            return $data;
+        }
+
+        if (is_int($data) || is_float($data)) {
+            return (string) $data;
+        }
+
+        return $data;
     }
 }

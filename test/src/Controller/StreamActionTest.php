@@ -18,7 +18,11 @@ class StreamActionTest extends TestCase
     {
         $mockStream = new ThroughStream();
         $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Last-Event-ID')->willReturn('123');
+        $request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Last-Event-ID')
+            ->willReturn('123');
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
@@ -44,7 +48,11 @@ class StreamActionTest extends TestCase
     {
         $mockStream = new ThroughStream();
         $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getHeaderLine')->with('Last-Event-ID')->willReturn('');
+        $request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Last-Event-ID')
+            ->willReturn('');
 
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())

@@ -1,9 +1,9 @@
-FROM php:8.4.7-cli-alpine3.21 AS development
+FROM php:8.5.1-cli-alpine3.23 AS development
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     TZ="America/Sao_Paulo"
 
-COPY --from=composer:2.8.9 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 # Install dependencies

@@ -14,7 +14,7 @@ class ClearLogsActionTest extends TestCase
 {
     public function testInvokeReturns200OnSuccess(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())->method('clear');
 
@@ -28,9 +28,12 @@ class ClearLogsActionTest extends TestCase
 
     public function testInvokeReturns500OnError(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createStub(ServerRequestInterface::class);
         $logService = $this->createMock(LogService::class);
-        $logService->method('clear')->willThrowException(new RuntimeException('Database error'));
+        $logService
+            ->expects($this->once())
+            ->method('clear')
+            ->willThrowException(new RuntimeException('Database error'));
 
         $action = new ClearLogsAction($logService);
         $response = $action->__invoke($request);

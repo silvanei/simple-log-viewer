@@ -32,34 +32,25 @@ class SearchActionTest extends TestCase
                     <span class="level error">ERROR</span>
                     <span class="message">m1</span>
                 </div>
-                <div class="log-content collapsed" data-json="eyJkYXRldGltZSI6IjIwMjUtMDQtMjhUMTA6MDA6MDBaIiwiY2hhbm5lbCI6ImEiLCJsZXZlbCI6IkVSUk9SIiwibWVzc2FnZSI6Im0xIiwiY29udGV4dCI6W119">
+                <div class="log-content collapsed">
                     <ul class="nested-list">
                     <li>
                     <span class="highlight-key">datetime</span>
-                                <span class="highlight-string">2025-04-28T10:00:00Z</span>
+                    <span class="highlight-string">2025-04-28T10:00:00Z</span>
                 </li>
                     <li>
                     <span class="highlight-key">channel</span>
-                                <span class="highlight-string">a</span>
+                    <span class="highlight-string">a</span>
                 </li>
                     <li>
                     <span class="highlight-key">level</span>
-                                <span class="highlight-string">ERROR</span>
+                    <span class="highlight-string">ERROR</span>
                 </li>
                     <li>
                     <span class="highlight-key">message</span>
-                                <span class="highlight-string">m1</span>
+                    <span class="highlight-string">m1</span>
                 </li>
             </ul>
-                    <div class="log-actions">
-                        <button class="copy-json-btn" _="on click copyJSON(event)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            Copy JSON
-                        </button>
-                    </div>
                 </div>
             </div>
 

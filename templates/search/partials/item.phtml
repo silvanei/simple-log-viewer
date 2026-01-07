@@ -6,9 +6,6 @@ use S3\Log\Viewer\View\Search\SearchViewModel;
     <?php foreach ($this->entry as $key => $value) : ?>
         <li>
             <span class="highlight-key"><?= $this->escape($key) ?></span>
-            <?php if (is_array($value)): ?>
-                <?= $this->partial('search/partials/item', ['entry' => $value, 'isList' => array_is_list($value)]) ?>
-            <?php endif; ?>
             <span class="<?= $this->highlightClass($value) ?>"><?= $this->escape($this->renderValue($value)) ?></span>
         </li>
     <?php endforeach; ?>

@@ -9,6 +9,7 @@ use React\Http\HttpServer;
 use React\Socket\SocketServer;
 use S3\Log\Viewer\Handler\RouterHandler;
 use S3\Log\Viewer\Middleware\StaticFileMiddleware;
+use S3\Log\Viewer\Middleware\GzipMiddleware;
 
 use function FastRoute\simpleDispatcher;
 
@@ -36,6 +37,7 @@ final class Application
         });
 
         $server = new HttpServer(
+            new GzipMiddleware(),
             new StaticFileMiddleware('public'),
             new RouterHandler($dispatcher),
         );

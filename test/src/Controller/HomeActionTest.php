@@ -40,6 +40,7 @@ class HomeActionTest extends TestCase
             <script src="/htmx.min.js"></script>
             <script src="/htmx-ext-sse.js"></script>
             <script src="/hyperscript.min.js"></script>
+            <link rel="stylesheet" href="/assets/icons/icons.css">
             <link rel="stylesheet" href="/styles.css">
             <script src="/scripts.js" defer></script>
         </head>
@@ -47,13 +48,9 @@ class HomeActionTest extends TestCase
         <div class="container">
             <header>
                 <h1>Real-time Log Viewer</h1>
-                <button id="theme-toggle" class="theme-toggle">
-                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                    </svg>
-                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/>
-                    </svg>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Theme toggle">
+                    <span class="i i-sun sun"></span>
+                    <span class="i i-moon moon"></span>
                 </button>
             </header>
             <div class="controls">
@@ -63,35 +60,20 @@ class HomeActionTest extends TestCase
                        id="search-input"
                        name="search"
                        placeholder="Search for logs"
+                       aria-label="Search for logs"
                        hx-get="/search"
                        hx-trigger="search-trigger"
                        hx-target="#search-results">
-                <button id="pause-button" class="pause-button">
-                    <div class="pause-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="6" y="4" width="4" height="16"></rect>
-                            <rect x="14" y="4" width="4" height="16"></rect>
-                        </svg>
-                    </div>
-                    <div class="play-icon hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                    </div>
+                <button id="pause-button" class="pause-button" aria-label="Pause/Resume">
+                    <span class="i i-pause pause-icon"></span>
+                    <span class="i i-play play-icon hidden"></span>
                 </button>
-                <button id="search-button" class="search-button" onclick="triggerSearch()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+                <button id="search-button" class="search-button" aria-label="Search" onclick="triggerSearch()">
+                    <span class="i i-search"></span>
                     <span class="notification-dot hidden"></span>
                 </button>
-                <button id="clear-logs-button" class="clear-button" onclick="clearLogs()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18"></path>
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    </svg>
+                <button id="clear-logs-button" class="clear-button" aria-label="Clear logs" onclick="clearLogs()">
+                    <span class="i i-trash"></span>
                 </button>
             </label>
         </div>    </div>

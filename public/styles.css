@@ -144,17 +144,13 @@ input[type="search"]:focus {
     width: 40px;
     height: 40px;
     transition: all 0.2s ease;
+    color: var(--text);
+    font-size: 1.3rem;
 }
 
 .search-button:hover, .clear-button:hover, .pause-button:hover {
     background: var(--highlight-hover);
     border-color: #64748b;
-}
-
-.search-button svg, .clear-button svg, .pause-button svg {
-    stroke: var(--text);
-    width: 20px;
-    height: 20px;
 }
 
 .pause-button {
@@ -166,13 +162,6 @@ input[type="search"]:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.pause-icon svg,
-.play-icon svg {
-    stroke: var(--text);
-    width: 20px;
-    height: 20px;
 }
 
 .hidden {
@@ -412,6 +401,7 @@ header {
     display: grid;
     place-items: center;
     transition: all 0.2s ease;
+    font-size: 1.3rem;
 }
 
 .theme-toggle:hover {

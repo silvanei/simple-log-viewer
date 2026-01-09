@@ -44,8 +44,9 @@ class HomeActionTest extends TestCase
             <link rel="stylesheet" href="/styles.css">
             <script src="/scripts.js" defer></script>
         </head>
-        <body>
+        <body hx-indicator="body">
         <div class="container">
+            <div id="progress-bar"></div>
             <header>
                 <h1>Real-time Log Viewer</h1>
                 <button id="theme-toggle" class="theme-toggle" aria-label="Theme toggle">

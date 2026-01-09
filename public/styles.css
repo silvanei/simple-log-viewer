@@ -30,6 +30,8 @@ html {
     --highlight-boolean: #d73a49;
     --highlight-null: #6a737d;
     --highlight-punctuation: #1f2328;
+
+    --progress-bar: #3498db;
 }
 
 /* Dark Theme */
@@ -60,7 +62,9 @@ html.dark {
     --highlight-number: #FFA657;
     --highlight-boolean: #FF7B72;
     --highlight-null: #848D97;
-    --highlight-punctuation: #d1d7e0;;
+    --highlight-punctuation: #d1d7e0;
+
+    --progress-bar: #3498db;
 }
 
 /* Base Styles */
@@ -469,4 +473,21 @@ html.dark .theme-toggle:hover {
 mark {
     padding: 0 .15em;
     border-radius: 3px;
+}
+
+#progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background-color: var(--progress-bar);
+    width: 0;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+    z-index: 1000;
+}
+
+body.htmx-request #progress-bar {
+    opacity: 1;
+    width: 100%;
 }

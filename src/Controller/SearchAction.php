@@ -21,11 +21,13 @@ readonly class SearchAction implements ActionHandler
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            /** @var array{search?: string} $queryParams */
+            /** @var array{search?: string, fields?: string[]} $queryParams */
             $queryParams = $request->getQueryParams();
+            $fields = $queryParams['fields'] ?? [];
             $filter = $queryParams['search'] ?? '';
+
             $rows = $this->logService->search($filter);
-            $view = new SearchViewModel('search/log-entry', ['entries' => $rows]);
+            $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields]);
 
             return Response::html($view->render());
         } catch (Throwable $e) {

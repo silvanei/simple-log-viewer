@@ -55,7 +55,7 @@ class HomeActionTest extends TestCase
                 </button>
             </header>
             <div class="controls">
-                <div class="search-container">
+                <div id="search-container-id" class="search-container">
             <label class="search-input-container">
                 <input type="search"
                        id="search-input"
@@ -64,7 +64,8 @@ class HomeActionTest extends TestCase
                        aria-label="Search for logs"
                        hx-get="/search"
                        hx-trigger="search-trigger"
-                       hx-target="#search-results">
+                       hx-target="#search-results"
+                       hx-include=".fields">
                 <button id="pause-button" class="pause-button" aria-label="Pause/Resume">
                     <span class="i i-pause pause-icon"></span>
                     <span class="i i-play play-icon hidden"></span>

@@ -5,7 +5,18 @@ use S3\Log\Viewer\View\Search\SearchViewModel;
 <ul class="nested-list">
     <?php foreach ($this->entry as $key => $value) : ?>
         <li>
-            <span class="highlight-key"><?= $this->escape($key) ?></span>
+            <span class="highlight-key">
+                <button
+                    class="field-toggle-btn"
+                    data-field="<?= $this->renderAdidionalKey($key) ?>"
+                    onclick="toggleField(event, '<?= $this->renderAdidionalKey($key) ?>')"
+                    aria-label="Toggle column in table"
+                    title="Toggle column in table"
+                >
+                    <span class="i i-table"></span>
+                </button>
+                <?= $this->escape($key) ?>
+            </span>
             <span class="<?= $this->highlightClass($value) ?>"><?= $this->escape($this->renderValue($value)) ?></span>
         </li>
     <?php endforeach; ?>

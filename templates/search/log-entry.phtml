@@ -1,17 +1,48 @@
-<?php foreach ($this->entries as $entry) : ?>
-    <?php $flattenWithDotsentry = $this->flattenWithDots($entry); ?>
-    <div class="log-entry">
-        <div class="log-header" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on first in me">
-            <button aria-label="Expand/Colapse details">
-                <span class="i i-caret"></span>
-            </button>
-            <span class="datetime"><?= $this->escape($entry['datetime']) ?></span>
-            <span class="channel">[<?= $this->escape($entry['channel']) ?>]</span>
-            <span class="level <?= strtolower($entry['level']) ?>"><?= $this->escape($entry['level']) ?></span>
-            <span class="message"><?= $this->escape($entry['message']) ?></span>
-        </div>
-        <div class="log-content collapsed">
-            <?= $this->partial('search/partials/item', ['entry' => $flattenWithDotsentry]) ?>
-        </div>
+<div class="wraper">
+    <div class="row">
+        <div class="cell cell-header">&nbsp</div>
+        <div class="cell cell-header"><b>Datetime</b></div>
+        <div class="cell cell-header"><b>Channel</b></div>
+        <div class="cell cell-header"><b>Level</b></div>
+        <div class="cell cell-header"><b>Message</b></div>
+        <?php foreach ($this->fields as $field) : ?>
+            <div class="cell cell-header">
+                <b><?= $this->renderAdidionalKey($field) ?></b>
+                <button
+                    class="field-toggle-btn"
+                    data-field="<?= $this->renderAdidionalKey($field) ?>"
+                    onclick="toggleField(event, '<?= $field ?>')"
+                    aria-label="Remove column"
+                    title="Remove column"
+                >
+                    <span class="i i-close"></span>
+                </button>
+            </div>
+        <?php endforeach; ?>
     </div>
-<?php endforeach; ?>
+
+    <?php foreach ($this->entries as $entry) : ?>
+        <?php $flattenWithDotsentry = $this->flattenWithDots($entry); ?>
+        <div class="row row-main">
+            <div class="cell">
+                <button _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
+                    <span class="i i-caret"></span>
+                </button>
+            </div>
+            <div class="cell datetime"><span><?= $this->escape($entry['datetime']) ?></span></div>
+            <div class="cell channel"><span>[<?= $this->escape($entry['channel']) ?>]</b></span></div>
+            <div class="cell level <?= strtolower($entry['level']) ?>"><span><?= $this->escape($entry['level']) ?></b></span></div>
+            <div class="cell message"><span><?= $this->escape($entry['message']) ?></span></div>
+            <?php foreach ($this->fields as $field) : ?>
+                <div class="cell cell-field">
+                    <span><?= $this->renderAdidionalField($flattenWithDotsentry, $field) ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="row details log-content collapsed">
+            <div class="cell">
+                <?= $this->partial('search/partials/item', ['entry' => $flattenWithDotsentry, 'fields' => $this->fields]) ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>

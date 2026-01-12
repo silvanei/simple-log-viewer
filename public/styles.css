@@ -208,9 +208,6 @@ input[type="search"]:focus {
 }
 
 .log-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
     cursor: pointer;
     transition: background 0.2s ease;
 }
@@ -267,6 +264,7 @@ input[type="search"]:focus {
     border-top: 1px solid var(--border);
     margin: 0;
     padding-top: 10px;
+    padding-bottom: 1px;
     overflow-x: auto;
 }
 
@@ -461,7 +459,7 @@ html.dark .theme-toggle:hover {
     display: contents;
 }
 
-.nested-list li span {
+.nested-list li > span {
     padding: 4px 12px;
     border-bottom: 1px solid var(--border);
 }
@@ -490,4 +488,91 @@ mark {
 body.htmx-request #progress-bar {
     opacity: 1;
     width: 100%;
+}
+
+.field-toggle-btn {
+    font-size: 0.6rem;
+}
+
+/* GRID PRINCIPAL */
+.wraper {
+  display: grid;
+  grid-template-columns: repeat(50, auto) minmax(0, 1fr);
+  gap: 4px 0;
+  width: 100%;
+}
+
+/* CADA LINHA */
+.row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: flex-start;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  transition: background 0.2s ease;
+}
+
+.row-main:hover {
+    /*background: rgba(177, 186, 196, 0.08);*/
+    background: var(--highlight-hover);
+}
+
+/* CÉLULAS */
+.cell {
+  padding: 0 12px 0 0;
+}
+
+.cell-header {
+    font-size: 0.875rem;
+    color: var(--text);
+    flex-grow: 1;
+}
+
+.cell-field {
+    font-size: 0.875rem;
+    color: var(--text);
+    flex-grow: 1;
+}
+
+/* ÚLTIMA CÉLULA EXPANSÍVEL */
+.cell:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row.details > .cell {
+  grid-column: 1 / -1;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+/* Scrollbar */
+.row.details > .cell::-webkit-scrollbar {
+    height: 6px;
+}
+
+.row.details > .cell::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.row.details > .cell::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.wraper button {
+    background: none;
+    border: none;
+    margin-left: auto;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.wraper button:hover {
+    color: var(--text);
 }

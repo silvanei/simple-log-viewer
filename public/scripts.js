@@ -1,5 +1,6 @@
 // Theme handling
 const themeStorageKey = 'logViewerTheme';
+const selectedFieldsKey = 'logViewerSelectedFields';
 
 function initializeTheme() {
     const savedTheme = localStorage.getItem(themeStorageKey);
@@ -20,6 +21,56 @@ function toggleTheme() {
 
 let hasNewLogs = false;
 let isLogsPaused = false;
+let selectedFields = [];
+
+// Field Management Functions
+function loadSelectedFields() {
+  const saved = localStorage.getItem(selectedFieldsKey);
+  selectedFields = saved ? JSON.parse(saved) : [];
+  createSelectedFieldsInput();
+}
+
+function saveSelectedFields() {
+  localStorage.setItem(selectedFieldsKey, JSON.stringify(selectedFields));
+  createSelectedFieldsInput();
+}
+
+function isFieldSelected(fieldName) {
+    return selectedFields.includes(fieldName);
+}
+
+function createSelectedFieldsInput() {
+  const searchContainer = document.getElementById('search-container-id');
+  const existingFields = searchContainer.querySelectorAll('.fields');
+  existingFields.forEach(el => el.remove());
+
+  selectedFields.forEach(fieldName => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'fields[]'
+    input.className = 'fields';
+    input.value = fieldName;
+    searchContainer.appendChild(input);
+  });
+}
+
+function toggleField(event, fieldName) {
+    event.stopPropagation();
+    const isCurrentlySelected = isFieldSelected(fieldName);
+    if (isCurrentlySelected) {
+        selectedFields = selectedFields.filter(f => f !== fieldName);
+    } else {
+        selectedFields.push(fieldName);
+    }
+
+  saveSelectedFields();
+  triggerSearch();
+}
+
+
+function initializeFieldManagement() {
+    loadSelectedFields();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const pauseButton = document.getElementById('pause-button');
@@ -32,13 +83,13 @@ function togglePauseLogs() {
     const pauseButton = document.getElementById('pause-button');
     const playIcon = pauseButton.querySelector('.play-icon');
     const pauseIcon = pauseButton.querySelector('.pause-icon');
-    
+
     isLogsPaused = !isLogsPaused;
     pauseButton.classList.toggle('paused', isLogsPaused);
-    
+
     playIcon.classList.toggle('hidden', !isLogsPaused);
     pauseIcon.classList.toggle('hidden', isLogsPaused);
-    
+
     if (!isLogsPaused) {
         if (hasNewLogs) {
             triggerSearch();
@@ -69,36 +120,6 @@ function handleNewLogs(searchInput) {
     } else {
         hasNewLogs = true;
         updateNotificationDot(true);
-    }
-}
-
-// Copy functionality
-async function copyJSON(event) {
-    const btn = event.currentTarget;
-    const logContent = btn.closest('.log-content');
-    const encodedData = logContent?.dataset?.json;
-
-    if (!encodedData) {
-        showFeedback(btn, 'No data to copy!', false);
-        return;
-    }
-
-    try {
-        const decoded = atob(encodedData);
-        if (navigator.clipboard) {
-            await navigator.clipboard.writeText(decoded);
-        } else {
-            const textArea = document.createElement('textarea');
-            textArea.value = decoded;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-        }
-        showFeedback(btn, 'Copied!', true);
-    } catch (error) {
-        showFeedback(btn, 'Copy failed!', false);
-        console.error('Copy error:', error);
     }
 }
 
@@ -141,7 +162,8 @@ function toggleHighlight(event) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    initializeTheme();
+  initializeTheme();
+  initializeFieldManagement();
 
     // Theme toggle
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
@@ -149,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search input events
     const searchInput = document.getElementById('search-input');
     const pauseButton = document.getElementById('pause-button');
-    
+
     if (pauseButton) {
         pauseButton.addEventListener('click', togglePauseLogs);
     }
@@ -178,7 +200,7 @@ async function clearLogs() {
         const response = await fetch('/api/logs/clear', {
             method: 'POST',
         });
-        
+
         if (response.ok) {
             triggerSearch(); // Refresh the logs view
         } else {
@@ -190,7 +212,6 @@ async function clearLogs() {
 }
 
 // Expose functions needed by HTML
-window.copyJSON = copyJSON;
 window.toggleHighlight = toggleHighlight;
 window.triggerSearch = triggerSearch;
 window.clearLogs = clearLogs;

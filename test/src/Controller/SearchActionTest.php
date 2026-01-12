@@ -17,35 +17,87 @@ class SearchActionTest extends TestCase
     public function test_invoke_with_search_filter_returns_valid_response(): void
     {
         $expectedBody = <<<HTML
-                <div class="log-entry">
-                <div class="log-header" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on first in me">
-                    <button aria-label="Expand/Colapse details">
-                        <span class="i i-caret"></span>
-                    </button>
-                    <span class="datetime">2025-04-28T10:00:00Z</span>
-                    <span class="channel">[a]</span>
-                    <span class="level error">ERROR</span>
-                    <span class="message">m1</span>
-                </div>
-                <div class="log-content collapsed">
-                    <ul class="nested-list">
+        <div class="wraper">
+            <div class="row">
+                <div class="cell cell-header">&nbsp</div>
+                <div class="cell cell-header"><b>Datetime</b></div>
+                <div class="cell cell-header"><b>Channel</b></div>
+                <div class="cell cell-header"><b>Level</b></div>
+                <div class="cell cell-header"><b>Message</b></div>
+                    </div>
+
+                            <div class="row row-main">
+                    <div class="cell">
+                        <button _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
+                            <span class="i i-caret"></span>
+                        </button>
+                    </div>
+                    <div class="cell datetime"><span>2025-04-28T10:00:00Z</span></div>
+                    <div class="cell channel"><span>[a]</b></span></div>
+                    <div class="cell level error"><span>ERROR</b></span></div>
+                    <div class="cell message"><span>m1</span></div>
+                            </div>
+                <div class="row details log-content collapsed">
+                    <div class="cell">
+                        <ul class="nested-list">
                     <li>
-                    <span class="highlight-key">datetime</span>
+                    <span class="highlight-key">
+                        <button
+                            class="field-toggle-btn"
+                            data-field="datetime"
+                            onclick="toggleField(event, 'datetime')"
+                            aria-label="Toggle column in table"
+                            title="Toggle column in table"
+                        >
+                            <span class="i i-table"></span>
+                        </button>
+                        datetime            </span>
                     <span class="highlight-string">2025-04-28T10:00:00Z</span>
                 </li>
                     <li>
-                    <span class="highlight-key">channel</span>
+                    <span class="highlight-key">
+                        <button
+                            class="field-toggle-btn"
+                            data-field="channel"
+                            onclick="toggleField(event, 'channel')"
+                            aria-label="Toggle column in table"
+                            title="Toggle column in table"
+                        >
+                            <span class="i i-table"></span>
+                        </button>
+                        channel            </span>
                     <span class="highlight-string">a</span>
                 </li>
                     <li>
-                    <span class="highlight-key">level</span>
+                    <span class="highlight-key">
+                        <button
+                            class="field-toggle-btn"
+                            data-field="level"
+                            onclick="toggleField(event, 'level')"
+                            aria-label="Toggle column in table"
+                            title="Toggle column in table"
+                        >
+                            <span class="i i-table"></span>
+                        </button>
+                        level            </span>
                     <span class="highlight-string">ERROR</span>
                 </li>
                     <li>
-                    <span class="highlight-key">message</span>
+                    <span class="highlight-key">
+                        <button
+                            class="field-toggle-btn"
+                            data-field="message"
+                            onclick="toggleField(event, 'message')"
+                            aria-label="Toggle column in table"
+                            title="Toggle column in table"
+                        >
+                            <span class="i i-table"></span>
+                        </button>
+                        message            </span>
                     <span class="highlight-string">m1</span>
                 </li>
             </ul>
+                    </div>
                 </div>
             </div>
 

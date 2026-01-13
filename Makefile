@@ -47,5 +47,8 @@ phpstan:
 phpcs:
 	$(DOCKER_CONTAINER_RUN) composer phpcs
 
+infection:
+	$(DOCKER_CONTAINER_RUN) composer test-infection -- $(args)
+
 check:
 	$(DOCKER_CONTAINER_RUN) composer check

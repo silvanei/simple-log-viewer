@@ -6,6 +6,13 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
+
+# Install xdebug for coverage and infection
+RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del $PHPIZE_DEPS
+
 # Install dependencies
 COPY composer.json composer.lock /app/
 RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \

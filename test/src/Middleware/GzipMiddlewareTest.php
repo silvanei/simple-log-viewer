@@ -206,4 +206,25 @@ class GzipMiddlewareTest extends TestCase
         $this->assertNotSame($body, $compressed);
         $this->assertSame($body, gzdecode($compressed));
     }
+
+    public function testCompressesBodyExactlyAtMinSizeThreshold(): void
+    {
+        $middleware = new GzipMiddleware(minSize: 1024);
+        $body = str_repeat('x', 1024);
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('gzip');
+
+        $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body);
+
+        $response = ($middleware)($this->request, $next);
+
+        $this->assertSame('gzip', $response->getHeaderLine('Content-Encoding'));
+        $compressed = (string) $response->getBody();
+        $this->assertNotSame($body, $compressed);
+        $this->assertSame($body, gzdecode($compressed));
+    }
 }

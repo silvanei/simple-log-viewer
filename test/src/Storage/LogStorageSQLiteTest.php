@@ -79,6 +79,117 @@ class LogStorageSQLiteTest extends TestCase
         $this->assertSame(json_encode(['foo' => 'bar'], JSON_UNESCAPED_UNICODE), $row['context']);
     }
 
+    public function testAdd_ShouldHandleMissingExtraField(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test message',
+            'context' => ['foo' => 'bar']
+        ]);
+
+        $stmt = $this->pdo->query("SELECT datetime, extra FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{datetime: string, extra: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('2025-04-28T12:00:00Z', $row['datetime']);
+        $this->assertSame('[]', $row['extra']);
+    }
+
+    public function testAdd_ShouldPreserveExtraFieldWhenProvided(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test message',
+            'context' => ['foo' => 'bar'],
+            'extra' => ['key' => 'value']
+        ]);
+
+        $stmt = $this->pdo->query("SELECT datetime, extra FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{datetime: string, extra: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('2025-04-28T12:00:00Z', $row['datetime']);
+        $this->assertSame('{"key":"value"}', $row['extra']);
+    }
+
+    public function testAdd_ShouldNormalizeNumbersInContext(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test',
+            'context' => ['count' => 42, 'price' => 3.14]
+        ]);
+
+        $stmt = $this->pdo->query("SELECT context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{context: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('{"count":"42","price":"3.14"}', $row['context']);
+    }
+
+    public function testAdd_ShouldPreserveStringsInContext(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test',
+            'context' => ['name' => 'test', 'value' => 123]
+        ]);
+
+        $stmt = $this->pdo->query("SELECT context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{context: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('{"name":"test","value":"123"}', $row['context']);
+    }
+
+    public function testAdd_ShouldPreserveNullAndBooleanInContext(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test',
+            'context' => ['isActive' => true, 'deletedAt' => null]
+        ]);
+
+        $stmt = $this->pdo->query("SELECT context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{context: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('{"isActive":"true","deletedAt":"null"}', $row['context']);
+    }
+
+    public function testAdd_ShouldNormalizeNestedNumbersInContext(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test',
+            'context' => ['outer' => ['inner' => 42], 'top' => 'keep']
+        ]);
+
+        $stmt = $this->pdo->query("SELECT context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{context: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('{"outer":{"inner":"42"},"top":"keep"}', $row['context']);
+    }
+
     public function testSearch_ShouldReturnAllLogsSortedByDatetimeDesc_WhenFilterIsEmpty(): void
     {
         $this->logStorageSQLite->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]]);

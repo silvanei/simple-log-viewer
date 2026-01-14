@@ -127,6 +127,32 @@ class SearchActionTest extends TestCase
     }
 
     /** @throws Exception */
+    public function test_invoke_with_fields_param_includes_fields_in_view(): void
+    {
+        $testFields = ['datetime', 'message'];
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn(['fields' => $testFields, 'search' => '']);
+
+        $logService = $this->createMock(LogService::class);
+        $logService
+            ->expects($this->once())
+            ->method('search')
+            ->with('')
+            ->willReturn([]);
+
+        $action = new SearchAction($logService);
+        $response = $action->__invoke($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('data-field="datetime"', $body);
+        $this->assertStringContainsString('data-field="message"', $body);
+    }
+
+    /** @throws Exception */
     public function test_invoke_returns_400_on_service_failure(): void
     {
         $errorMessage = 'Database connection failed';

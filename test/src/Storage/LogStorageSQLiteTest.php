@@ -190,6 +190,24 @@ class LogStorageSQLiteTest extends TestCase
         $this->assertSame('{"outer":{"inner":"42"},"top":"keep"}', $row['context']);
     }
 
+    public function testAdd_ShouldNormalizeFalseBooleanInContext(): void
+    {
+        $this->logStorageSQLite->add([
+            'datetime' => '2025-04-28T12:00:00Z',
+            'channel' => 'app',
+            'level' => 'INFO',
+            'message' => 'Test',
+            'context' => ['enabled' => false, 'active' => true, 'name' => 'test']
+        ]);
+
+        $stmt = $this->pdo->query("SELECT context FROM logs");
+        $this->assertInstanceOf(PDOStatement::class, $stmt);
+        /** @var array{context: string} $row */
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('{"enabled":"false","active":"true","name":"test"}', $row['context']);
+    }
+
     public function testSearch_ShouldReturnAllLogsSortedByDatetimeDesc_WhenFilterIsEmpty(): void
     {
         $this->logStorageSQLite->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]]);

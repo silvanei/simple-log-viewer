@@ -82,4 +82,34 @@ class SearchViewModelTest extends TestCase
         $result3 = $viewModel3->render();
         $this->assertSame('', $result3);
     }
+
+    public function testHighlightClass_ShouldRemoveOpeningMarkerOnly(): void
+    {
+        $viewModel = new SearchViewModel(template: 'dummy');
+
+        $this->assertSame('highlight-string', $viewModel->highlightClass(value: '⟦text'));
+        $this->assertSame('highlight-number', $viewModel->highlightClass(value: '⟦123'));
+    }
+
+    public function testRenderAdidionalKey_ShouldHandleOpeningMarkerOnly(): void
+    {
+        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdidionalKey($this->key) ?>');
+
+        $viewModel = new SearchViewModel(template: 'test', params: ['key' => '⟦test']);
+        $result = $viewModel->render();
+
+        $this->assertStringNotContainsString('⟦', $result);
+        $this->assertSame('test', $result);
+    }
+
+    public function testRenderAdidionalKey_ShouldEscapeQuotesProperly(): void
+    {
+        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdidionalKey($this->key) ?>');
+
+        $viewModel = new SearchViewModel(template: 'test', params: ['key' => "it's a \"test\""]);
+        $result = $viewModel->render();
+
+        $this->assertStringContainsString('&quot;', $result);
+        $this->assertStringContainsString('&#039;', $result);
+    }
 }

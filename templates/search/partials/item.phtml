@@ -17,7 +17,7 @@ use S3\Log\Viewer\View\Search\SearchViewModel;
                 </button>
                 <?= $this->escape($key) ?>
             </span>
-            <span class="<?= $this->highlightClass($value) ?>"><?= $this->escape($this->renderValue($value)) ?></span>
+            <span class="<?= $this->highlightClass($value) ?>"><?= $this->escape($value) ?></span>
         </li>
     <?php endforeach; ?>
 </ul>

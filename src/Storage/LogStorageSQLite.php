@@ -43,8 +43,8 @@ final readonly class LogStorageSQLite implements LogStorage
         $stmt->bindValue(':channel', $log['channel']);
         $stmt->bindValue(':level', $log['level']);
         $stmt->bindValue(':message', $log['message']);
-        $stmt->bindValue(':context', json_encode($this->normalizeNumbersAsText($log['context']), JSON_UNESCAPED_UNICODE));
-        $stmt->bindValue(':extra', json_encode($this->normalizeNumbersAsText($log['extra'] ?? []), JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':context', json_encode($this->normalizeValueAsText($log['context']), JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':extra', json_encode($this->normalizeValueAsText($log['extra'] ?? []), JSON_UNESCAPED_UNICODE));
         $stmt->execute();
     }
 
@@ -91,19 +91,19 @@ final readonly class LogStorageSQLite implements LogStorage
         $this->storage->exec('DELETE FROM logs');
     }
 
-    private function normalizeNumbersAsText(mixed $data): mixed
+    private function normalizeValueAsText(mixed $data): mixed
     {
         if (is_array($data)) {
-            foreach ($data as $k => $v) {
-                $data[$k] = $this->normalizeNumbersAsText($v);
-            }
-            return $data;
+            return array_map($this->normalizeValueAsText(...), $data);
         }
 
-        if (is_int($data) || is_float($data)) {
-            return (string) $data;
-        }
-
-        return $data;
+        return match (true) {
+            $data === null => 'null',
+            $data === true => 'true',
+            $data === false => 'false',
+            is_int($data), is_float($data) => (string) $data,
+            is_string($data) => $data,
+            default => $data,
+        };
     }
 }

@@ -8,8 +8,6 @@ use S3\Log\Viewer\View\TemplateEngine;
 
 use function is_array;
 use function is_string;
-use function sprintf;
-use function is_bool;
 
 final readonly class SearchViewModel
 {
@@ -22,22 +20,11 @@ final readonly class SearchViewModel
         }
 
         return match (true) {
-            is_numeric($value) => "highlight-number",
-            $value === null => "highlight-null",
-            is_bool($value) => "highlight-boolean",
-            is_string($value) => "highlight-string",
-            default => '',
-        };
-    }
-
-    public function renderValue(mixed $value): string
-    {
-        return match (true) {
-            is_numeric($value) => sprintf('%s', $value),
-            $value === null => 'null',
-            $value === true => 'true',
-            $value === false => 'false',
-            is_string($value) => sprintf('%s', $value),
+            is_numeric($value) => 'highlight-number',
+            $value === 'null' => 'highlight-null',
+            $value === 'true' => 'highlight-boolean',
+            $value === 'false' => 'highlight-boolean',
+            is_string($value) => 'highlight-string',
             default => '',
         };
     }

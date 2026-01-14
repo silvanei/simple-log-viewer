@@ -111,14 +111,12 @@ Order imports by category:
 - Test names should describe behavior: `testMethod_ShouldDoX()`
 - Use `assertSame()` for value equality, `assertInstanceOf()` for type checking
 - Avoid implementation details in assertions; focus on observable behavior
+- **Avoid trailing whitespace** - PSR-12 requires no whitespace at end of lines (detected by PHPCS Squiz.WhiteSpace.SuperfluousWhitespace.EndLine)
 
-### Mutation Testing with Infection
-- Infection creates mutations in source code to test effectiveness of test suite
-- Measures MSI (Mutation Score Indicator) - percentage of mutants killed by tests
-- Escaped mutants indicate weak or missing test coverage
-- HTML report shows detailed mutation results in storage/infection/
-- Run periodically to improve test quality, not just coverage percentage
-- Useful when refactoring or adding new features to ensure tests catch bugs
+### Common Pitfalls
+- **Trailing whitespace**: When adding new test methods or code blocks, ensure no spaces at end of lines. PHPCS will fail with "Whitespace found at end of line" error.
+- **Mutation testing**: Use `CI=true make infection` or `composer test-infection` to run Infection. Tests added for mutation testing should explicitly verify the behavior being mutated (e.g., boundary conditions, default parameter values).
+- **Make test verification**: After completing a phase, always run `make test`, `make check`, and `CI=true make infection` to ensure all checks pass before proceeding.
 
 ### Event System
 - Events are plain classes with readonly properties

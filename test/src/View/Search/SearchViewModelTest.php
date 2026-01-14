@@ -12,12 +12,14 @@ use S3\Log\Viewer\View\Search\SearchViewModel;
 class SearchViewModelTest extends TestCase
 {
     private string $testTemplatesDir;
+    private string $originalTemplatesRoot;
 
     #[Before]
     protected function setupTemplateDirectory(): void
     {
         $this->testTemplatesDir = getenv('APP_ROOT') . '/storage/templates_test_' . uniqid() . '/';
         mkdir($this->testTemplatesDir, recursive: true);
+        $this->originalTemplatesRoot = getenv('TEMPLATES_ROOT') ?: '';
         putenv('TEMPLATES_ROOT=' . $this->testTemplatesDir);
     }
 
@@ -26,7 +28,7 @@ class SearchViewModelTest extends TestCase
     {
         array_map('unlink', glob($this->testTemplatesDir . '*') ?: []);
         rmdir($this->testTemplatesDir);
-        putenv('TEMPLATES_ROOT=');
+        putenv('TEMPLATES_ROOT=' . $this->originalTemplatesRoot);
     }
 
     public function testHighlightClass_ShouldReturnExpectedClass(): void

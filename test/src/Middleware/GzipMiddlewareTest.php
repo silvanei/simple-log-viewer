@@ -158,4 +158,52 @@ class GzipMiddlewareTest extends TestCase
         $this->assertFalse($response->hasHeader('Content-Encoding'));
         $this->assertSame($originalBody, (string) $response->getBody());
     }
+
+    public function testUsesDefaultMinSizeOf1024(): void
+    {
+        $middleware = new GzipMiddleware();
+        $body1023 = str_repeat('x', 1023);
+        $body1024 = str_repeat('x', 1024);
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('gzip');
+
+        $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body1023);
+        $response = ($middleware)($this->request, $next);
+        $this->assertFalse($response->hasHeader('Content-Encoding'));
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('gzip');
+
+        $next2 = fn () => new Response(200, ['Content-Type' => 'text/html'], $body1024);
+        $response2 = ($middleware)($this->request, $next2);
+        $this->assertSame('gzip', $response2->getHeaderLine('Content-Encoding'));
+    }
+
+    public function testUsesDefaultCompressionLevelOf6(): void
+    {
+        $middleware = new GzipMiddleware();
+        $body = str_repeat('test content for compression verification ', 100);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('gzip');
+
+        $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body);
+        $response = ($middleware)($requestMock, $next);
+
+        $this->assertSame('gzip', $response->getHeaderLine('Content-Encoding'));
+        $compressed = (string) $response->getBody();
+        $this->assertNotSame($body, $compressed);
+        $this->assertSame($body, gzdecode($compressed));
+    }
 }

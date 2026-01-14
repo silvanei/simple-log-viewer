@@ -112,6 +112,8 @@ Order imports by category:
 - Use `assertSame()` for value equality, `assertInstanceOf()` for type checking
 - Avoid implementation details in assertions; focus on observable behavior
 - **Avoid trailing whitespace** - PSR-12 requires no whitespace at end of lines (detected by PHPCS Squiz.WhiteSpace.SuperfluousWhitespace.EndLine)
+- **Use PHPUnit attributes** for setup/teardown: `#[Before]` and `#[After]` instead of `setUp()` and `tearDown()` methods
+- When using `#[Before]`/`#[After]`, methods must be `protected` or `public`
 
 ### Common Pitfalls
 - **Trailing whitespace**: When adding new test methods or code blocks, ensure no spaces at end of lines. PHPCS will fail with "Whitespace found at end of line" error.

@@ -42,6 +42,27 @@ class GzipMiddlewareTest extends TestCase
         $this->assertSame($body, gzdecode($compressedBody));
     }
 
+    public function testCompressesWithDefaultCompressionLevel(): void
+    {
+        $middleware = new GzipMiddleware();
+        $body = str_repeat('content', 300);
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('gzip, deflate');
+
+        $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body);
+
+        $response = ($middleware)($this->request, $next);
+
+        $this->assertSame('gzip', $response->getHeaderLine('Content-Encoding'));
+        $this->assertSame('Accept-Encoding', $response->getHeaderLine('Vary'));
+        $this->assertNotSame($body, (string) $response->getBody());
+        $this->assertSame($body, gzdecode((string) $response->getBody()));
+    }
+
     public function testSkipsCompressionWhenBodyIsTooSmall(): void
     {
         $body = 'small content';
@@ -51,6 +72,25 @@ class GzipMiddlewareTest extends TestCase
         $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body);
 
         $response = ($this->middleware)($this->request, $next);
+
+        $this->assertFalse($response->hasHeader('Content-Encoding'));
+        $this->assertSame($body, (string) $response->getBody());
+    }
+
+    public function testSkipsCompressionWhenBodySizeIsExactlyMinSize(): void
+    {
+        $middleware = new GzipMiddleware();
+        $body = str_repeat('x', 1024);
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Accept-Encoding')
+            ->willReturn('identity');
+
+        $next = fn () => new Response(200, ['Content-Type' => 'text/html'], $body);
+
+        $response = ($middleware)($this->request, $next);
 
         $this->assertFalse($response->hasHeader('Content-Encoding'));
         $this->assertSame($body, (string) $response->getBody());
@@ -106,14 +146,16 @@ class GzipMiddlewareTest extends TestCase
 
     public function testSkipsCompressionWhenBodyIsEmpty(): void
     {
+        $originalBody = '';
+
         $this->request
             ->expects($this->never())
             ->method('getHeaderLine');
-        $next = fn () => new Response(204, ['Content-Type' => 'text/html'], '');
+        $next = fn () => new Response(204, ['Content-Type' => 'text/html'], $originalBody);
 
         $response = ($this->middleware)($this->request, $next);
 
         $this->assertFalse($response->hasHeader('Content-Encoding'));
-        $this->assertSame('', (string) $response->getBody());
+        $this->assertSame($originalBody, (string) $response->getBody());
     }
 }

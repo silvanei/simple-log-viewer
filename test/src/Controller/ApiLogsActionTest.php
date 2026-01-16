@@ -378,7 +378,160 @@ class ApiLogsActionTest extends TestCase
     }
 
     /** @throws Exception */
-    private function createRequestMock(string $contentType = 'application/json'): ServerRequestInterface&MockObject
+    public function testInvokeWithValidExtraArray_ShouldReturn201Status(): void
+    {
+        $data = [
+            ...self::VALID_DATA,
+            ...['extra' => ['custom_field' => 'custom_value', 'numeric' => 123]]
+        ];
+
+        $request = $this->createRequestMock();
+        $request
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($data));
+
+        $logService = $this->createMock(LogService::class);
+        $logService->expects($this->once())
+            ->method('add')
+            ->with($this->isInstanceOf(LogEntry::class));
+
+        $response = $this->executeAction($logService, $request);
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('Received log', (string) $response->getBody());
+    }
+
+    public function testInvokeWithInvalidExtraNonArray_ShouldReturn400Status(): void
+    {
+        $data = [
+            ...self::VALID_DATA,
+            ...['extra' => 'invalid_extra_field']
+        ];
+
+        $request = $this->createRequestMock();
+        $request
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($data));
+
+        $logService = $this->createMock(LogService::class);
+        $logService
+            ->expects($this->never())
+            ->method('add');
+
+        $response = $this->executeAction($logService, $request);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertStringContainsString('Invalid extra field', (string) $response->getBody());
+    }
+
+    public function testInvokeWithMissingExtraField_ShouldReturn201StatusWithDefaultEmptyExtra(): void
+    {
+        $request = $this->createRequestMock();
+        $request
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode(self::VALID_DATA));
+
+        $logService = $this->createMock(LogService::class);
+        $logService->expects($this->once())
+            ->method('add')
+            ->with($this->callback(function (LogEntry $logEntry) {
+                return $logEntry->extra === [];
+            }));
+
+        $response = $this->executeAction($logService, $request);
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('Received log', (string) $response->getBody());
+    }
+
+    public function testInvokeWithEmptyExtraArray_ShouldReturn201Status(): void
+    {
+        $data = [
+            ...self::VALID_DATA,
+            ...['extra' => []]
+        ];
+
+        $request = $this->createRequestMock();
+        $request
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($data));
+
+        $logService = $this->createMock(LogService::class);
+        $logService->expects($this->once())
+            ->method('add')
+            ->with($this->callback(function (LogEntry $logEntry) {
+                return $logEntry->extra === [];
+            }));
+
+        $response = $this->executeAction($logService, $request);
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('Received log', (string) $response->getBody());
+    }
+
+    public static function extraFieldValidationProvider(): Generator
+    {
+        yield 'null extra (treated as missing)' => ['extra' => null, 'shouldPass' => true];
+        yield 'string extra' => ['extra' => 'string', 'shouldPass' => false];
+        yield 'numeric extra' => ['extra' => 123, 'shouldPass' => false];
+        yield 'boolean extra true' => ['extra' => true, 'shouldPass' => false];
+        yield 'boolean extra false' => ['extra' => false, 'shouldPass' => false];
+        yield 'object extra (becomes array)' => ['extra' => (object)['key' => 'value'], 'shouldPass' => true];
+        yield 'empty array extra' => ['extra' => [], 'shouldPass' => true];
+        yield 'associative array extra' => ['extra' => ['key' => 'value'], 'shouldPass' => true];
+        yield 'indexed array extra' => ['extra' => ['item1', 'item2'], 'shouldPass' => true];
+        yield 'nested array extra' => ['extra' => ['nested' => ['deep' => 'value']], 'shouldPass' => true];
+        yield 'mixed keys array extra' => ['extra' => ['string' => 'value', 42 => 'int_key'], 'shouldPass' => true];
+    }
+
+    #[DataProvider('extraFieldValidationProvider')]
+    public function testInvokeWithExtraFieldValidation(mixed $extra, bool $shouldPass): void
+    {
+        $data = [
+            ...self::VALID_DATA,
+            ...['extra' => $extra]
+        ];
+
+        $request = $this->createRequestMock();
+        $request
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($data));
+
+        $logService = $this->createMock(LogService::class);
+        $logService
+            ->expects($shouldPass ? $this->once() : $this->never())
+            ->method('add');
+
+        $response = $this->executeAction($logService, $request);
+
+        if ($shouldPass) {
+            $this->assertSame(201, $response->getStatusCode());
+            $this->assertStringContainsString('Received log', (string) $response->getBody());
+        } else {
+            $this->assertSame(400, $response->getStatusCode());
+            $responseBody = (string) $response->getBody();
+            if (str_contains($responseBody, 'Invalid extra field')) {
+                $this->assertStringContainsString('Invalid extra field', $responseBody);
+            } else {
+                $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+                $responseData = json_decode($responseBody, true);
+                $this->assertIsArray($responseData);
+                $this->assertArrayHasKey('errors', $responseData);
+                $errors = $responseData['errors'];
+                $this->assertIsArray($errors);
+                $this->assertArrayHasKey('extra', $errors);
+                $this->assertSame('Invalid extra field', $errors['extra']);
+            }
+        }
+    }
+
+    private function createRequestMock(string $contentType = 'application/json'): ServerRequestInterface & MockObject
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request

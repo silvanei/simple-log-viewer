@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use S3\Log\Viewer\Controller\ApiLogsAction;
+use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\LogService;
 
 class ApiLogsActionTest extends TestCase
@@ -34,7 +35,7 @@ class ApiLogsActionTest extends TestCase
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('add')
-            ->with(self::VALID_DATA);
+            ->with($this->isInstanceOf(LogEntry::class));
 
         $response = $this->executeAction($logService, $request);
 

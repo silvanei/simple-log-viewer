@@ -8,6 +8,7 @@ use PDO;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use React\Stream\ThroughStream;
+use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
@@ -46,7 +47,7 @@ class LogServiceTest extends TestCase
             ->method('dispatch')
             ->with(new LogReceived());
 
-        $this->service->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => []]);
+        $this->service->add(new LogEntry('2025-04-28T10:00:00Z', 'a', 'DEBUG', 'm1', []));
     }
 
     public function testClear_ShouldDispatchLogCleared(): void
@@ -62,8 +63,8 @@ class LogServiceTest extends TestCase
     public function testSearchWithoutFilterReturnsAll(): void
     {
         $this->eventDispatcher->expects($this->exactly(2))->method('dispatch');
-        $this->service->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1, 'foo' => 'bar']]);
-        $this->service->add(['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2, 'foo' => 'bar']]);
+        $this->service->add(new LogEntry('2025-04-28T10:00:00Z', 'a', 'DEBUG', 'm1', ['x' => 1, 'foo' => 'bar']));
+        $this->service->add(new LogEntry('2025-04-28T11:00:00Z', 'b', 'ERROR', 'm2', ['y' => 2, 'foo' => 'bar']));
 
         $response = $this->service->search('');
 
@@ -79,9 +80,9 @@ class LogServiceTest extends TestCase
     public function testSearchWithFilterMatchesOnlyRelevant(): void
     {
         $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
-        $this->service->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
-        $this->service->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
-        $this->service->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foobar','context' => []]);
+        $this->service->add(new LogEntry('2025-04-28T08:00:00Z', 'ch', 'INFO', 'foo', []));
+        $this->service->add(new LogEntry('2025-04-28T09:00:00Z', 'ch', 'INFO', 'bar', []));
+        $this->service->add(new LogEntry('2025-04-28T10:00:00Z', 'ch', 'INFO', 'foobar', []));
 
         $response = $this->service->search('foo');
 
@@ -96,8 +97,8 @@ class LogServiceTest extends TestCase
     public function testClearLogsAndNotifiesChannel(): void
     {
         $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
-        $this->service->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
-        $this->service->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
+        $this->service->add(new LogEntry('2025-04-28T08:00:00Z', 'ch', 'INFO', 'foo', []));
+        $this->service->add(new LogEntry('2025-04-28T09:00:00Z', 'ch', 'INFO', 'bar', []));
 
         $this->service->clear();
 

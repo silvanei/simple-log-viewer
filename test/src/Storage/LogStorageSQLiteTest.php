@@ -8,6 +8,7 @@ use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\Storage\LogStorage;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
 
@@ -65,7 +66,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldInsertLog(): void
     {
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T12:00:00Z', 'channel' => 'app', 'level' => 'INFO', 'message' => 'Test message', 'context' => ['foo' => 'bar']]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test message', ['foo' => 'bar']));
 
         $stmt = $this->pdo->query("SELECT datetime, channel, level, message, context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -81,13 +82,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldHandleMissingExtraField(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test message',
-            'context' => ['foo' => 'bar']
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test message', ['foo' => 'bar']));
 
         $stmt = $this->pdo->query("SELECT datetime, extra FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -100,14 +95,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldPreserveExtraFieldWhenProvided(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test message',
-            'context' => ['foo' => 'bar'],
-            'extra' => ['key' => 'value']
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test message', ['foo' => 'bar'], ['key' => 'value']));
 
         $stmt = $this->pdo->query("SELECT datetime, extra FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -120,13 +108,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldNormalizeNumbersInContext(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test',
-            'context' => ['count' => 42, 'price' => 3.14]
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test', ['count' => 42, 'price' => 3.14]));
 
         $stmt = $this->pdo->query("SELECT context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -138,13 +120,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldPreserveStringsInContext(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test',
-            'context' => ['name' => 'test', 'value' => 123]
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test', ['name' => 'test', 'value' => 123]));
 
         $stmt = $this->pdo->query("SELECT context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -156,13 +132,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldPreserveNullAndBooleanInContext(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test',
-            'context' => ['isActive' => true, 'deletedAt' => null]
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test', ['isActive' => true, 'deletedAt' => null]));
 
         $stmt = $this->pdo->query("SELECT context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -174,13 +144,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldNormalizeNestedNumbersInContext(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test',
-            'context' => ['outer' => ['inner' => 42], 'top' => 'keep']
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test', ['outer' => ['inner' => 42], 'top' => 'keep']));
 
         $stmt = $this->pdo->query("SELECT context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -192,13 +156,7 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testAdd_ShouldNormalizeFalseBooleanInContext(): void
     {
-        $this->logStorageSQLite->add([
-            'datetime' => '2025-04-28T12:00:00Z',
-            'channel' => 'app',
-            'level' => 'INFO',
-            'message' => 'Test',
-            'context' => ['enabled' => false, 'active' => true, 'name' => 'test']
-        ]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T12:00:00Z', 'app', 'INFO', 'Test', ['enabled' => false, 'active' => true, 'name' => 'test']));
 
         $stmt = $this->pdo->query("SELECT context FROM logs");
         $this->assertInstanceOf(PDOStatement::class, $stmt);
@@ -210,8 +168,8 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testSearch_ShouldReturnAllLogsSortedByDatetimeDesc_WhenFilterIsEmpty(): void
     {
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'DEBUG','message' => 'm1','context' => ['x' => 1]]);
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T11:00:00Z','channel' => 'b','level' => 'ERROR','message' => 'm2','context' => ['y' => 2]]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T10:00:00Z', 'a', 'DEBUG', 'm1', ['x' => 1]));
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T11:00:00Z', 'b', 'ERROR', 'm2', ['y' => 2]));
 
         $data = $this->logStorageSQLite->search('');
 
@@ -231,9 +189,9 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testSearch_ShouldReturnMatchesOnlyRelevant_WhenFiltered(): void
     {
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T10:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foobar','context' => []]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T08:00:00Z', 'ch', 'INFO', 'foo', []));
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T09:00:00Z', 'ch', 'INFO', 'bar', []));
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T10:00:00Z', 'ch', 'INFO', 'foobar', []));
 
         $data = $this->logStorageSQLite->search('foo');
 
@@ -247,8 +205,8 @@ class LogStorageSQLiteTest extends TestCase
 
     public function testClear_ShouldRemovesAllLogs(): void
     {
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T08:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'foo','context' => []]);
-        $this->logStorageSQLite->add(['datetime' => '2025-04-28T09:00:00Z','channel' => 'ch','level' => 'INFO','message' => 'bar','context' => []]);
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T08:00:00Z', 'ch', 'INFO', 'foo', []));
+        $this->logStorageSQLite->add(new LogEntry('2025-04-28T09:00:00Z', 'ch', 'INFO', 'bar', []));
 
         $this->assertCount(2, $this->logStorageSQLite->search(''));
 

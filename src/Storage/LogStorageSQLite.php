@@ -6,6 +6,7 @@ namespace S3\Log\Viewer\Storage;
 
 use PDO;
 use PDOException;
+use S3\Log\Viewer\Dto\LogEntry;
 
 use function is_array;
 use function is_int;
@@ -31,20 +32,19 @@ final readonly class LogStorageSQLite implements LogStorage
         );
     }
 
-    /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>} $log */
-    public function add(array $log): void
+    public function add(LogEntry $log): void
     {
         $stmt = $this->storage->prepare(<<<QUERY
             INSERT INTO logs (datetime, channel, level, message, context, extra)
             VALUES (:datetime, :channel, :level, :message, :context, :extra)
             QUERY
         );
-        $stmt->bindValue(':datetime', $log['datetime']);
-        $stmt->bindValue(':channel', $log['channel']);
-        $stmt->bindValue(':level', $log['level']);
-        $stmt->bindValue(':message', $log['message']);
-        $stmt->bindValue(':context', json_encode($this->normalizeValueAsText($log['context']), JSON_UNESCAPED_UNICODE));
-        $stmt->bindValue(':extra', json_encode($this->normalizeValueAsText($log['extra'] ?? []), JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':datetime', $log->datetime);
+        $stmt->bindValue(':channel', $log->channel);
+        $stmt->bindValue(':level', $log->level);
+        $stmt->bindValue(':message', $log->message);
+        $stmt->bindValue(':context', json_encode($this->normalizeValueAsText($log->context), JSON_UNESCAPED_UNICODE));
+        $stmt->bindValue(':extra', json_encode($this->normalizeValueAsText($log->extra), JSON_UNESCAPED_UNICODE));
         $stmt->execute();
     }
 

@@ -6,6 +6,7 @@ namespace S3\Log\Viewer;
 
 use JsonException;
 use React\Stream\ThroughStream;
+use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
@@ -25,8 +26,7 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new StreamCreated($stream, $id));
     }
 
-    /** @param array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>} $log */
-    public function add(array $log): void
+    public function add(LogEntry $log): void
     {
         $this->storage->add($log);
         $this->eventDispatcher->dispatch(new LogReceived());

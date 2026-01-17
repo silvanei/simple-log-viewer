@@ -42,10 +42,10 @@ test:
 	$(DOCKER_CONTAINER_RUN) composer test -- $(args)
 
 phpstan:
-	$(DOCKER_CONTAINER_RUN) composer phpstan
+	$(DOCKER_CONTAINER_RUN) composer phpstan -- $(args)
 
 phpcs:
-	$(DOCKER_CONTAINER_RUN) composer phpcs
+	$(DOCKER_CONTAINER_RUN) composer phpcs -- $(args)
 
 infection:
 	$(DOCKER_CONTAINER_RUN) composer test-infection -- $(args)

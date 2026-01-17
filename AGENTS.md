@@ -6,9 +6,9 @@ This guide helps agentic coding assistants work effectively with this PHP codeba
 
 ### Running Commands (Makefile)
 - `make test` - Run all tests (supports args: `make test args="--filter=testName"`)
-- `make phpstan` - Run PHPStan static analysis
-- `make phpcs` - Run PHP CodeSniffer linting
-- `make infection` - Run Infection mutation testing (supports args)
+- `make phpstan` - Run PHPStan static analysis (supports args: `make phpstan args="--level=0 --memory-limit=256M"`)
+- `make phpcs` - Run PHP CodeSniffer linting (supports args: `make phpcs args="--standard=PSR12 src/"`)
+- `make infection` - Run Infection mutation testing (supports args: `make infection args="--test-framework=phpunit --only-covering-test-cases"`)
 - `make check` - Run all checks (test, phpstan, phpcs)
 - `make serve` - Start application via Docker Compose
 - `make sh` - Open shell in Docker container
@@ -16,9 +16,10 @@ This guide helps agentic coding assistants work effectively with this PHP codeba
 **Note**: Makefile uses `-it` flags by default. For non-interactive TTY environments (CI/agents), use `CI=true make <target>`:
 ```bash
 CI=true make test
-CI=true make phpstan
-CI=true make phpcs
-CI=true make infection
+CI=true make phpstan args="--level=0 --memory-limit=256M"
+CI=true make phpcs args="--standard=PSR12 src/"
+CI=true make infection args="--test-framework=phpunit --only-covering-test-cases"
+CI=true make test args="--filter=testMethodName"
 CI=true make check
 ```
 Or run Composer scripts directly without Docker.
@@ -42,6 +43,11 @@ composer test -- --filter=testMethodName
 
 # Run specific test file
 composer test -- test/src/Controller/HomeActionTest.php
+
+# Additional examples:
+CI=true make phpstan args="--level=0 --memory-limit=256M"
+CI=true make phpcs args="--standard=PSR12 src/"
+CI=true make infection args="--test-framework=phpunit --only-covering-test-cases"
 ```
 
 ## Code Style Guidelines
@@ -119,6 +125,7 @@ Order imports by category:
 - **Trailing whitespace**: When adding new test methods or code blocks, ensure no spaces at end of lines. PHPCS will fail with "Whitespace found at end of line" error.
 - **Mutation testing**: Use `CI=true make infection` or `composer test-infection` to run Infection. Tests added for mutation testing should explicitly verify the behavior being mutated (e.g., boundary conditions, default parameter values).
 - **Make test verification**: After completing a phase, always run `make test`, `make check`, and `CI=true make infection` to ensure all checks pass before proceeding.
+- **Command argument support**: All make commands support optional arguments via `args="..."` parameter for flexible usage in CI/automation workflows.
 
 ### Event System
 - Events are plain classes with readonly properties

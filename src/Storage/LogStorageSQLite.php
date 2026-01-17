@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer\Storage;
 
+use JsonException;
 use PDO;
 use PDOException;
 use S3\Log\Viewer\Dto\LogEntry;
+use S3\Log\Viewer\Dto\LogEntryView;
 
 use function is_array;
 use function is_int;
@@ -48,6 +50,7 @@ final readonly class LogStorageSQLite implements LogStorage
         $stmt->execute();
     }
 
+    /** @return LogEntryView[] */
     public function search(string $filter): array
     {
         if ($filter) {
@@ -78,9 +81,19 @@ final readonly class LogStorageSQLite implements LogStorage
 
         try {
             $stmt->execute();
-            /** @var array{'datetime': string, 'channel': string, 'level': string, 'message': string, 'context': string, 'extra': string}[] $rows */
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $rows;
+            $result = $stmt->fetchAll(
+                PDO::FETCH_FUNC,
+                fn (string $datetime, string $channel, string $level, string $message, string $context, string $extra): LogEntryView => new LogEntryView(
+                    $datetime,
+                    $channel,
+                    $level,
+                    $message,
+                    $this->jsonDecode($context),
+                    $this->jsonDecode($extra)
+                )
+            );
+            /** @var LogEntryView[] $result */
+            return $result;
         } catch (PDOException) {
             return [];
         }
@@ -89,6 +102,18 @@ final readonly class LogStorageSQLite implements LogStorage
     public function clear(): void
     {
         $this->storage->exec('DELETE FROM logs');
+    }
+
+    /** @return array<int|string, mixed> */
+    private function jsonDecode(string $json): array
+    {
+        try {
+            /** @var array<int|string, mixed> $data */
+            $data = json_decode($json, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return [];
+        }
+        return $data;
     }
 
     private function normalizeValueAsText(mixed $data): mixed

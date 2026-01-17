@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
+use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\LogService;
 use S3\Log\Viewer\View\Search\SearchViewModel;
 use Throwable;
@@ -26,6 +27,7 @@ readonly class SearchAction implements ActionHandler
             $fields = $queryParams['fields'] ?? [];
             $filter = $queryParams['search'] ?? '';
 
+            /** @var LogEntryView[] $rows */
             $rows = $this->logService->search($filter);
             $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields]);
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer;
 
-use JsonException;
 use React\Stream\ThroughStream;
 use S3\Log\Viewer\Dto\LogEntry;
+use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
@@ -32,34 +32,15 @@ readonly class LogService
         $this->eventDispatcher->dispatch(new LogReceived());
     }
 
-    /** @return array{datetime: string, channel: string, level: string, message: string, context: array<string|int, mixed>, extra?: array<string|int, mixed>}[] */
+    /** @return LogEntryView[] */
     public function search(string $filter): array
     {
-        return array_map(
-            function (array $row): array {
-                $row['context'] = $this->jsonDecode($row['context']);
-                $row['extra'] = $this->jsonDecode($row['extra']);
-                return $row;
-            },
-            $this->storage->search($filter)
-        );
+        return $this->storage->search($filter);
     }
 
     public function clear(): void
     {
         $this->storage->clear();
         $this->eventDispatcher->dispatch(new LogCleared());
-    }
-
-    /** @return array<int|string, mixed> */
-    private function jsonDecode(string $json): array
-    {
-        try {
-            /** @var array<int|string, mixed> $data */
-            $data = json_decode($json, associative: true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            return [];
-        }
-        return $data;
     }
 }

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use S3\Log\Viewer\Controller\SearchAction;
+use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\LogService;
 
 class SearchActionTest extends TestCase
@@ -115,7 +116,7 @@ class SearchActionTest extends TestCase
             ->method('search')
             ->with($testFilter)
             ->willReturn([
-                ['datetime' => '2025-04-28T10:00:00Z','channel' => 'a','level' => 'ERROR','message' => 'm1','context' => []],
+                new LogEntryView(datetime: '2025-04-28T10:00:00Z', channel: 'a', level: 'ERROR', message: 'm1', context: []),
             ]);
 
         $action = new SearchAction($logService);

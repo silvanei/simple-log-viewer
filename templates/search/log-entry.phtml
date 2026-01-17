@@ -22,17 +22,17 @@
     </div>
 
     <?php foreach ($this->entries as $entry) : ?>
-        <?php $flattenWithDotsentry = $this->flattenWithDots($entry); ?>
+        <?php $flattenWithDotsentry = $this->flattenWithDots((array)$entry); ?>
         <div class="row row-main">
             <div class="cell">
                 <button _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
                     <span class="i i-caret"></span>
                 </button>
             </div>
-            <div class="cell datetime"><span><?= $this->escape($entry['datetime']) ?></span></div>
-            <div class="cell channel"><span>[<?= $this->escape($entry['channel']) ?>]</b></span></div>
-            <div class="cell level <?= strtolower($entry['level']) ?>"><span><?= $this->escape($entry['level']) ?></b></span></div>
-            <div class="cell message"><span><?= $this->escape($entry['message']) ?></span></div>
+            <div class="cell datetime"><span><?= $this->escape($entry->datetime) ?></span></div>
+            <div class="cell channel"><span>[<?= $this->escape($entry->channel) ?>]</b></span></div>
+            <div class="cell level <?= strtolower($entry->level) ?>"><span><?= $this->escape($entry->level) ?></b></span></div>
+            <div class="cell message"><span><?= $this->escape($entry->message) ?></span></div>
             <?php foreach ($this->fields as $field) : ?>
                 <div class="cell cell-field">
                     <span><?= $this->renderAdidionalField($flattenWithDotsentry, $field) ?></span>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer\Controller;
 
 use Generator;
+use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -25,6 +26,20 @@ class ApiLogsActionTest extends TestCase
         'context' => [],
     ];
 
+    private const string EXPECTED_SUCCESS_JSON = <<<'JSON'
+    {
+        "message": "Log entry received"
+    }
+
+    JSON;
+
+    private const string EXPECTED_UNSUPPORTED_MEDIA_TYPE_JSON =  <<<'JSON'
+    {
+        "error": "Unsupported Media Type. Expected application/json"
+    }
+
+    JSON;
+
     public function testWithValidDataReturns201Response(): void
     {
         $request = $this->createRequestMock();
@@ -40,11 +55,11 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('Received log', (string) $response->getBody());
-        $this->assertEmpty($response->getHeader('Content-Type'));
+        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
     }
 
-    public function testInvokeWithInvalidJsonReturns400Response(): void
+    public function testInvokeWithInvalidJsonThrowsJsonException(): void
     {
         $request = $this->createRequestMock();
         $request
@@ -56,14 +71,13 @@ class ApiLogsActionTest extends TestCase
             ->expects($this->never())
             ->method('add');
 
-        $response = $this->executeAction($logService, $request);
+        $this->expectException(JsonException::class);
+        $this->expectExceptionMessage('Syntax error');
 
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertEquals('Syntax error', (string) $response->getBody());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+        $this->executeAction($logService, $request);
     }
 
-    public function testInvokeWhenLogServiceThrowsExceptionReturns400(): void
+    public function testInvokeWhenLogServiceThrowsExceptionThrowsRuntimeException(): void
     {
         $request = $this->createRequestMock();
         $request
@@ -76,11 +90,10 @@ class ApiLogsActionTest extends TestCase
             ->method('add')
             ->willThrowException(new \RuntimeException($expectedMessage = 'Service unavailable'));
 
-        $response = $this->executeAction($logService, $request);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
 
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame($expectedMessage, (string) $response->getBody());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+        $this->executeAction($logService, $request);
     }
 
     /** @throws Exception */
@@ -92,8 +105,8 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(415, $response->getStatusCode());
-        $this->assertSame('Unsupported Media Type', (string) $response->getBody());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+        $this->assertSame(self::EXPECTED_UNSUPPORTED_MEDIA_TYPE_JSON, (string) $response->getBody());
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
     }
 
     public function testInvokeWithMissingRequiredFieldsReturns400Response(): void
@@ -130,12 +143,12 @@ class ApiLogsActionTest extends TestCase
         yield 'Min length' => [
             'channel' => str_repeat('a', 3),
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Max length' => [
             'channel' => str_repeat('a', 255),
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'After max length' => [
             'channel' => str_repeat('a', 256),
@@ -169,42 +182,42 @@ class ApiLogsActionTest extends TestCase
         yield 'DEBUG' => [
             'level' => 'debug',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'INFO' => [
             'level' => 'info',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'NOTICE' => [
             'level' => 'notice',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'WARNING' => [
             'level' => 'warning',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'ERROR' => [
             'level' => 'error',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'CRITICAL' => [
             'level' => 'critical',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'ALERT' => [
             'level' => 'alert',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'EMERGENCY' => [
             'level' => 'emergency',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'INVALID-LEVEL' => [
             'level' => 'invalid-level',
@@ -238,12 +251,12 @@ class ApiLogsActionTest extends TestCase
         yield 'Valid RFC3339 Extended with microseconds' => [
             'datetime' => '2025-05-04T12:00:00.000+00:00',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid RFC3339 Extended with milliseconds' => [
             'datetime' => '2025-05-04T12:00:00.123+00:00',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Invalid RFC3339 Extended with full microseconds' => [
             'datetime' => '2025-05-04T12:00:00.123456+00:00',
@@ -258,27 +271,27 @@ class ApiLogsActionTest extends TestCase
         yield 'Valid RFC3339 Extended with different timezone' => [
             'datetime' => '2025-05-04T12:00:00.000-03:00',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid RFC3339 Extended with positive timezone' => [
             'datetime' => '2025-05-04T12:00:00.000+05:30',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid ISO8601 basic format UTC' => [
             'datetime' => '2025-05-04T12:00:00+00:00',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid ISO8601 basic format with negative timezone' => [
             'datetime' => '2025-05-04T12:00:00-03:00',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid ISO8601 basic format with positive timezone' => [
             'datetime' => '2025-05-04T12:00:00+05:30',
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Invalid ISO8601 with UTC Z notation' => [
             'datetime' => '2025-05-04T12:00:00Z',
@@ -338,12 +351,12 @@ class ApiLogsActionTest extends TestCase
         yield 'Min length' => [
             'message' => str_repeat('a', 3),
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Max length' => [
             'message' => str_repeat('a', 255),
             'expectedStatusCode' => 201,
-            'expectedResponseBody' => 'Received log'
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'After max length' => [
             'message' => str_repeat('a', 256),
@@ -399,7 +412,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('Received log', (string) $response->getBody());
+        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public function testInvokeWithInvalidExtraNonArray_ShouldReturn400Status(): void
@@ -445,7 +458,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('Received log', (string) $response->getBody());
+        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public function testInvokeWithEmptyExtraArray_ShouldReturn201Status(): void
@@ -471,7 +484,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('Received log', (string) $response->getBody());
+        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public static function extraFieldValidationProvider(): Generator
@@ -512,7 +525,7 @@ class ApiLogsActionTest extends TestCase
 
         if ($shouldPass) {
             $this->assertSame(201, $response->getStatusCode());
-            $this->assertStringContainsString('Received log', (string) $response->getBody());
+            $this->assertStringContainsString('"message": "Log entry received"', (string) $response->getBody());
         } else {
             $this->assertSame(400, $response->getStatusCode());
             $responseBody = (string) $response->getBody();

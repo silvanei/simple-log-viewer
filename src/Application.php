@@ -8,6 +8,7 @@ use FastRoute\RouteCollector;
 use React\Http\HttpServer;
 use React\Socket\SocketServer;
 use S3\Log\Viewer\Handler\RouterHandler;
+use S3\Log\Viewer\Middleware\ErrorHandlerMiddleware;
 use S3\Log\Viewer\Middleware\StaticFileMiddleware;
 use S3\Log\Viewer\Middleware\GzipMiddleware;
 
@@ -39,6 +40,7 @@ final class Application
         $server = new HttpServer(
             new GzipMiddleware(),
             new StaticFileMiddleware('public'),
+            new ErrorHandlerMiddleware(),
             new RouterHandler($dispatcher),
         );
         $server->listen(new SocketServer($uri));

@@ -154,7 +154,7 @@ class SearchActionTest extends TestCase
     }
 
     /** @throws Exception */
-    public function test_invoke_returns_400_on_service_failure(): void
+    public function test_invoke_throws_exception_on_service_failure(): void
     {
         $errorMessage = 'Database connection failed';
         $exception = new RuntimeException($errorMessage);
@@ -171,10 +171,10 @@ class SearchActionTest extends TestCase
             ->willThrowException($exception);
 
         $action = new SearchAction($logService);
-        $response = $action->__invoke($request);
 
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
-        $this->assertSame($errorMessage, (string) $response->getBody());
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage($errorMessage);
+
+        $action->__invoke($request);
     }
 }

@@ -11,7 +11,6 @@ use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Dto\InvalidLogEntryDataException;
 use S3\Log\Viewer\Dto\LogEntryParser;
 use S3\Log\Viewer\LogService;
-use Throwable;
 
 readonly class ApiLogsAction implements ActionHandler
 {
@@ -21,22 +20,20 @@ readonly class ApiLogsAction implements ActionHandler
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
-        try {
-            $contentType = $request->getHeaderLine('Content-Type');
-            if ($contentType !== 'application/json') {
-                return new Response(415, ['Content-Type' => 'text/html'], 'Unsupported Media Type');
-            }
+        $contentType = $request->getHeaderLine('Content-Type');
+        if ($contentType !== 'application/json') {
+            return Response::json(['error' => 'Unsupported Media Type. Expected application/json'])->withStatus(415);
+        }
 
-            $json = (string)$request->getBody();
+        $json = (string)$request->getBody();
+        try {
             $logEntry = LogEntryParser::parseJson($json);
 
             $this->logService->add($logEntry);
 
-            return new Response(201, body: 'Received log');
+            return Response::json(['message' => 'Log entry received'])->withStatus(201);
         } catch (InvalidLogEntryDataException $e) {
-            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['errors' => $e->errors]) ?: '');
-        } catch (Throwable $e) {
-            return new Response(400, ['Content-Type' => 'text/html'], $e->getMessage());
+            return Response::json(['errors' => $e->errors, 'error' => 'Validation failed'])->withStatus(400);
         }
     }
 }

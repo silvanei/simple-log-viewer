@@ -11,7 +11,6 @@ use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\LogService;
 use S3\Log\Viewer\View\Search\SearchViewModel;
-use Throwable;
 
 readonly class SearchAction implements ActionHandler
 {
@@ -21,19 +20,15 @@ readonly class SearchAction implements ActionHandler
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
-        try {
-            /** @var array{search?: string, fields?: string[]} $queryParams */
-            $queryParams = $request->getQueryParams();
-            $fields = $queryParams['fields'] ?? [];
-            $filter = $queryParams['search'] ?? '';
+        /** @var array{search?: string, fields?: string[]} $queryParams */
+        $queryParams = $request->getQueryParams();
+        $fields = $queryParams['fields'] ?? [];
+        $filter = $queryParams['search'] ?? '';
 
-            /** @var LogEntryView[] $rows */
-            $rows = $this->logService->search($filter);
-            $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields]);
+        /** @var LogEntryView[] $rows */
+        $rows = $this->logService->search($filter);
+        $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields]);
 
-            return Response::html($view->render());
-        } catch (Throwable $e) {
-            return new Response(400, ['Content-Type' => 'text/html'], $e->getMessage());
-        }
+        return Response::html($view->render());
     }
 }

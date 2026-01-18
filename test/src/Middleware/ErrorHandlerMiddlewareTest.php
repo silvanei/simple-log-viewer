@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\Middleware;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -16,6 +17,7 @@ use S3\Log\Viewer\Middleware\ErrorHandlerMiddleware;
 use InvalidArgumentException;
 use Error;
 
+#[AllowMockObjectsWithoutExpectations]
 final class ErrorHandlerMiddlewareTest extends TestCase
 {
     private ErrorHandlerMiddleware $middleware;

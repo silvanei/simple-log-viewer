@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\Middleware;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -11,6 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Message\Response;
 use S3\Log\Viewer\Middleware\GzipMiddleware;
 
+#[AllowMockObjectsWithoutExpectations]
 class GzipMiddlewareTest extends TestCase
 {
     private GzipMiddleware $middleware;

@@ -94,6 +94,30 @@ Order imports by category:
 - Indent with 4 spaces
 - One blank line between methods, two blank lines between classes
 
+### Arrow Functions (fn)
+Use arrow functions (`fn () =>`) for single-line functions instead of traditional closure syntax:
+
+**Preferred:**
+```php
+$next = fn () => throw new RuntimeException('Error message');
+$mapper = fn (array $entry) => $entry['level'];
+```
+
+**Avoid:**
+```php
+$next = function () {
+    throw new RuntimeException('Error message');
+};
+```
+
+**When to use:**
+- Test callbacks (see ErrorHandlerMiddlewareTest.php for examples)
+- Middleware next handlers
+- Simple array transformations
+- Any function that can be expressed in a single expression
+
+**Return type inference:** Arrow functions automatically capture variables from parent scope, making them ideal for callbacks.
+
 ### Error Handling
 - Use try-catch for recoverable exceptions (e.g., `JsonException`, `PDOException`)
 - For database operations, set `PDO::ATTR_ERRMODE` to `PDO::ERRMODE_EXCEPTION`

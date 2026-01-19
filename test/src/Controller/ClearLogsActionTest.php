@@ -22,11 +22,11 @@ class ClearLogsActionTest extends TestCase
         $response = $action->__invoke($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
+        $this->assertSame(['text/html; charset=utf-8'], $response->getHeader('Content-Type'));
         $this->assertEmpty((string)$response->getBody());
     }
 
-    public function testInvokeReturns500OnError(): void
+    public function testInvokeThrowsExceptionOnError(): void
     {
         $request = $this->createStub(ServerRequestInterface::class);
         $logService = $this->createMock(LogService::class);
@@ -36,10 +36,10 @@ class ClearLogsActionTest extends TestCase
             ->willThrowException(new RuntimeException('Database error'));
 
         $action = new ClearLogsAction($logService);
-        $response = $action->__invoke($request);
 
-        $this->assertSame(500, $response->getStatusCode());
-        $this->assertSame(['text/html'], $response->getHeader('Content-Type'));
-        $this->assertSame('Database error', (string)$response->getBody());
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Database error');
+
+        $action->__invoke($request);
     }
 }

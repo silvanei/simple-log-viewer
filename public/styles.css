@@ -9,12 +9,17 @@ html {
     --border: #e1e4e8;
     --secondary-text: #6a737d;
 
+    /* Focus indicator color - WCAG 2.1 AA compliant (3:1 contrast ratio) */
+    --focus-color: #007acc;
+    --focus-ring-color: rgba(0, 122, 204, 0.3);
+    --focus-ring-offset: 2px;
+
     /* Log levels */
     --debug: #6a737d;      /* secondary-text */
     --info: #17a2b8;       /* Cyan */
     --notice: #28a745;     /* Green */
-    --warning: #ffc107;    /* Yellow */
-    --error: #ff4444;      /* Red */
+    --warning: #d49000;    /* Yellow */
+    --error: #dc3545;      /* Red */
     --critical: #e11d48;   /* Rose 600 */
     --alert: #be123c;      /* Rose 700 */
     --emergency: #881337;  /* Rose 900 */
@@ -40,13 +45,17 @@ html.dark {
     --surface: #161B22;
     --text: #d1d7e0;;
     --border: #30363D;
-    --secondary-text: #848D97;
+    --secondary-text: #B1BAC4;
+
+    /* Focus indicator color - WCAG 2.1 AA compliant for dark mode */
+    --focus-color: #58a6ff;
+    --focus-ring-color: rgba(88, 166, 255, 0.3);
 
     /* Log levels */
-    --debug: #848D97;      /* secondary-text */
+    --debug: #B1BAC4;      /* secondary-text */
     --info: #79C0FF;       /* Bright Blue */
     --notice: #86efac;     /* Bright Green */
-    --warning: #D29922;    /* Bright Yellow */
+    --warning: #EAC54F;    /* Bright Yellow */
     --error: #FF7B72;      /* Bright Red */
     --critical: #fb7185;   /* Rose 400 - mais brilhante para dark mode */
     --alert: #f43f5e;      /* Rose 500 */
@@ -601,7 +610,7 @@ body.htmx-request #progress-bar {
     clip: auto;
     white-space: nowrap;
     background: var(--surface);
-    border: 2px solid var(--info);
+    border: 2px solid var(--focus-color);
     border-radius: 4px;
     z-index: 9999;
     top: 8px;
@@ -623,13 +632,14 @@ body.htmx-request #progress-bar {
 
 /* ==========================================================================
    FOCUS INDICATORS - WCAG 2.1 AA Compliant (3:1 contrast ratio)
+   Uses CSS custom properties for easy theming
    Only visible when navigating via keyboard (:focus-visible)
    ========================================================================== */
 
 /* Universal focus-visible for all interactive elements */
 :focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* Remove default focus for mouse users */
@@ -645,20 +655,36 @@ input[type="search"]:focus {
 }
 
 input[type="search"].show-focus:focus {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
-    border-color: var(--info);
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Search Input Focus */
+html.dark input[type="search"].show-focus:focus {
+    outline-color: var(--focus-color);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Button Focus Styles - All buttons */
 .search-button:focus-visible,
 .clear-button:focus-visible,
 .pause-button:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
-    border-color: var(--info);
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Button Focus */
+html.dark .search-button:focus-visible,
+html.dark .clear-button:focus-visible,
+html.dark .pause-button:focus-visible {
+    outline-color: var(--focus-color);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Remove focus styles for mouse users on buttons */
@@ -672,9 +698,15 @@ input[type="search"].show-focus:focus {
 
 /* Theme Toggle Focus */
 .theme-toggle:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Theme Toggle Focus */
+html.dark .theme-toggle:focus-visible {
+    outline-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Remove focus styles for mouse users on theme toggle */
@@ -685,9 +717,14 @@ input[type="search"].show-focus:focus {
 
 /* Field Toggle Button Focus */
 .field-toggle-btn:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: 2px;
+}
+
+/* Dark Mode - Field Toggle Button Focus */
+html.dark .field-toggle-btn:focus-visible {
+    outline-color: var(--focus-color);
 }
 
 /* Remove focus styles for mouse users on field toggle */
@@ -698,10 +735,16 @@ input[type="search"].show-focus:focus {
 
 /* Log Entry Expand Button Focus */
 .wraper button:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: 2px;
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Log Entry Expand Button Focus */
+html.dark .wraper button:focus-visible {
+    outline-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Remove focus styles for mouse users on log entry buttons */
@@ -713,10 +756,16 @@ input[type="search"].show-focus:focus {
 
 /* Log Content Button Focus */
 .log-content button:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: 2px;
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Log Content Button Focus */
+html.dark .log-content button:focus-visible {
+    outline-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Remove focus styles for mouse users on log content buttons */
@@ -728,9 +777,9 @@ input[type="search"].show-focus:focus {
 
 /* Focus indicator for log entry rows (keyboard navigation) */
 .row-main:focus-visible {
-    outline: 3px solid var(--info);
+    outline: 3px solid var(--focus-color);
     outline-offset: -3px;
-    box-shadow: inset 0 0 0 2px var(--info);
+    box-shadow: inset 0 0 0 2px var(--focus-color);
 }
 
 /* Remove focus styles for mouse users on rows */
@@ -739,9 +788,10 @@ input[type="search"].show-focus:focus {
     box-shadow: none;
 }
 
+/* Dark mode focus for rows */
 html.dark .row-main:focus-visible {
-    outline-color: #79C0FF;
-    box-shadow: inset 0 0 0 2px #79C0FF;
+    outline-color: var(--focus-color);
+    box-shadow: inset 0 0 0 2px var(--focus-color);
 }
 
 /* Remove focus styles for mouse users in dark mode */
@@ -787,10 +837,17 @@ html.dark .row-main:focus:not(:focus-visible) {
 }
 
 .keyboard-help-button:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
-    border-color: var(--info);
-    box-shadow: 0 0 0 4px rgba(121, 192, 255, 0.2);
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+/* Dark Mode - Keyboard Help Button Focus */
+html.dark .keyboard-help-button:focus-visible {
+    outline-color: var(--focus-color);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 .keyboard-help-button:focus:not(:focus-visible) {
@@ -870,8 +927,13 @@ html.dark .row-main:focus:not(:focus-visible) {
 }
 
 .modal-close:focus-visible {
-    outline: 3px solid var(--info);
-    outline-offset: 2px;
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+}
+
+/* Dark Mode - Modal Close Button Focus */
+html.dark .modal-close:focus-visible {
+    outline-color: var(--focus-color);
 }
 
 .modal-close:focus:not(:focus-visible) {
@@ -994,5 +1056,73 @@ html.dark kbd {
 
     .shortcut-key {
         width: 100px;
+    }
+}
+
+/* ==========================================================================
+   HIGH CONTRAST MODE
+   Enhanced accessibility for users who prefer more contrast
+   ========================================================================== */
+
+@media (prefers-contrast: more) {
+    /* Force high contrast colors */
+    :root {
+        --border: #1f2328;
+        --secondary-text: #1f2328;
+    }
+
+    /* Dark mode high contrast */
+    html.dark {
+        --border: #d1d7e0;
+        --secondary-text: #ffffff;
+        --text: #ffffff;
+    }
+
+    /* Enhance borders */
+    .log-entry,
+    .row,
+    input[type="search"],
+    .search-button,
+    .clear-button,
+    .pause-button,
+    .theme-toggle {
+        border-width: 2px;
+    }
+
+    /* Enhance focus indicators */
+    :focus-visible {
+        outline-width: 4px;
+    }
+
+    /* Ensure log level colors are always visible */
+    .level {
+        font-weight: 700;
+    }
+}
+
+/* Windows High Contrast Mode support */
+@media (forced-colors: active) {
+    /* Use system colors when forced colors are active */
+    .log-entry,
+    .row,
+    .search-button,
+    .clear-button,
+    .pause-button,
+    .theme-toggle,
+    input[type="search"] {
+        border: 2px solid CanvasText;
+    }
+
+    :focus-visible {
+        outline: 3px solid Highlight;
+        outline-offset: 2px;
+    }
+
+    /* Ensure text remains visible */
+    .level,
+    .message,
+    .datetime,
+    .channel {
+        color: CanvasText;
     }
 }

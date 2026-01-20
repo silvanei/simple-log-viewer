@@ -16,7 +16,7 @@ final readonly class SearchViewModel
     public function highlightClass(mixed $value): string
     {
         if (is_string($value)) {
-            $value = str_replace(['⟦', '⟧'], ['', ''], $value);
+            $value = $this->cleanFts5Markers($value);
         }
 
         return match (true) {
@@ -29,11 +29,14 @@ final readonly class SearchViewModel
         };
     }
 
+    public function cleanFts5Markers(string $value): string
+    {
+        return str_replace(['⟦', '⟧'], '', $value);
+    }
+
     protected function renderAdidionalKey(string $aditionalKey): string
     {
-        return $aditionalKey
-            |> (fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'))
-            |> (fn (string $value): string => str_replace(['⟦', '⟧'], ['', ''], $value));
+        return $this->escape($this->cleanFts5Markers($aditionalKey));
     }
 
     /** @param array<string, string> $flattenWithDotsentry */

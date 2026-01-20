@@ -19,28 +19,36 @@ class SearchActionTest extends TestCase
     {
         $expectedBody = <<<HTML
         <div class="wraper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
+            <div class="sr-only" aria-live="polite" aria-atomic="true">
+                Showing 1 log entries
+            </div>
             <div class="row" role="row">
                 <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
-                <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b></div>
+                <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b><span class="sr-only"> (Log severity level)</span></div>
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
                     </div>
 
                             <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: ERROR from a at 2025-04-28T10:00:00Z">
                     <div class="cell" role="cell">
                         <button
-                            aria-label="Expand details for log entry"
+                            aria-label="Expand"
                             aria-expanded="false"
                             aria-controls="log-content-0"
                             onclick="toggleLogEntry(this)"
                         >
                             <span class="i i-caret"></span>
+                            <span class="sr-only">Expand</span>
                         </button>
                     </div>
                     <div class="cell datetime" role="cell"><span>2025-04-28T10:00:00Z</span></div>
                     <div class="cell channel" role="cell"><span>[a]</span></div>
-                    <div class="cell level error" role="cell"><span>ERROR</span></div>
+                    <div class="cell level error" role="cell">
+                        <span class="i i-error" aria-hidden="true"></span>
+                        <span>ERROR</span>
+                        <span class="sr-only">Level: ERROR</span>
+                    </div>
                     <div class="cell message" role="cell"><span>m1</span></div>
                             </div>
                 <div id="log-content-0" class="row details log-content collapsed" role="row">
@@ -52,10 +60,11 @@ class SearchActionTest extends TestCase
                             class="field-toggle-btn"
                             data-field="datetime"
                             onclick="toggleField(event, 'datetime')"
-                            aria-label="Toggle column in table"
+                            aria-label="Toggle column"
                             title="Toggle column in table"
                         >
                             <span class="i i-table"></span>
+                            <span class="sr-only">Toggle column</span>
                         </button>
                         datetime            </span>
                     <span class="highlight-string">2025-04-28T10:00:00Z</span>
@@ -66,10 +75,11 @@ class SearchActionTest extends TestCase
                             class="field-toggle-btn"
                             data-field="channel"
                             onclick="toggleField(event, 'channel')"
-                            aria-label="Toggle column in table"
+                            aria-label="Toggle column"
                             title="Toggle column in table"
                         >
                             <span class="i i-table"></span>
+                            <span class="sr-only">Toggle column</span>
                         </button>
                         channel            </span>
                     <span class="highlight-string">a</span>
@@ -80,10 +90,11 @@ class SearchActionTest extends TestCase
                             class="field-toggle-btn"
                             data-field="level"
                             onclick="toggleField(event, 'level')"
-                            aria-label="Toggle column in table"
+                            aria-label="Toggle column"
                             title="Toggle column in table"
                         >
                             <span class="i i-table"></span>
+                            <span class="sr-only">Toggle column</span>
                         </button>
                         level            </span>
                     <span class="highlight-string">ERROR</span>
@@ -94,10 +105,11 @@ class SearchActionTest extends TestCase
                             class="field-toggle-btn"
                             data-field="message"
                             onclick="toggleField(event, 'message')"
-                            aria-label="Toggle column in table"
+                            aria-label="Toggle column"
                             title="Toggle column in table"
                         >
                             <span class="i i-table"></span>
+                            <span class="sr-only">Toggle column</span>
                         </button>
                         message            </span>
                     <span class="highlight-string">m1</span>

@@ -45,7 +45,8 @@ class HomeActionTest extends TestCase
             <script src="/scripts.js" defer></script>
         </head>
         <body hx-indicator="body">
-        <div class="container">
+        <a href="#main-content" class="sr-only focusable">Skip to main content</a>
+        <main id="main-content" class="container">
             <div id="progress-bar"></div>
             <header>
                 <h1>Real-time Log Viewer</h1>
@@ -55,7 +56,8 @@ class HomeActionTest extends TestCase
                 </button>
             </header>
             <div class="controls">
-                <div id="search-container-id" class="search-container">
+                <div id="search-container-id" class="search-container" role="search">
+            <label class="sr-only" for="search-input">Search for logs</label>
             <label class="search-input-container">
                 <input type="search"
                        id="search-input"
@@ -81,7 +83,7 @@ class HomeActionTest extends TestCase
         </div>    </div>
 
             <div id="search-results" hx-ext="sse" sse-connect="/logs-stream" sse-swap="message"></div>
-        </div>
+        </main>
         </body>
         </html>
         HTML;

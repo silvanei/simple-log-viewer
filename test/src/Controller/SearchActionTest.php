@@ -18,28 +18,28 @@ class SearchActionTest extends TestCase
     public function test_invoke_with_search_filter_returns_valid_response(): void
     {
         $expectedBody = <<<HTML
-        <div class="wraper">
-            <div class="row">
-                <div class="cell cell-header">&nbsp</div>
-                <div class="cell cell-header"><b>Datetime</b></div>
-                <div class="cell cell-header"><b>Channel</b></div>
-                <div class="cell cell-header"><b>Level</b></div>
-                <div class="cell cell-header"><b>Message</b></div>
+        <div class="wraper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
+            <div class="row" role="row">
+                <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
+                <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
+                <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
+                <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b></div>
+                <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
                     </div>
 
-                            <div class="row row-main">
-                    <div class="cell">
-                        <button _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
+                            <div class="row row-main" role="row">
+                    <div class="cell" role="cell">
+                        <button aria-label="Expand details for log entry" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
                             <span class="i i-caret"></span>
                         </button>
                     </div>
-                    <div class="cell datetime"><span>2025-04-28T10:00:00Z</span></div>
-                    <div class="cell channel"><span>[a]</b></span></div>
-                    <div class="cell level error"><span>ERROR</b></span></div>
-                    <div class="cell message"><span>m1</span></div>
+                    <div class="cell datetime" role="cell"><span>2025-04-28T10:00:00Z</span></div>
+                    <div class="cell channel" role="cell"><span>[a]</span></div>
+                    <div class="cell level error" role="cell"><span>ERROR</span></div>
+                    <div class="cell message" role="cell"><span>m1</span></div>
                             </div>
-                <div class="row details log-content collapsed">
-                    <div class="cell">
+                <div class="row details log-content collapsed" role="row">
+                    <div class="cell" role="cell" colspan="5">
                         <ul class="nested-list">
                     <li>
                     <span class="highlight-key">

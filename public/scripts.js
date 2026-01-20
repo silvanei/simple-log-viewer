@@ -2,6 +2,14 @@
 const themeStorageKey = 'logViewerTheme';
 const selectedFieldsKey = 'logViewerSelectedFields';
 
+// Detect reduced motion preference
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Apply reduced motion class to body for CSS targeting
+if (prefersReducedMotion) {
+    document.documentElement.classList.add('reduced-motion');
+}
+
 // Track whether user is using keyboard or mouse for focus management
 let wasKeyboardUsed = false;
 

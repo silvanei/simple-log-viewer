@@ -27,7 +27,8 @@ readonly class SearchAction implements ActionHandler
 
         /** @var LogEntryView[] $rows */
         $rows = $this->logService->search($filter);
-        $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields]);
+        $totalResults = count($rows);
+        $view = new SearchViewModel('search/log-entry', ['entries' => $rows, 'fields' => $fields, 'totalResults' => $totalResults]);
 
         return Response::html($view->render());
     }

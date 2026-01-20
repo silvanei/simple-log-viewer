@@ -1,9 +1,19 @@
 <div class="wraper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
+<?php if ($this->totalResults !== null) : ?>
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
+        Showing <?= $this->escape((string) $this->totalResults) ?> log entries
+    </div>
+<?php endif; ?>
+<?php if ($this->totalResults !== null && $this->totalResults === 0) : ?>
+    <div class="sr-only" aria-live="assertive" aria-atomic="true">
+        No log entries found matching your search
+    </div>
+<?php endif; ?>
     <div class="row" role="row">
         <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
-        <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b></div>
+        <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b><span class="sr-only"> (Log severity level)</span></div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
         <?php foreach ($this->fields as $field) : ?>
             <div class="cell cell-header" role="columnheader" scope="col">
@@ -16,6 +26,7 @@
                     title="Remove column"
                 >
                     <span class="i i-close"></span>
+                    <span class="sr-only">Remove column</span>
                 </button>
             </div>
         <?php endforeach; ?>
@@ -23,20 +34,25 @@
 
     <?php foreach ($this->entries as $index => $entry) : ?>
         <?php $flattenWithDotsentry = $this->flattenWithDots((array)$entry); ?>
-        <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: <?= $this->escape($entry->level) ?> from <?= $this->escape($entry->channel) ?> at <?= $this->escape($entry->datetime) ?>">
+        <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: <?= $this->cleanFts5Markers($entry->level) ?> from <?= $this->cleanFts5Markers($entry->channel) ?> at <?= $this->cleanFts5Markers($entry->datetime) ?>">
             <div class="cell" role="cell">
                 <button
-                    aria-label="Expand details for log entry"
+                    aria-label="Expand"
                     aria-expanded="false"
                     aria-controls="log-content-<?= $index ?>"
                     onclick="toggleLogEntry(this)"
                 >
                     <span class="i i-caret"></span>
+                    <span class="sr-only">Expand</span>
                 </button>
             </div>
             <div class="cell datetime" role="cell"><span><?= $this->escape($entry->datetime) ?></span></div>
             <div class="cell channel" role="cell"><span>[<?= $this->escape($entry->channel) ?>]</span></div>
-            <div class="cell level <?= strtolower($entry->level) ?>" role="cell"><span><?= $this->escape($entry->level) ?></span></div>
+            <div class="cell level <?= strtolower($this->cleanFts5Markers($entry->level)) ?>" role="cell">
+                <span class="i i-<?= strtolower($this->cleanFts5Markers($entry->level)) ?>" aria-hidden="true"></span>
+                <span><?= $this->escape($entry->level) ?></span>
+                <span class="sr-only">Level: <?= $this->escape($entry->level) ?></span>
+            </div>
             <div class="cell message" role="cell"><span><?= $this->escape($entry->message) ?></span></div>
             <?php foreach ($this->fields as $field) : ?>
                 <div class="cell cell-field" role="cell">

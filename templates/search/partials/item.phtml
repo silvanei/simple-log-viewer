@@ -10,10 +10,11 @@ use S3\Log\Viewer\View\Search\SearchViewModel;
                     class="field-toggle-btn"
                     data-field="<?= $this->renderAdidionalKey($key) ?>"
                     onclick="toggleField(event, '<?= $this->renderAdidionalKey($key) ?>')"
-                    aria-label="Toggle column in table"
+                    aria-label="Toggle column"
                     title="Toggle column in table"
                 >
                     <span class="i i-table"></span>
+                    <span class="sr-only">Toggle column</span>
                 </button>
                 <?= $this->escape($key) ?>
             </span>

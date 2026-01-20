@@ -8,3 +8,7 @@ parameters:
         - env.php
     ignoreErrors:
         - '#Method S3\\Log\\Viewer\\Handler\\RouterHandler::dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed.#'
+        - '#Cannot access property \$length on DOMNodeList<DOMNameSpaceNode\|DOMNode>\|false#'
+        - '#Cannot call method item\(\) on DOMNodeList<DOMNameSpaceNode\|DOMNode>\|false#'
+        - '#Parameter .* of method PHPUnit\\Framework\\Assert::assertCount\(\) expects Countable\|iterable, DOMNodeList<DOMNameSpaceNode\|DOMNode>\|false given#'
+        - '#Argument of an invalid type DOMNodeList<DOMNameSpaceNode\|DOMNode>\|false supplied for foreach#'

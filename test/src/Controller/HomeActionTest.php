@@ -46,6 +46,7 @@ class HomeActionTest extends TestCase
         </head>
         <body hx-indicator="body">
         <a href="#main-content" class="sr-only focusable">Skip to main content</a>
+        <div id="live-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         <main id="main-content" class="container">
             <div id="progress-bar"></div>
             <header>
@@ -68,13 +69,14 @@ class HomeActionTest extends TestCase
                        hx-trigger="search-trigger"
                        hx-target="#search-results"
                        hx-include=".fields">
-                <button id="pause-button" class="pause-button" aria-label="Pause/Resume">
+                <button id="pause-button" class="pause-button" aria-label="Pause" aria-pressed="false">
                     <span class="i i-pause pause-icon"></span>
                     <span class="i i-play play-icon hidden"></span>
                 </button>
                 <button id="search-button" class="search-button" aria-label="Search" onclick="triggerSearch()">
                     <span class="i i-search"></span>
-                    <span class="notification-dot hidden"></span>
+                    <span class="notification-dot hidden" aria-hidden="true"></span>
+                    <span class="sr-only">New logs available</span>
                 </button>
                 <button id="clear-logs-button" class="clear-button" aria-label="Clear logs" onclick="clearLogs()">
                     <span class="i i-trash"></span>

@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pauseButton = document.getElementById('pause-button');
     if (pauseButton) {
         pauseButton.classList.toggle('paused', isLogsPaused);
+        pauseButton.setAttribute('aria-pressed', isLogsPaused.toString());
+        pauseButton.setAttribute('aria-label', isLogsPaused ? 'Resume' : 'Pause');
     }
 });
 
@@ -89,6 +91,11 @@ function togglePauseLogs() {
 
     playIcon.classList.toggle('hidden', !isLogsPaused);
     pauseIcon.classList.toggle('hidden', isLogsPaused);
+
+    pauseButton.setAttribute('aria-pressed', isLogsPaused.toString());
+    pauseButton.setAttribute('aria-label', isLogsPaused ? 'Resume' : 'Pause');
+
+    announceStatus(isLogsPaused ? 'Logs paused' : 'Logs resumed');
 
     if (!isLogsPaused) {
         if (hasNewLogs) {
@@ -109,8 +116,20 @@ function updateNotificationDot(show) {
     const dot = document.querySelector('.notification-dot');
     if (show) {
         dot.classList.remove('hidden');
+        announceStatus('New logs available');
     } else {
         dot.classList.add('hidden');
+    }
+}
+
+function announceStatus(message) {
+    const liveRegion = document.getElementById('live-status');
+    if (liveRegion) {
+        liveRegion.textContent = message;
+        // Clear after announcement for repeated messages
+        setTimeout(() => {
+            liveRegion.textContent = '';
+        }, 1000);
     }
 }
 
@@ -158,6 +177,15 @@ function toggleHighlight(event) {
             el.classList.add('rotate-180') :
             el.classList.remove('rotate-180');
     });
+}
+
+function toggleLogEntry(button) {
+    const logContent = button.closest('.row-main').nextElementSibling;
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+    button.setAttribute('aria-expanded', (!isExpanded).toString());
+    button.classList.toggle('rotate-180');
+    logContent.classList.toggle('collapsed');
 }
 
 // Event Listeners
@@ -213,5 +241,6 @@ async function clearLogs() {
 
 // Expose functions needed by HTML
 window.toggleHighlight = toggleHighlight;
+window.toggleLogEntry = toggleLogEntry;
 window.triggerSearch = triggerSearch;
 window.clearLogs = clearLogs;

@@ -29,7 +29,12 @@ class SearchActionTest extends TestCase
 
                             <div class="row row-main" role="row">
                     <div class="cell" role="cell">
-                        <button aria-label="Expand details for log entry" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
+                        <button
+                            aria-label="Expand details for log entry"
+                            aria-expanded="false"
+                            aria-controls="log-content-0"
+                            onclick="toggleLogEntry(this)"
+                        >
                             <span class="i i-caret"></span>
                         </button>
                     </div>
@@ -38,7 +43,7 @@ class SearchActionTest extends TestCase
                     <div class="cell level error" role="cell"><span>ERROR</span></div>
                     <div class="cell message" role="cell"><span>m1</span></div>
                             </div>
-                <div class="row details log-content collapsed" role="row">
+                <div id="log-content-0" class="row details log-content collapsed" role="row">
                     <div class="cell" role="cell" colspan="5">
                         <ul class="nested-list">
                     <li>

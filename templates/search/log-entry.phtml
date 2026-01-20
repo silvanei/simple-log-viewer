@@ -21,11 +21,16 @@
         <?php endforeach; ?>
     </div>
 
-    <?php foreach ($this->entries as $entry) : ?>
+    <?php foreach ($this->entries as $index => $entry) : ?>
         <?php $flattenWithDotsentry = $this->flattenWithDots((array)$entry); ?>
         <div class="row row-main" role="row">
             <div class="cell" role="cell">
-                <button aria-label="Expand details for log entry" _="on click toggle .collapsed on next .log-content then toggle .rotate-180 on me">
+                <button
+                    aria-label="Expand details for log entry"
+                    aria-expanded="false"
+                    aria-controls="log-content-<?= $index ?>"
+                    onclick="toggleLogEntry(this)"
+                >
                     <span class="i i-caret"></span>
                 </button>
             </div>
@@ -39,7 +44,7 @@
                 </div>
             <?php endforeach; ?>
         </div>
-        <div class="row details log-content collapsed" role="row">
+        <div id="log-content-<?= $index ?>" class="row details log-content collapsed" role="row">
             <div class="cell" role="cell" colspan="<?= 5 + count($this->fields) ?>">
                 <?= $this->partial('search/partials/item', ['entry' => $flattenWithDotsentry, 'fields' => $this->fields]) ?>
             </div>

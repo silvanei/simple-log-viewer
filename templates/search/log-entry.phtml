@@ -23,7 +23,7 @@
 
     <?php foreach ($this->entries as $index => $entry) : ?>
         <?php $flattenWithDotsentry = $this->flattenWithDots((array)$entry); ?>
-        <div class="row row-main" role="row">
+        <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: <?= $this->escape($entry->level) ?> from <?= $this->escape($entry->channel) ?> at <?= $this->escape($entry->datetime) ?>">
             <div class="cell" role="cell">
                 <button
                     aria-label="Expand details for log entry"

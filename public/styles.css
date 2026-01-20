@@ -1126,3 +1126,98 @@ html.dark kbd {
         color: CanvasText;
     }
 }
+
+/* ==========================================================================
+   REDUCED MOTION SUPPORT
+   Respect users who prefer reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    /* Disable all transitions and animations */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Body theme transitions - disable */
+    body {
+        transition: none;
+    }
+
+    /* Search input transitions - disable */
+    input[type="search"] {
+        transition: none;
+    }
+
+    /* Button transitions - disable */
+    .search-button,
+    .clear-button,
+    .pause-button,
+    .theme-toggle,
+    .keyboard-help-button {
+        transition: none;
+    }
+
+    /* Log header hover transition - disable */
+    .log-header {
+        transition: none;
+    }
+
+    /* Log entry expand/collapse buttons - disable transform transition */
+    .log-header button,
+    .log-content button,
+    .wraper button {
+        transition: none;
+    }
+
+    /* Remove rotation animations - instant state change */
+    .rotate-180 {
+        transform: none;
+    }
+
+    .toggle-highlight-btn.expanded .toggle-icon {
+        transform: none;
+    }
+
+    .icon-toggle {
+        transform: none;
+    }
+
+    /* Progress bar - disable animation */
+    #progress-bar {
+        transition: none;
+    }
+
+    /* Progress bar with HTMX request - instant appearance */
+    body.htmx-request.reduced-motion #progress-bar,
+    body.htmx-request #progress-bar {
+        opacity: 1;
+        width: 100%;
+        transition: none;
+    }
+
+    /* Row hover transition - disable */
+    .row {
+        transition: none;
+    }
+
+    /* Modal overlay - disable fade animation */
+    .modal-overlay {
+        transition: none;
+    }
+
+    /* Modal close button - disable transitions */
+    .modal-close {
+        transition: none;
+    }
+}
+
+/* JavaScript-based reduced motion class */
+.reduced-motion {
+    /* Override any remaining animations */
+    animation: none !important;
+}

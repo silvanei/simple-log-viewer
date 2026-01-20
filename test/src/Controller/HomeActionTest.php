@@ -39,7 +39,6 @@ class HomeActionTest extends TestCase
             <link rel="icon" type="image/x-icon" href="/favicon.ico">
             <script src="/htmx.min.js"></script>
             <script src="/htmx-ext-sse.js"></script>
-            <script src="/hyperscript.min.js"></script>
             <link rel="stylesheet" href="/assets/icons/icons.css">
             <link rel="stylesheet" href="/styles.css">
             <script src="/scripts.js" defer></script>

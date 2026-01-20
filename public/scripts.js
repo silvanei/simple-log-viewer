@@ -2,6 +2,33 @@
 const themeStorageKey = 'logViewerTheme';
 const selectedFieldsKey = 'logViewerSelectedFields';
 
+// Track whether user is using keyboard or mouse for focus management
+let wasKeyboardUsed = false;
+
+// Detect keyboard vs mouse interaction
+document.addEventListener('keydown', () => {
+    wasKeyboardUsed = true;
+}, { capture: true });
+
+document.addEventListener('mousedown', () => {
+    wasKeyboardUsed = false;
+}, { capture: true });
+
+// Apply focus classes based on input method
+document.addEventListener('DOMContentLoaded', () => {
+    // For search input - only show focus ring if keyboard was used
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            if (wasKeyboardUsed) {
+                searchInput.classList.add('show-focus');
+            } else {
+                searchInput.classList.remove('show-focus');
+            }
+        });
+    }
+});
+
 function initializeTheme() {
     const savedTheme = localStorage.getItem(themeStorageKey);
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -244,3 +271,229 @@ window.toggleHighlight = toggleHighlight;
 window.toggleLogEntry = toggleLogEntry;
 window.triggerSearch = triggerSearch;
 window.clearLogs = clearLogs;
+
+// ==========================================================================
+// FOCUS MANAGEMENT & ACCESSIBILITY
+// ==========================================================================
+
+/**
+ * Announce search results count via live region
+ * @param {number} count - Number of results found
+ * @param {string} searchTerm - The search term used (optional)
+ */
+function announceResults(count, searchTerm = '') {
+    const liveRegion = document.getElementById('live-status');
+    if (liveRegion) {
+        let message;
+        if (count === 0) {
+            message = searchTerm
+                ? `No log entries found for "${searchTerm}"`
+                : 'No log entries found';
+        } else if (count === 1) {
+            message = searchTerm
+                ? `1 log entry found for "${searchTerm}"`
+                : '1 log entry found';
+        } else {
+            message = searchTerm
+                ? `${count} log entries found for "${searchTerm}"`
+                : `${count} log entries found`;
+        }
+        liveRegion.textContent = message;
+        // Clear after announcement for repeated messages
+        setTimeout(() => {
+            liveRegion.textContent = '';
+        }, 3000);
+    }
+}
+
+/**
+ * Focus management after search results update
+ * @param {boolean} keepFocusPosition - Whether to maintain focus position
+ */
+function manageFocusAfterSearch(keepFocusPosition = false) {
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+
+    // Return focus to search input after content update
+    searchInput.focus();
+}
+
+/**
+ * Handle log entry row keyboard navigation
+ * @param {KeyboardEvent} event
+ */
+function handleRowKeydown(event) {
+    const row = event.currentTarget;
+    const rows = Array.from(document.querySelectorAll('.row-main[tabindex="0"]'));
+    const currentIndex = rows.indexOf(row);
+
+    switch (event.key) {
+        case 'ArrowDown':
+            event.preventDefault();
+            if (currentIndex < rows.length - 1) {
+                rows[currentIndex + 1].focus();
+            }
+            break;
+        case 'ArrowUp':
+            event.preventDefault();
+            if (currentIndex > 0) {
+                rows[currentIndex - 1].focus();
+            }
+            break;
+        case 'Home':
+            event.preventDefault();
+            if (rows.length > 0) {
+                rows[0].focus();
+            }
+            break;
+        case 'End':
+            event.preventDefault();
+            if (rows.length > 0) {
+                rows[rows.length - 1].focus();
+            }
+            break;
+        case 'Enter':
+        case ' ':
+            event.preventDefault();
+            // Find the expand button in this row and click it
+            const expandButton = row.querySelector('button[aria-label^="Expand"]');
+            if (expandButton) {
+                expandButton.click();
+            }
+            break;
+    }
+}
+
+/**
+ * Initialize row keyboard navigation
+ */
+function initializeRowNavigation() {
+    const rows = document.querySelectorAll('.row-main[tabindex="0"]');
+    rows.forEach(row => {
+        row.addEventListener('keydown', handleRowKeydown);
+    });
+}
+
+// Observe search results for updates and announce count
+function setupSearchResultsObserver() {
+    const searchResults = document.getElementById('search-results');
+    if (!searchResults) return;
+
+    const observer = new MutationObserver((mutations) => {
+        const rows = searchResults.querySelectorAll('.row-main');
+        const count = rows.length;
+        if (count > 0) {
+            announceResults(count);
+            initializeRowNavigation();
+        }
+    });
+
+    observer.observe(searchResults, { childList: true, subtree: true });
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeRowNavigation();
+    setupSearchResultsObserver();
+});
+
+// Re-initialize after HTMX content swaps
+document.body.addEventListener('htmx:afterSwap', () => {
+    initializeRowNavigation();
+    const rows = document.querySelectorAll('.row-main');
+    announceResults(rows.length);
+});
+
+// ==========================================================================
+// KEYBOARD SHORTCUTS MODAL
+// ==========================================================================
+
+/**
+ * Open the keyboard shortcuts modal
+ */
+function openKeyboardShortcutsModal() {
+    const modal = document.getElementById('keyboard-shortcuts-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        // Focus the close button for accessibility
+        const closeBtn = modal.querySelector('.modal-close');
+        if (closeBtn) {
+            closeBtn.focus();
+        }
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Close the keyboard shortcuts modal
+ */
+function closeKeyboardShortcutsModal() {
+    const modal = document.getElementById('keyboard-shortcuts-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        // Restore body scroll
+        document.body.style.overflow = '';
+        // Return focus to the keyboard shortcuts button if it exists
+        const helpBtn = document.getElementById('keyboard-help-button');
+        if (helpBtn) {
+            helpBtn.focus();
+        }
+    }
+}
+
+/**
+ * Toggle the keyboard shortcuts modal
+ */
+function toggleKeyboardShortcutsModal() {
+    const modal = document.getElementById('keyboard-shortcuts-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+        closeKeyboardShortcutsModal();
+    } else {
+        openKeyboardShortcutsModal();
+    }
+}
+
+/**
+ * Handle global keyboard shortcuts
+ * @param {KeyboardEvent} event
+ */
+function handleGlobalKeydown(event) {
+    // Don't trigger if user is typing in an input
+    const tagName = event.target.tagName.toLowerCase();
+    const isTextInput = tagName === 'input' || tagName === 'textarea' || tagName === 'search';
+
+    // Show shortcuts modal with '?' key (only when not typing)
+    if (event.key === '?' && !isTextInput) {
+        event.preventDefault();
+        toggleKeyboardShortcutsModal();
+    }
+
+    // Close modal with Escape
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('keyboard-shortcuts-modal');
+        if (modal && !modal.classList.contains('hidden')) {
+            closeKeyboardShortcutsModal();
+        }
+    }
+}
+
+// Initialize keyboard shortcuts modal on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('keydown', handleGlobalKeydown);
+
+    // Add keyboard help button to search input container (inside flex container)
+    const searchInputContainer = document.querySelector('.search-input-container');
+    if (searchInputContainer && !document.getElementById('keyboard-help-button')) {
+        const helpBtn = document.createElement('button');
+        helpBtn.id = 'keyboard-help-button';
+        helpBtn.className = 'keyboard-help-button';
+        helpBtn.setAttribute('aria-label', 'Show keyboard shortcuts');
+        helpBtn.setAttribute('title', 'Keyboard shortcuts (?)');
+        helpBtn.innerHTML = '<span class="i i-question"></span>';
+        helpBtn.onclick = toggleKeyboardShortcutsModal;
+        searchInputContainer.appendChild(helpBtn);
+    }
+});

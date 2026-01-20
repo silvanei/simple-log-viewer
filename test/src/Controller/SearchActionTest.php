@@ -27,7 +27,7 @@ class SearchActionTest extends TestCase
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
                     </div>
 
-                            <div class="row row-main" role="row">
+                            <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: ERROR from a at 2025-04-28T10:00:00Z">
                     <div class="cell" role="cell">
                         <button
                             aria-label="Expand details for log entry"

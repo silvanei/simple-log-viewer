@@ -86,6 +86,67 @@ class HomeActionTest extends TestCase
 
             <div id="search-results" hx-ext="sse" sse-connect="/logs-stream" sse-swap="message"></div>
         </main>
+        <div id="keyboard-shortcuts-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="keyboard-shortcuts-title" aria-hidden="true">
+            <div class="modal-content" role="document">
+                <div class="modal-header">
+                    <h2 id="keyboard-shortcuts-title">Keyboard Shortcuts</h2>
+                    <button class="modal-close" onclick="closeKeyboardShortcutsModal()" aria-label="Close keyboard shortcuts">
+                        <span class="i i-close"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <section class="shortcut-section">
+                        <h3>Navigation</h3>
+                        <table class="shortcuts-table" role="table" aria-label="Keyboard navigation shortcuts">
+                            <tbody>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>Tab</kbd></td>
+                                    <td class="shortcut-description">Navigate through interactive elements</td>
+                                </tr>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>↑</kbd> / <kbd>↓</kbd></td>
+                                    <td class="shortcut-description">Move between log entries</td>
+                                </tr>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>Home</kbd></td>
+                                    <td class="shortcut-description">Jump to first log entry</td>
+                                </tr>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>End</kbd></td>
+                                    <td class="shortcut-description">Jump to last log entry</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section class="shortcut-section">
+                        <h3>Actions</h3>
+                        <table class="shortcuts-table" role="table" aria-label="Keyboard action shortcuts">
+                            <tbody>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>Enter</kbd> / <kbd>Space</kbd></td>
+                                    <td class="shortcut-description">Expand or collapse log entry details</td>
+                                </tr>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>Esc</kbd></td>
+                                    <td class="shortcut-description">Close this dialog</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section class="shortcut-section">
+                        <h3>Help</h3>
+                        <table class="shortcuts-table" role="table" aria-label="Help shortcuts">
+                            <tbody>
+                                <tr role="row">
+                                    <td class="shortcut-key"><kbd>?</kbd></td>
+                                    <td class="shortcut-description">Show or hide this keyboard shortcuts reference</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+        </div>
         </body>
         </html>
         HTML;

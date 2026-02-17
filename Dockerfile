@@ -1,11 +1,13 @@
-FROM php:8.5.1-cli-alpine3.23 AS development
+# Development stage
+FROM dunglas/frankenphp:1.11.2-php8.5-alpine AS development
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     TZ="America/Sao_Paulo"
 
-COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
-
 WORKDIR /app
+
+# Install composer
+COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
 
 # Install xdebug for coverage and infection
 RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
@@ -27,11 +29,35 @@ RUN composer dump-autoload --no-scripts --no-dev --optimize \
     && rm -Rf /tmp/* \
     && composer clear-cache
 
-USER www-data
-EXPOSE 8080
+EXPOSE 8080 443 443/udp
 
-CMD ["php", "bin/server.php"]
+CMD ["frankenphp", "server", "--config", "Caddyfile"]
 
-FROM development AS production
+# Production stage
+FROM dunglas/frankenphp:1.11.2-php8.5-alpine AS production
 
-ENTRYPOINT ["php", "bin/server.php"]
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    TZ="America/Sao_Paulo"
+
+WORKDIR /app
+
+# Install composer
+COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
+
+# Install dependencies
+COPY composer.json composer.lock /app/
+RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \
+    && composer clear-cache \
+    && rm -rf /var/cache/* \
+    && rm -Rf /tmp/*
+
+COPY . /app
+
+# Finish composer
+RUN composer dump-autoload --no-scripts --no-dev --optimize \
+    && rm -Rf /tmp/* \
+    && composer clear-cache
+
+EXPOSE 8080 443 443/udp
+
+CMD ["frankenphp", "server", "--config", "Caddyfile"]

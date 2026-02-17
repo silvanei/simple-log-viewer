@@ -1,0 +1,18 @@
+{
+    admin off
+    {$CADDY_GLOBAL_OPTIONS}
+    servers {
+        enable_full_duplex
+    }
+}
+
+localhost:8080 {
+    root * /app/public
+    php_server {
+        root /app/public
+    }
+    encode gzip
+    log {
+        output stdout
+    }
+}

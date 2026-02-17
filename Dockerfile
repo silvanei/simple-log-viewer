@@ -31,7 +31,7 @@ RUN composer dump-autoload --no-scripts --no-dev --optimize \
 
 EXPOSE 8080 443 443/udp
 
-CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile.dev"]
 
 # Production stage
 FROM dunglas/frankenphp:1.11.2-php8.5-alpine AS production

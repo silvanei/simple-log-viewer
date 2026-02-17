@@ -14,7 +14,6 @@ class MercurePublisher
      */
     public function publish(string $topic, string $message): bool
     {
-        // Use FrankenPHP's built-in mercure_publish() function
         if (function_exists('mercure_publish')) {
             try {
                 mercure_publish($topic, $message);

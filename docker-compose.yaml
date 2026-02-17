@@ -9,4 +9,3 @@ services:
       - "8080:8080"
     volumes:
       - ./storage:/app/storage
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro

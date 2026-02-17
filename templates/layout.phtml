@@ -4,11 +4,24 @@
     <meta charset="UTF-8">
     <title><?= $this->title ?></title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <?php $hotReloadEnabled = isset($_SERVER['FRANKENPHP_HOT_RELOAD'])?>
+    <?php if ($hotReloadEnabled): ?>
+    <meta name="frankenphp-hot-reload:url" content="<?= $_SERVER['FRANKENPHP_HOT_RELOAD'] ?>">
+    <meta name="frankenphp-hot-reload:html-reload-method" content="">
+    <meta name="frankenphp-hot-reload:logging" content="true">
+    <?php endif ?>
     <script src="/htmx.min.js"></script>
     <script src="/htmx-ext-sse.js"></script>
     <link rel="stylesheet" href="/assets/icons/icons.css">
     <link rel="stylesheet" href="/styles.css">
     <script src="/scripts.js" defer></script>
+    <?php if ($hotReloadEnabled): ?>
+    <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+    <script type="module">
+        await import('https://cdn.jsdelivr.net/npm/frankenphp-hot-reload@1.0.0/+esm');
+        console.log('[FrankenPHP] Hot reload initialized');
+    </script>
+    <?php endif ?>
 </head>
 <body hx-indicator="body">
 <a href="#main-content" class="sr-only focusable">Skip to main content</a>

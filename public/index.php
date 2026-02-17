@@ -7,7 +7,6 @@ require __DIR__ . '/../vendor/autoload.php';
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 
-// Initialize app
 $databaseDsn = getenv('DATABASE_DSN') ?: '/app/storage/logs.db';
 $storageDir = dirname($databaseDsn);
 if (! is_dir($storageDir)) {
@@ -32,7 +31,6 @@ $app->get('/search', new \S3\Log\Viewer\Controller\SearchAction($logService));
 $app->post('/api/logs', new \S3\Log\Viewer\Controller\ApiLogsAction($logService));
 $app->post('/api/logs/clear', new \S3\Log\Viewer\Controller\ClearLogsAction($logService));
 
-// Create PSR-7 request from superglobals
 $creator = new ServerRequestCreator(
     new Psr17Factory(),
     new Psr17Factory(),

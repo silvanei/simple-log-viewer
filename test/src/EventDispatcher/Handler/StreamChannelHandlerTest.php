@@ -8,66 +8,43 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
-use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\Handler\StreamChannelHandler;
-use S3\Log\Viewer\Sse\SseChannel;
-use S3\Log\Viewer\Sse\SseConnectionInterface;
+use S3\Log\Viewer\Sse\MercurePublisher;
 
 class StreamChannelHandlerTest extends TestCase
 {
-    private SseChannel&MockObject $sseChannel;
+    private MercurePublisher&MockObject $publisher;
     private StreamChannelHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sseChannel = $this->createMock(SseChannel::class);
-        $this->handler = new StreamChannelHandler($this->sseChannel);
+        $this->publisher = $this->createMock(MercurePublisher::class);
+        $this->handler = new StreamChannelHandler($this->publisher);
     }
 
-    public function testHandleStreamCreated_ShouldConnectAndReplayBuffer(): void
+    public function testHandleLogReceived_ShouldPublishToMercure(): void
     {
-        $connection = $this->createMock(SseConnectionInterface::class);
-        $id = 'abc123';
+        $event = new LogReceived('New log received');
 
-        $this->sseChannel
+        $this->publisher
             ->expects($this->once())
-            ->method('connect')
-            ->with($connection);
+            ->method('publish')
+            ->with('logs', 'New log received');
 
-        $this->sseChannel
-            ->expects($this->once())
-            ->method('replayBuffer')
-            ->with($connection);
-
-        $connection
-            ->expects($this->once())
-            ->method('send')
-            ->with("");
-
-        $this->handler->handleStreamCreated(new StreamCreated($connection, $id));
+        $this->handler->handleLogReceived($event);
     }
 
-    public function testHandleLogReceived_ShouldCallChannelWriteMessage(): void
+    public function testHandleLogCleared_ShouldPublishToMercure(): void
     {
-        $expectedEvent = new LogReceived();
-        $this->sseChannel
+        $event = new LogCleared('Logs cleared');
+
+        $this->publisher
             ->expects($this->once())
-            ->method('writeMessage')
-            ->with($expectedEvent->message);
+            ->method('publish')
+            ->with('logs', 'Logs cleared');
 
-        $this->handler->handleLogReceived($expectedEvent);
-    }
-
-    public function testHandleLogCleared_ShouldCallChannelWriteMessage(): void
-    {
-        $expectedEvent = new LogCleared();
-        $this->sseChannel
-            ->expects($this->once())
-            ->method('writeMessage')
-            ->with($expectedEvent->message);
-
-        $this->handler->handleLogCleared($expectedEvent);
+        $this->handler->handleLogCleared($event);
     }
 }

@@ -30,6 +30,14 @@ final class Application implements RequestHandlerInterface
         $this->routes[$path] = ['method' => 'POST', 'handler' => $action];
     }
 
+    /**
+     * @return array<string, array{method: string, handler: ActionHandler}>
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->dispatcher === null) {

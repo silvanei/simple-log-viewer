@@ -1,13 +1,21 @@
 {
     admin off
-    {$CADDY_GLOBAL_OPTIONS}
     servers {
         enable_full_duplex
     }
 }
 
-localhost:8080 {
+:8080 {
     root * /app/public
+    
+    mercure {
+        publish * *
+        subscriber_jwt development_secret_key_for_testing_only
+        anonymous
+        cors *
+        publish_origins *
+    }
+    
     php_server {
         root /app/public
     }

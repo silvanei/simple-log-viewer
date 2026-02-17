@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer;
 
 use PDO;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
-use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventDispatcher;
 use S3\Log\Viewer\LogService;
-use S3\Log\Viewer\Sse\SseConnectionInterface;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
 
+#[AllowMockObjectsWithoutExpectations]
 class LogServiceTest extends TestCase
 {
     private LogService $service;
@@ -29,24 +29,12 @@ class LogServiceTest extends TestCase
         $this->service = new LogService($logStorage, $this->eventDispatcher);
     }
 
-    public function testCreateChannelStream_ShouldDispatchStreamCreated(): void
-    {
-        $connection = $this->createMock(SseConnectionInterface::class);
-        $id = 'abc123';
-        $this->eventDispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(new StreamCreated($connection, $id));
-
-        $this->service->createChannelStream($connection, $id);
-    }
-
     public function testAdd_ShouldDispatchLogReceived(): void
     {
         $this->eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
-            ->with(new LogReceived());
+            ->with(new LogReceived('{"datetime":"2025-04-28T10:00:00Z","channel":"a","level":"DEBUG","message":"m1"}'));
 
         $this->service->add(new LogEntry('2025-04-28T10:00:00Z', 'a', 'DEBUG', 'm1', []));
     }

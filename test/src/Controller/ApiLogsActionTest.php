@@ -6,6 +6,7 @@ namespace Test\S3\Log\Viewer\Controller;
 
 use Generator;
 use JsonException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,6 +18,7 @@ use S3\Log\Viewer\Controller\ApiLogsAction;
 use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\LogService;
 
+#[AllowMockObjectsWithoutExpectations]
 class ApiLogsActionTest extends TestCase
 {
     private const array VALID_DATA = [

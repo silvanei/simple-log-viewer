@@ -8,9 +8,7 @@ use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
-use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventDispatcher;
-use S3\Log\Viewer\Sse\SseConnectionInterface;
 use S3\Log\Viewer\Storage\LogStorage;
 
 readonly class LogService
@@ -21,15 +19,17 @@ readonly class LogService
     ) {
     }
 
-    public function createChannelStream(SseConnectionInterface $connection, string $id): void
-    {
-        $this->eventDispatcher->dispatch(new StreamCreated($connection, $id));
-    }
-
     public function add(LogEntry $log): void
     {
         $this->storage->add($log);
-        $this->eventDispatcher->dispatch(new LogReceived());
+        // Dispatch event with log data for SSE
+        $json = json_encode([
+            'datetime' => $log->datetime,
+            'channel' => $log->channel,
+            'level' => $log->level,
+            'message' => $log->message,
+        ]);
+        $this->eventDispatcher->dispatch(new LogReceived($json ?: '{}'));
     }
 
     /** @return LogEntryView[] */

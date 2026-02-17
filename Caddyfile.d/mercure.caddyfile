@@ -1,0 +1,7 @@
+mercure {
+    publisher_jwt development_secret_key_for_testing_only
+    subscriber_jwt development_secret_key_for_testing_only
+    anonymous
+    cors *
+    publish_origins *
+}

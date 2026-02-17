@@ -33,7 +33,6 @@
     </rule>
 
     <!-- Paths to check -->
-    <file>bin</file>
-    <file>src</file>
-    <file>test</file>
+    <file>/app/src</file>
+    <file>/app/test</file>
 </ruleset>

@@ -14,7 +14,7 @@
       "S3\\Log\\Viewer\\": "src/"
     },
     "files": [
-      "env.php"
+      "config/php/env.php"
     ]
   },
   "autoload-dev": {
@@ -46,11 +46,11 @@
       "@phpstan",
       "@phpcs"
     ],
-    "phpcs": "phpcs",
-    "phpstan": "phpstan analyse --memory-limit=-1",
-    "test": "phpunit",
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html storage/coverage/",
-    "test-infection": "infection"
+    "phpcs": "phpcs --standard=config/php/phpcs.xml",
+    "phpstan": "phpstan analyse -c config/php/phpstan.neon --memory-limit=-1",
+    "test": "phpunit --configuration config/php/phpunit.xml",
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --configuration config/php/phpunit.xml --coverage-html storage/coverage/",
+    "test-infection": "vendor/bin/infection --configuration=config/php/infection.json"
   },
   "config": {
     "allow-plugins": {

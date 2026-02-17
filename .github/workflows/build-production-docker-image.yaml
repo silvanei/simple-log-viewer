@@ -24,6 +24,7 @@ jobs:
         with:
           push: true
           context: .
+          dockerfile: config/docker/Dockerfile
           platforms: linux/amd64
           tags: silvanei/simple-log-viewer:latest
           cache-from: type=registry,ref=silvanei/simple-log-viewer:latest

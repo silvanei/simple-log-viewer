@@ -6,7 +6,7 @@ namespace S3\Log\Viewer\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
+use S3\Log\Viewer\Http\Response;
 
 readonly class StaticFileMiddleware
 {
@@ -46,13 +46,13 @@ readonly class StaticFileMiddleware
             $ext = pathinfo($filePath, PATHINFO_EXTENSION);
             $mime = $this->mimeTypes[$ext] ?? 'application/octet-stream';
 
-            return new Response(
-                200,
-                [
+            return Response::create(
+                body: file_get_contents($filePath) ?: '',
+                status: 200,
+                headers: [
                     'Content-Type'   => $mime,
                     'Cache-Control'  => 'public, max-age=86400',
-                ],
-                file_get_contents($filePath) ?: '',
+                ]
             );
         }
 

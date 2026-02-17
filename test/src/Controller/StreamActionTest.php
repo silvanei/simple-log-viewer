@@ -7,16 +7,15 @@ namespace Test\S3\Log\Viewer\Controller;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Stream\ThroughStream;
 use S3\Log\Viewer\Controller\StreamAction;
 use S3\Log\Viewer\LogService;
+use S3\Log\Viewer\Sse\SseConnectionInterface;
 
 class StreamActionTest extends TestCase
 {
     /** @throws Exception */
     public function test_invoke_returns_correct_streaming_response(): void
     {
-        $mockStream = new ThroughStream();
         $request = $this->createMock(ServerRequestInterface::class);
         $request
             ->expects($this->once())
@@ -27,7 +26,7 @@ class StreamActionTest extends TestCase
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('createChannelStream')
-            ->with($mockStream, '123');
+            ->with($this->isInstanceOf(SseConnectionInterface::class), '123');
 
         $action = new StreamAction($logService);
         $response = $action->__invoke($request);
@@ -41,12 +40,15 @@ class StreamActionTest extends TestCase
             ['no-cache'],
             $response->getHeader('Cache-Control')
         );
+        $this->assertSame(
+            ['no'],
+            $response->getHeader('X-Accel-Buffering')
+        );
     }
 
     /** @throws Exception */
     public function test_invoke_handles_missing_last_event_id_correctly(): void
     {
-        $mockStream = new ThroughStream();
         $request = $this->createMock(ServerRequestInterface::class);
         $request
             ->expects($this->once())
@@ -57,9 +59,11 @@ class StreamActionTest extends TestCase
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('createChannelStream')
-            ->with($mockStream, '');
+            ->with($this->isInstanceOf(SseConnectionInterface::class), '');
 
         $action = new StreamAction($logService);
-        $action->__invoke($request);
+        $response = $action->__invoke($request);
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 }

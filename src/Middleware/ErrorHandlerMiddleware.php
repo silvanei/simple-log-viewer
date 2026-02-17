@@ -6,7 +6,7 @@ namespace S3\Log\Viewer\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
+use S3\Log\Viewer\Http\Response;
 use Throwable;
 
 final readonly class ErrorHandlerMiddleware
@@ -18,9 +18,9 @@ final readonly class ErrorHandlerMiddleware
             return $next($request);
         } catch (Throwable $e) {
             if ($this->isApiRequest($request)) {
-                return Response::json(['error' => 'Internal server error'])->withStatus(500);
+                return Response::json(['error' => 'Internal server error'], 500);
             }
-            return Response::html('<h1>An error occurred</h1>')->withStatus(500);
+            return Response::html('<h1>An error occurred</h1>', 500);
         }
     }
 

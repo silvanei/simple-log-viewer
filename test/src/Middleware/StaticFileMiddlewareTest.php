@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer\Middleware;
 
 use Generator;
+use Nyholm\Psr7\Response;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -12,7 +13,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Middleware\StaticFileMiddleware;
 

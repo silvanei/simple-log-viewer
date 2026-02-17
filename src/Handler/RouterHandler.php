@@ -7,7 +7,7 @@ namespace S3\Log\Viewer\Handler;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
+use S3\Log\Viewer\Http\Response;
 
 readonly class RouterHandler
 {
@@ -25,8 +25,8 @@ readonly class RouterHandler
 
         return match ($routeInfo[0]) {
             Dispatcher::FOUND => $this->dispatch($request, $routeInfo),
-            Dispatcher::METHOD_NOT_ALLOWED => new Response(405, ['Content-Type' => 'application/json'], (string)json_encode(['error' => 'Method not allowed'])),
-            default => new Response(404, ['Content-Type' => 'application/json'], (string)json_encode(['error' => 'Not found'])),
+            Dispatcher::METHOD_NOT_ALLOWED => Response::json(['error' => 'Method not allowed'], 405),
+            default => Response::json(['error' => 'Not found'], 404),
         };
     }
 
@@ -36,7 +36,7 @@ readonly class RouterHandler
         try {
             return call_user_func_array($routeInfo[1], [$request]);
         } catch (\Throwable $e) {
-            return new Response(500, ['Content-Type' => 'application/json'], (string)json_encode(['error' => 'Internal Server Error']));
+            return Response::json(['error' => 'Internal Server Error'], 500);
         }
     }
 }

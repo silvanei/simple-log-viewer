@@ -4,35 +4,37 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer\EventDispatcher\Handler;
 
-use Clue\React\Sse\BufferedChannel;
-use React\EventLoop\Loop;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventHandler;
+use S3\Log\Viewer\Sse\SseChannel;
 
 final readonly class StreamChannelHandler
 {
     public function __construct(
-        private BufferedChannel $channel = new BufferedChannel(),
+        private SseChannel $channel = new SseChannel(),
     ) {
     }
 
     #[EventHandler]
-    public function handlerStreamCreated(StreamCreated $event): void
+    public function handleStreamCreated(StreamCreated $event): void
     {
-        Loop::get()->futureTick(fn() => $this->channel->connect($event->stream, $event->id));
-        $event->stream->on('close', fn() => $this->channel->disconnect($event->stream));
+        $this->channel->connect($event->connection);
+        $this->channel->replayBuffer($event->connection);
+
+        // Set up cleanup when connection closes
+        $event->connection->send(""); // Send initial keep-alive
     }
 
     #[EventHandler]
-    public function handlerLogReceived(LogReceived $event): void
+    public function handleLogReceived(LogReceived $event): void
     {
         $this->channel->writeMessage($event->message);
     }
 
     #[EventHandler]
-    public function handlerLogCleared(LogCleared $event): void
+    public function handleLogCleared(LogCleared $event): void
     {
         $this->channel->writeMessage($event->message);
     }

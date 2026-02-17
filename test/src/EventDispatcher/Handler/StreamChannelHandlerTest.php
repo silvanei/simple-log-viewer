@@ -4,77 +4,70 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\EventDispatcher\Handler;
 
-use Clue\React\Sse\BufferedChannel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use React\EventLoop\Loop;
-use React\Stream\ThroughStream;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\Handler\StreamChannelHandler;
+use S3\Log\Viewer\Sse\SseChannel;
+use S3\Log\Viewer\Sse\SseConnectionInterface;
 
 class StreamChannelHandlerTest extends TestCase
 {
-    private BufferedChannel&MockObject $bufferedChannel;
+    private SseChannel&MockObject $sseChannel;
     private StreamChannelHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->bufferedChannel = $this->createMock(BufferedChannel::class);
-        $this->handler = new StreamChannelHandler($this->bufferedChannel);
+        $this->sseChannel = $this->createMock(SseChannel::class);
+        $this->handler = new StreamChannelHandler($this->sseChannel);
     }
 
-
-    public function testHandlerStreamCreatedConnect_ShouldCallChannelConnect_WhenLoopRun(): void
+    public function testHandleStreamCreated_ShouldConnectAndReplayBuffer(): void
     {
-        $stream = new ThroughStream();
+        $connection = $this->createMock(SseConnectionInterface::class);
         $id = 'abc123';
-        $this->bufferedChannel
+
+        $this->sseChannel
             ->expects($this->once())
             ->method('connect')
-            ->with($stream, $id);
+            ->with($connection);
 
-        $this->handler->handlerStreamCreated(new StreamCreated($stream, $id));
-
-        Loop::run();
-    }
-
-    public function testHandlerStreamCreatedConnect_ShouldCallChannelDisconnect_WhenStreamEmitCloseEvent(): void
-    {
-        $stream = new ThroughStream();
-        $id = 'abc123';
-        $this->bufferedChannel
+        $this->sseChannel
             ->expects($this->once())
-            ->method('disconnect')
-            ->with($stream);
+            ->method('replayBuffer')
+            ->with($connection);
 
-        $this->handler->handlerStreamCreated(new StreamCreated($stream, $id));
+        $connection
+            ->expects($this->once())
+            ->method('send')
+            ->with("");
 
-        $stream->emit('close');
+        $this->handler->handleStreamCreated(new StreamCreated($connection, $id));
     }
 
-    public function testHandlerLogReceived_ShouldCallChannelWriteMessage(): void
+    public function testHandleLogReceived_ShouldCallChannelWriteMessage(): void
     {
         $expectedEvent = new LogReceived();
-        $this->bufferedChannel
+        $this->sseChannel
             ->expects($this->once())
             ->method('writeMessage')
             ->with($expectedEvent->message);
 
-        $this->handler->handlerLogReceived($expectedEvent);
+        $this->handler->handleLogReceived($expectedEvent);
     }
 
-    public function testHandlerLogCleared_ShouldCallChannelWriteMessage(): void
+    public function testHandleLogCleared_ShouldCallChannelWriteMessage(): void
     {
         $expectedEvent = new LogCleared();
-        $this->bufferedChannel
+        $this->sseChannel
             ->expects($this->once())
             ->method('writeMessage')
             ->with($expectedEvent->message);
 
-        $this->handler->handlerLogCleared($expectedEvent);
+        $this->handler->handleLogCleared($expectedEvent);
     }
 }

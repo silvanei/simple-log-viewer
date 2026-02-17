@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\Middleware;
 
+use Nyholm\Psr7\Response;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -11,7 +12,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use React\Http\Message\Response;
 use RuntimeException;
 use S3\Log\Viewer\Middleware\ErrorHandlerMiddleware;
 use InvalidArgumentException;
@@ -23,13 +23,6 @@ final class ErrorHandlerMiddlewareTest extends TestCase
     private ErrorHandlerMiddleware $middleware;
     private ServerRequestInterface&MockObject $request;
     private UriInterface&MockObject $uri;
-
-    private const string EXPECTED_JSON_ERROR = <<<'JSON'
-    {
-        "error": "Internal server error"
-    }
-
-    JSON;
 
     private const string EXPECTED_HTML_ERROR = <<<'HTML'
     <h1>An error occurred</h1>
@@ -288,7 +281,7 @@ final class ErrorHandlerMiddlewareTest extends TestCase
         $response = ($this->middleware)($this->request, $next);
 
         $this->assertSame(500, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_JSON_ERROR, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString('{"error": "Internal server error"}', (string) $response->getBody());
     }
 
     public function testReturnsExactHtmlErrorBody(): void

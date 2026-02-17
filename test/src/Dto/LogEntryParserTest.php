@@ -179,8 +179,30 @@ final class LogEntryParserTest extends TestCase
         yield 'invalid format' => ['invalid-date'];
         yield 'missing timezone' => ['2025-01-16T12:00:00'];
         yield 'space instead of T' => ['2025-01-16 12:00:00+00:00'];
-        yield 'UTC Z notation' => ['2025-01-16T12:00:00Z'];
         yield 'invalid timezone' => ['2025-01-16T12:00:00+99:99'];
+    }
+
+    /** @return Generator<string,array{string}> */
+    public static function validDatetimeProvider(): Generator
+    {
+        yield 'UTC Z notation' => ['2025-01-16T12:00:00Z'];
+    }
+
+    #[DataProvider('validDatetimeProvider')]
+    public function testParseJsonWithValidDatetimeFormats_ShouldNotThrowException(string $datetime): void
+    {
+        $data = [
+            'datetime' => $datetime,
+            'channel' => 'test',
+            'level' => 'info',
+            'message' => 'test',
+            'context' => []
+        ];
+
+        $result = LogEntryParser::parseJson(json_encode($data) ?: '');
+
+        $this->assertInstanceOf(LogEntry::class, $result);
+        $this->assertSame($datetime, $result->datetime);
     }
 
     #[DataProvider('invalidDatetimeProvider')]

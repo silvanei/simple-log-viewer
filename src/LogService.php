@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer;
 
-use React\Stream\ThroughStream;
 use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventDispatcher;
+use S3\Log\Viewer\Sse\SseConnectionInterface;
 use S3\Log\Viewer\Storage\LogStorage;
 
 readonly class LogService
@@ -21,9 +21,9 @@ readonly class LogService
     ) {
     }
 
-    public function createChannelStream(ThroughStream $stream, string $id): void
+    public function createChannelStream(SseConnectionInterface $connection, string $id): void
     {
-        $this->eventDispatcher->dispatch(new StreamCreated($stream, $id));
+        $this->eventDispatcher->dispatch(new StreamCreated($connection, $id));
     }
 
     public function add(LogEntry $log): void

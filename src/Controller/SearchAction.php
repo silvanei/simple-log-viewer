@@ -6,9 +6,9 @@ namespace S3\Log\Viewer\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Dto\LogEntryView;
+use S3\Log\Viewer\Http\Response;
 use S3\Log\Viewer\LogService;
 use S3\Log\Viewer\View\Search\SearchViewModel;
 

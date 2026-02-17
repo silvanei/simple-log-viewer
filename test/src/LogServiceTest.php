@@ -7,7 +7,6 @@ namespace Test\S3\Log\Viewer;
 use PDO;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use React\Stream\ThroughStream;
 use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\Dto\LogEntryView;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
@@ -15,6 +14,7 @@ use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
 use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventDispatcher;
 use S3\Log\Viewer\LogService;
+use S3\Log\Viewer\Sse\SseConnectionInterface;
 use S3\Log\Viewer\Storage\LogStorageSQLite;
 
 class LogServiceTest extends TestCase
@@ -31,14 +31,14 @@ class LogServiceTest extends TestCase
 
     public function testCreateChannelStream_ShouldDispatchStreamCreated(): void
     {
-        $stream = new ThroughStream();
+        $connection = $this->createMock(SseConnectionInterface::class);
         $id = 'abc123';
         $this->eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
-            ->with(new StreamCreated($stream, $id));
+            ->with(new StreamCreated($connection, $id));
 
-        $this->service->createChannelStream($stream, $id);
+        $this->service->createChannelStream($connection, $id);
     }
 
     public function testAdd_ShouldDispatchLogReceived(): void

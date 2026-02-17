@@ -8,6 +8,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use S3\Log\Viewer\Controller\StreamAction;
 
 // Initialize app once
 $application = (static function (): \S3\Log\Viewer\Application {
@@ -17,7 +18,7 @@ $application = (static function (): \S3\Log\Viewer\Application {
     }
 
     $storage = new PDO("sqlite:$databaseDsn");
-    $channel = new \Clue\React\Sse\BufferedChannel();
+    $channel = new \S3\Log\Viewer\Sse\SseChannel();
     $eventDispatcher = new \S3\Log\Viewer\EventDispatcher\GenericEventDispatcher(
         new \S3\Log\Viewer\EventDispatcher\Handler\StreamChannelHandler($channel)
     );
@@ -51,18 +52,24 @@ $handler = static function () use ($application): void {
     // Handle request and get response
     $psrResponse = $application->handle($psrRequest);
 
-    // Send response headers
-    foreach ($psrResponse->getHeaders() as $name => $values) {
-        foreach ($values as $value) {
-            header(sprintf('%s: %s', $name, $value), false);
+    // Verificar se é uma requisição SSE (StreamAction gerencia headers próprios)
+    $isSseRequest = $psrRequest->getUri()->getPath() === '/logs-stream';
+
+    if (!$isSseRequest) {
+        // Send response headers para requisições normais
+        foreach ($psrResponse->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                header(sprintf('%s: %s', $name, $value), false);
+            }
         }
+
+        // Send status code
+        http_response_code($psrResponse->getStatusCode());
+
+        // Send body
+        echo $psrResponse->getBody();
     }
-
-    // Send status code
-    http_response_code($psrResponse->getStatusCode());
-
-    // Send body
-    echo $psrResponse->getBody();
+    // Para SSE, o StreamAction já enviou tudo diretamente
 };
 
 // Process requests

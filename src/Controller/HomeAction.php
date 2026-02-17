@@ -6,8 +6,8 @@ namespace S3\Log\Viewer\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
+use S3\Log\Viewer\Http\Response;
 use S3\Log\Viewer\View\GenericViewModel;
 
 readonly class HomeAction implements ActionHandler

@@ -6,10 +6,10 @@ namespace S3\Log\Viewer\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Dto\InvalidLogEntryDataException;
 use S3\Log\Viewer\Dto\LogEntryParser;
+use S3\Log\Viewer\Http\Response;
 use S3\Log\Viewer\LogService;
 
 readonly class ApiLogsAction implements ActionHandler
@@ -22,7 +22,7 @@ readonly class ApiLogsAction implements ActionHandler
     {
         $contentType = $request->getHeaderLine('Content-Type');
         if ($contentType !== 'application/json') {
-            return Response::json(['error' => 'Unsupported Media Type. Expected application/json'])->withStatus(415);
+            return Response::json(['error' => 'Unsupported Media Type. Expected application/json'], 415);
         }
 
         $json = (string)$request->getBody();
@@ -31,9 +31,9 @@ readonly class ApiLogsAction implements ActionHandler
 
             $this->logService->add($logEntry);
 
-            return Response::json(['message' => 'Log entry received'])->withStatus(201);
+            return Response::json(['message' => 'Log entry received'], 201);
         } catch (InvalidLogEntryDataException $e) {
-            return Response::json(['errors' => $e->errors, 'error' => 'Validation failed'])->withStatus(400);
+            return Response::json(['errors' => $e->errors, 'error' => 'Validation failed'], 400);
         }
     }
 }

@@ -22,14 +22,7 @@ readonly class LogService
     public function add(LogEntry $log): void
     {
         $this->storage->add($log);
-        // Dispatch event with log data for SSE
-        $json = json_encode([
-            'datetime' => $log->datetime,
-            'channel' => $log->channel,
-            'level' => $log->level,
-            'message' => $log->message,
-        ]);
-        $this->eventDispatcher->dispatch(new LogReceived($json ?: '{}'));
+        $this->eventDispatcher->dispatch(new LogReceived());
     }
 
     /** @return LogEntryView[] */

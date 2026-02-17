@@ -58,6 +58,7 @@ RUN composer dump-autoload --no-scripts --no-dev --optimize \
     && rm -Rf /tmp/* \
     && composer clear-cache
 
+USER www-data
 EXPOSE 8080 443 443/udp
 
 CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]

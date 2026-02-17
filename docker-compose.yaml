@@ -4,11 +4,9 @@ services:
     container_name: "simple-log-viewer-server"
     environment:
       - TZ=America/Sao_Paulo
-      - XDG_DATA_HOME=/app/storage
-      - XDG_CONFIG_HOME=/app/storage
     restart: unless-stopped
     ports:
-      - "5000:8080"
+      - "8080:8080"
     volumes:
       - ./storage:/app/storage
       - ./Caddyfile:/etc/caddy/Caddyfile:ro

@@ -34,7 +34,7 @@ class LogServiceTest extends TestCase
         $this->eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
-            ->with(new LogReceived('{"datetime":"2025-04-28T10:00:00Z","channel":"a","level":"DEBUG","message":"m1"}'));
+            ->with(new LogReceived('Received new log'));
 
         $this->service->add(new LogEntry('2025-04-28T10:00:00Z', 'a', 'DEBUG', 'm1', []));
     }

@@ -6,8 +6,6 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 // Initialize app
 $databaseDsn = getenv('DATABASE_DSN') ?: '/app/storage/logs.db';

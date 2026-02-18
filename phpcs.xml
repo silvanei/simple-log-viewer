@@ -33,6 +33,8 @@
     </rule>
 
     <!-- Paths to check -->
-    <file>/app/src</file>
-    <file>/app/test</file>
+    <file>public</file>
+    <file>src</file>
+    <file>templates</file>
+    <file>test</file>
 </ruleset>

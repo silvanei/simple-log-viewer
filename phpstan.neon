@@ -1,10 +1,10 @@
 parameters:
     level: max
     paths:
-        - /app/src
-        - /app/test
+        - src
+        - test
     scanFiles:
-        - /app/config/php/env.php
+        - env.php
     ignoreErrors:
         - '#Method S3\\Log\\Viewer\\Handler\\RouterHandler::dispatch\(\) should return Psr\\Http\\Message\\ResponseInterface but returns mixed.#'
         - '#Cannot access property \$length on DOMNodeList<DOMNameSpaceNode\|DOMNode>\|false#'

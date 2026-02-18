@@ -1,15 +1,15 @@
 {
     "source": {
         "directories": [
-            "/app/src"
+            "src"
         ],
         "excludes": [
             "/Application\\.php/"
         ]
     },
     "logs": {
-        "text": "/app/storage/infection/infection.txt",
-        "html": "/app/storage/infection/infection.html"
+        "text": "storage/infection/infection.txt",
+        "html": "storage/infection/infection.html"
     },
     "mutators": {
         "global-ignore": [

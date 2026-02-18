@@ -8,4 +8,4 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../storage:/app/storage
+      - ./storage:/app/storage

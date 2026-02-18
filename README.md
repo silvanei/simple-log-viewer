@@ -73,12 +73,6 @@ make phpstan
 make test
 ```
 
-## Documentation
-
-- [API Documentation](docs/API.md) - How to send logs to the viewer
-- [Changelog](docs/CHANGELOG.md) - Version history and changes
-- [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute to the project
-
 ## API Documentation
 
 For detailed information about sending logs to the viewer, see the [API Documentation](docs/API.md).
@@ -104,4 +98,4 @@ The application is built using:
 
 ## License
 
-This project is licensed under the [MIT License](docs/LICENSE).
+This project is licensed under the MIT License.

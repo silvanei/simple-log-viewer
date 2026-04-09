@@ -64,7 +64,7 @@ final readonly class LogStorageSQLite implements LogStorage
                     highlight(logs, 5, '⟦', '⟧') AS extra
                 FROM logs
                 WHERE logs MATCH :q
-                ORDER BY bm25(logs), logs.datetime DESC
+                ORDER BY logs.datetime DESC, bm25(logs)
                 LIMIT 100
                 SQL
             );

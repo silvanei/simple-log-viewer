@@ -498,3 +498,53 @@ document.addEventListener('DOMContentLoaded', () => {
         keyboardHelpBtn.addEventListener('click', toggleKeyboardShortcutsModal);
     }
 });
+
+// ==========================================================================
+// BACK TO TOP BUTTON
+// ==========================================================================
+
+/**
+ * Scroll smoothly to the top of the page
+ */
+function scrollToTop() {
+    const Behavior = prefersReducedMotion ? 'instant' : 'smooth';
+    window.scrollTo({ top: 0, left: 0, behavior: Behavior });
+}
+
+/**
+ * Handle scroll to show/hide back to top button
+ */
+function handleBackToTopScroll() {
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (!backToTopBtn) return;
+
+    const scrollThreshold = 200;
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+    if (scrollY > scrollThreshold) {
+        backToTopBtn.classList.add('visible');
+    } else {
+        backToTopBtn.classList.remove('visible');
+    }
+}
+
+// Initialize back to top button on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (backToTopBtn) {
+        // Add click handler
+        backToTopBtn.addEventListener('click', scrollToTop);
+
+        // Add scroll listener (throttled for performance)
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(handleBackToTopScroll, 50);
+        }, { passive: true });
+
+        // Initial check
+        handleBackToTopScroll();
+    }
+});

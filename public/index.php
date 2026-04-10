@@ -7,7 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 
-$databaseDsn = getenv('DATABASE_DSN') ?: '/app/storage/logs.db';
+$databaseDsn = getenv('DATABASE_DSN') ?: '/data/storage/logs.db';
 $storageDir = dirname($databaseDsn);
 if (! is_dir($storageDir)) {
     mkdir($storageDir, 0755, true);

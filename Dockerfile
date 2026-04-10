@@ -61,6 +61,9 @@ RUN composer dump-autoload --no-scripts --no-dev --optimize \
 # Give www-data ownership of directories needed by Caddy/Mercure
 RUN chown -R www-data:www-data /data/caddy /config/caddy
 
+# Create and set ownership for application storage
+RUN mkdir -p /data/storage && chown -R www-data:www-data /data/storage
+
 USER www-data
 EXPOSE 8080 443 443/udp
 

@@ -492,16 +492,9 @@ function handleGlobalKeydown(event) {
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleGlobalKeydown);
 
-    // Add keyboard help button to search input container (inside flex container)
-    const searchInputContainer = document.querySelector('.search-input-container');
-    if (searchInputContainer && !document.getElementById('keyboard-help-button')) {
-        const helpBtn = document.createElement('button');
-        helpBtn.id = 'keyboard-help-button';
-        helpBtn.className = 'keyboard-help-button';
-        helpBtn.setAttribute('aria-label', 'Show keyboard shortcuts');
-        helpBtn.setAttribute('title', 'Keyboard shortcuts (?)');
-        helpBtn.innerHTML = '<span class="i i-question"></span>';
-        helpBtn.onclick = toggleKeyboardShortcutsModal;
-        searchInputContainer.appendChild(helpBtn);
+    // Add click handler to keyboard help button in toolbar
+    const keyboardHelpBtn = document.getElementById('keyboard-help-btn');
+    if (keyboardHelpBtn) {
+        keyboardHelpBtn.addEventListener('click', toggleKeyboardShortcutsModal);
     }
 });

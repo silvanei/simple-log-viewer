@@ -98,20 +98,16 @@ h1 {
 }
 
 /* Search Input */
-.controls {
-    margin-bottom: 1rem;
-}
-
 input[type="search"] {
     width: 100%;
     padding: 0.5rem 1rem;
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: var(--surface);
+    background: var(--background);
     color: var(--text);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.875rem;
-    height: 40px;
+    height: 36px;
     box-sizing: border-box;
     transition: border-color 0.2s ease;
 }
@@ -141,24 +137,24 @@ input[type="search"]:focus {
 
 .search-input-container input {
     flex: 1;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .search-button, .clear-button, .pause-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0;
     border: 1px solid var(--border);
-    background: var(--surface);
+    background: transparent;
     border-radius: 6px;
     cursor: pointer;
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     transition: all 0.2s ease;
     color: var(--text);
-    font-size: 1.3rem;
+    font-size: 1.1rem;
 }
 
 .search-button:hover, .clear-button:hover, .pause-button:hover {
@@ -167,7 +163,7 @@ input[type="search"]:focus {
 }
 
 .pause-button {
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .pause-icon,
@@ -190,7 +186,7 @@ input[type="search"]:focus {
 }
 
 .clear-button {
-    margin-left: 8px;
+    margin-left: 6px;
 }
 
 .notification-dot {
@@ -341,8 +337,28 @@ input[type="search"]:focus {
     border-radius: 4px;
 }
 
-/* Responsive */
+/* Responsive - Mobile */
 @media (max-width: 768px) {
+    .toolbar {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .logo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-wrapper {
+        width: 100%;
+        order: 3;
+    }
+
+    .toolbar-actions {
+        order: 2;
+    }
+
     .log-header {
         flex-wrap: wrap;
         gap: 8px;
@@ -361,6 +377,18 @@ input[type="search"]:focus {
 
     .container {
         padding: 1rem;
+    }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 0.875rem;
+    }
+
+    .toolbar {
+        padding: 0.5rem;
+        gap: 0.5rem;
     }
 }
 
@@ -393,26 +421,66 @@ input[type="search"]:focus {
     opacity: 0.3;
 }
 
-/* Theme Toggle */
-header {
+/* Toolbar - Compact Header with Search */
+.toolbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-}
-
-.theme-toggle {
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.logo-icon {
+    color: var(--info);
+    opacity: 0.9;
+}
+
+.logo-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.search-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Theme Toggle - Updated for toolbar */
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 0;
     cursor: pointer;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     display: grid;
     place-items: center;
     transition: all 0.2s ease;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
 }
 
 .theme-toggle:hover {
@@ -818,17 +886,16 @@ html.dark .row-main:focus:not(:focus-visible) {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0;
     border: 1px solid var(--border);
-    background: var(--surface);
+    background: transparent;
     border-radius: 6px;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     transition: all 0.2s ease;
     color: var(--text);
-    font-size: 1.3rem;
-    margin-left: 8px;
+    font-size: 1.1rem;
 }
 
 .keyboard-help-button:hover {

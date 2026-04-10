@@ -55,5 +55,9 @@
     <div id="search-results" hx-ext="sse" sse-connect="/.well-known/mercure?topic=logs" sse-swap="message"></div>
 </main>
 <?= $this->partial('partials/keyboard-shortcuts') ?>
+
+<button id="back-to-top" class="back-to-top" aria-label="Back to top">
+    <span class="i i-arrow-up"></span>
+</button>
 </body>
 </html>

@@ -1288,3 +1288,79 @@ html.dark kbd {
     /* Override any remaining animations */
     animation: none !important;
 }
+
+/* ==========================================================================
+   BACK TO TOP BUTTON
+   ========================================================================== */
+
+.back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 1.25rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    background: var(--highlight-hover);
+    border-color: #64748b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.back-to-top:focus-visible {
+    outline: 3px solid var(--focus-color);
+    outline-offset: var(--focus-ring-offset);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
+}
+
+.back-to-top:focus:not(:focus-visible) {
+    outline: none;
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+/* Dark Mode - Back to Top */
+html.dark .back-to-top {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .back-to-top:hover {
+    background: var(--highlight-hover);
+    border-color: #64748b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Reduced Motion - Back to Top */
+@media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+        transition: none;
+    }
+
+    .back-to-top:hover {
+        transform: none;
+    }
+}

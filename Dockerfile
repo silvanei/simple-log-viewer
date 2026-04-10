@@ -58,6 +58,9 @@ RUN composer dump-autoload --no-scripts --no-dev --optimize \
     && rm -Rf /tmp/* \
     && composer clear-cache
 
+# Give www-data ownership of directories needed by Caddy/Mercure
+RUN chown -R www-data:www-data /data/caddy /config/caddy
+
 USER www-data
 EXPOSE 8080 443 443/udp
 

@@ -1,0 +1,22 @@
+{
+    admin off
+    servers {
+        enable_full_duplex
+    }
+}
+
+:8080 {
+    root * /app/public
+
+    mercure {
+        anonymous
+    }
+
+    php_server {
+        root /app/public
+    }
+    encode gzip
+    log {
+        output stdout
+    }
+}

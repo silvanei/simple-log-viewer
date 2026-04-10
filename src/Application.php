@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer;
 
+use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
-use React\Http\HttpServer;
-use React\Socket\SocketServer;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use S3\Log\Viewer\Handler\RouterHandler;
-use S3\Log\Viewer\Middleware\ErrorHandlerMiddleware;
-use S3\Log\Viewer\Middleware\StaticFileMiddleware;
-use S3\Log\Viewer\Middleware\GzipMiddleware;
 
 use function FastRoute\simpleDispatcher;
 
-final class Application
+final class Application implements RequestHandlerInterface
 {
     /** @var array<string, array{method: string, handler: ActionHandler}>  */
-    private array $routes;
+    private array $routes = [];
+
+    private ?Dispatcher $dispatcher = null;
 
     public function get(string $route, ActionHandler $handler): void
     {
@@ -29,22 +30,18 @@ final class Application
         $this->routes[$path] = ['method' => 'POST', 'handler' => $action];
     }
 
-    public function listen(string $uri): void
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $dispatcher = simpleDispatcher(function (RouteCollector $router): void {
-            foreach ($this->routes as $route => ['method' => $method, 'handler' => $handler]) {
-                $router->addRoute($method, $route, $handler);
-            }
-        });
+        if ($this->dispatcher === null) {
+            $this->dispatcher = simpleDispatcher(function (RouteCollector $router): void {
+                foreach ($this->routes as $route => ['method' => $method, 'handler' => $handler]) {
+                    $router->addRoute($method, $route, $handler);
+                }
+            });
+        }
 
-        $server = new HttpServer(
-            new GzipMiddleware(),
-            new StaticFileMiddleware('public'),
-            new ErrorHandlerMiddleware(),
-            new RouterHandler($dispatcher),
-        );
-        $server->listen(new SocketServer($uri));
+        $routerHandler = new RouterHandler($this->dispatcher);
 
-        echo 'Server running at ', $uri, PHP_EOL;
+        return $routerHandler($request);
     }
 }

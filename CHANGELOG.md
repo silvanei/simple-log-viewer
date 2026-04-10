@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-02-17
+
 ### Changed
+- Migrated from ReactPHP to FrankenPHP as the HTTP server
+  - Replaced ReactPHP with FrankenPHP (PHP 8.5) for improved performance
+  - Switched from custom SSE implementation to Mercure Hub for real-time updates
+  - Updated all HTTP response types from React\Http\Message to PSR-7 (Nyholm)
+  - Removed GzipMiddleware (now handled by Caddy)
+  - Removed StaticFileMiddleware (now handled by Caddy)
+  - Updated Application.php to implement PSR-15 RequestHandlerInterface
+
+### Technical Details
+- Server: FrankenPHP 1.11.2 with Caddy web server
+- HTTP Standard: PSR-7 (Nyholm\Psr7) and PSR-15
+- Real-time: Mercure Hub (built into FrankenPHP/Caddy)
+- SSE Endpoint: `/.well-known/mercure?topic=logs`
+- Worker mode enabled for persistent memory and better performance
+- Added `enable_full_duplex` configuration in Caddy for SSE support
+
+### Dependencies Updated
+- Removed: `react/http`, `clue/sse-react`
+- Added: `nyholm/psr7`, `nyholm/psr7-server`, `psr/http-message`, `psr/http-server-handler`, `psr/http-server-middleware`
+
+### Enhanced
 - Enhanced datetime field validation in API logs endpoint to support both ISO 8601 and RFC 3339 Extended formats
   - **Backward Compatible**: Still accepts ISO 8601 format: `2025-05-04T12:00:00+00:00` (original format)
   - **New Support**: Also accepts RFC 3339 Extended format: `2025-05-04T12:00:00.000+00:00` (with microseconds)
@@ -22,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive test cases for datetime format validation
 - Documentation of supported and unsupported datetime formats
 
-### Technical Details
+### Technical Details (Datetime)
 - Enhanced validation to support both `v::dateTime('Y-m-d\TH:i:sP')` (ISO 8601) and `v::dateTime(DateTimeInterface::RFC3339_EXTENDED)` formats
 - **ISO 8601 format**: `2025-05-04T12:00:00+00:00` (backward compatible)
 - **RFC 3339 Extended format**: `2025-05-04T12:00:00.000+00:00` (new option)
@@ -48,3 +71,5 @@ Both formats are now supported - no migration required:
 ```
 
 See the [API Documentation](docs/API.md#datetime-format-support) for detailed format specifications and language-specific examples.
+
+## [1.2.0] - 2025-05-04

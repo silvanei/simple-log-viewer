@@ -29,9 +29,6 @@ update:
 serve:
 	docker compose up -d
 
-serve-watch:
-	./bin/watch
-
 down:
 	docker compose down
 

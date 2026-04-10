@@ -4,36 +4,29 @@ declare(strict_types=1);
 
 namespace S3\Log\Viewer\EventDispatcher\Handler;
 
-use Clue\React\Sse\BufferedChannel;
-use React\EventLoop\Loop;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
-use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\EventHandler;
+use S3\Log\Viewer\Sse\MercurePublisher;
 
 final readonly class StreamChannelHandler
 {
     public function __construct(
-        private BufferedChannel $channel = new BufferedChannel(),
+        private MercurePublisher $publisher = new MercurePublisher(),
     ) {
     }
 
     #[EventHandler]
-    public function handlerStreamCreated(StreamCreated $event): void
+    public function handleLogReceived(LogReceived $event): void
     {
-        Loop::get()->futureTick(fn() => $this->channel->connect($event->stream, $event->id));
-        $event->stream->on('close', fn() => $this->channel->disconnect($event->stream));
+        // Publish to Mercure hub for SSE
+        $this->publisher->publish('logs', $event->message);
     }
 
     #[EventHandler]
-    public function handlerLogReceived(LogReceived $event): void
+    public function handleLogCleared(LogCleared $event): void
     {
-        $this->channel->writeMessage($event->message);
-    }
-
-    #[EventHandler]
-    public function handlerLogCleared(LogCleared $event): void
-    {
-        $this->channel->writeMessage($event->message);
+        // Publish clear event to Mercure
+        $this->publisher->publish('logs', $event->message);
     }
 }

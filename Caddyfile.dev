@@ -1,0 +1,24 @@
+{
+    admin off
+    servers {
+        enable_full_duplex
+    }
+}
+
+:8080 {
+    root * /app/public
+
+    mercure {
+        anonymous
+    }
+
+    php_server {
+        root /app/public
+        hot_reload src/**/*.php templates/**/*.phtml public/**/*.css
+    }
+
+    encode gzip
+    log {
+        output stdout
+    }
+}

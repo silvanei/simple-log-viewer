@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Test\S3\Log\Viewer\Handler;
 
 use FastRoute\Dispatcher;
+use Nyholm\Psr7\Response;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use React\Http\Message\Response;
 use S3\Log\Viewer\ActionHandler;
 use S3\Log\Viewer\Handler\RouterHandler;
 

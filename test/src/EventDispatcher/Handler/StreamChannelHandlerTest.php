@@ -4,77 +4,47 @@ declare(strict_types=1);
 
 namespace Test\S3\Log\Viewer\EventDispatcher\Handler;
 
-use Clue\React\Sse\BufferedChannel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use React\EventLoop\Loop;
-use React\Stream\ThroughStream;
 use S3\Log\Viewer\EventDispatcher\Event\LogCleared;
 use S3\Log\Viewer\EventDispatcher\Event\LogReceived;
-use S3\Log\Viewer\EventDispatcher\Event\StreamCreated;
 use S3\Log\Viewer\EventDispatcher\Handler\StreamChannelHandler;
+use S3\Log\Viewer\Sse\MercurePublisher;
 
 class StreamChannelHandlerTest extends TestCase
 {
-    private BufferedChannel&MockObject $bufferedChannel;
+    private MercurePublisher&MockObject $publisher;
     private StreamChannelHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->bufferedChannel = $this->createMock(BufferedChannel::class);
-        $this->handler = new StreamChannelHandler($this->bufferedChannel);
+        $this->publisher = $this->createMock(MercurePublisher::class);
+        $this->handler = new StreamChannelHandler($this->publisher);
     }
 
-
-    public function testHandlerStreamCreatedConnect_ShouldCallChannelConnect_WhenLoopRun(): void
+    public function testHandleLogReceived_ShouldPublishToMercure(): void
     {
-        $stream = new ThroughStream();
-        $id = 'abc123';
-        $this->bufferedChannel
+        $event = new LogReceived('New log received');
+
+        $this->publisher
             ->expects($this->once())
-            ->method('connect')
-            ->with($stream, $id);
+            ->method('publish')
+            ->with('logs', 'New log received');
 
-        $this->handler->handlerStreamCreated(new StreamCreated($stream, $id));
-
-        Loop::run();
+        $this->handler->handleLogReceived($event);
     }
 
-    public function testHandlerStreamCreatedConnect_ShouldCallChannelDisconnect_WhenStreamEmitCloseEvent(): void
+    public function testHandleLogCleared_ShouldPublishToMercure(): void
     {
-        $stream = new ThroughStream();
-        $id = 'abc123';
-        $this->bufferedChannel
+        $event = new LogCleared('Logs cleared');
+
+        $this->publisher
             ->expects($this->once())
-            ->method('disconnect')
-            ->with($stream);
+            ->method('publish')
+            ->with('logs', 'Logs cleared');
 
-        $this->handler->handlerStreamCreated(new StreamCreated($stream, $id));
-
-        $stream->emit('close');
-    }
-
-    public function testHandlerLogReceived_ShouldCallChannelWriteMessage(): void
-    {
-        $expectedEvent = new LogReceived();
-        $this->bufferedChannel
-            ->expects($this->once())
-            ->method('writeMessage')
-            ->with($expectedEvent->message);
-
-        $this->handler->handlerLogReceived($expectedEvent);
-    }
-
-    public function testHandlerLogCleared_ShouldCallChannelWriteMessage(): void
-    {
-        $expectedEvent = new LogCleared();
-        $this->bufferedChannel
-            ->expects($this->once())
-            ->method('writeMessage')
-            ->with($expectedEvent->message);
-
-        $this->handler->handlerLogCleared($expectedEvent);
+        $this->handler->handleLogCleared($event);
     }
 }

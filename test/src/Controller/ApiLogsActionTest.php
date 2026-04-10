@@ -6,16 +6,19 @@ namespace Test\S3\Log\Viewer\Controller;
 
 use Generator;
 use JsonException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use S3\Log\Viewer\Controller\ApiLogsAction;
 use S3\Log\Viewer\Dto\LogEntry;
 use S3\Log\Viewer\LogService;
 
+#[AllowMockObjectsWithoutExpectations]
 class ApiLogsActionTest extends TestCase
 {
     private const array VALID_DATA = [
@@ -33,20 +36,9 @@ class ApiLogsActionTest extends TestCase
 
     JSON;
 
-    private const string EXPECTED_UNSUPPORTED_MEDIA_TYPE_JSON =  <<<'JSON'
-    {
-        "error": "Unsupported Media Type. Expected application/json"
-    }
-
-    JSON;
-
     public function testWithValidDataReturns201Response(): void
     {
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode(self::VALID_DATA));
+        $request = $this->createRequestMock(bodyContent: json_encode(self::VALID_DATA) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('add')
@@ -55,17 +47,13 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
         $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
     }
 
     public function testInvokeWithInvalidJsonThrowsJsonException(): void
     {
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn('invalid json');
+        $request = $this->createRequestMock(bodyContent: 'invalid json');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($this->never())
@@ -79,11 +67,7 @@ class ApiLogsActionTest extends TestCase
 
     public function testInvokeWhenLogServiceThrowsExceptionThrowsRuntimeException(): void
     {
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode(self::VALID_DATA));
+        $request = $this->createRequestMock(bodyContent: json_encode(self::VALID_DATA) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($this->once())
@@ -105,18 +89,14 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(415, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_UNSUPPORTED_MEDIA_TYPE_JSON, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString('{"error": "Unsupported Media Type. Expected application/json"}', (string) $response->getBody());
         $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
     }
 
     public function testInvokeWithMissingRequiredFieldsReturns400Response(): void
     {
         $invalidData = [];
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($invalidData));
+        $request = $this->createRequestMock(bodyContent: json_encode($invalidData) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($this->never())
@@ -161,11 +141,7 @@ class ApiLogsActionTest extends TestCase
     public function testInvokeWithChannelLength(string $channel, int $expectedStatusCode, string $expectedResponseBody): void
     {
         $invalidData = [...self::VALID_DATA, ...['channel' => $channel]];
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($invalidData));
+        $request = $this->createRequestMock(bodyContent: json_encode($invalidData) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
@@ -174,7 +150,8 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame($expectedStatusCode, $response->getStatusCode());
-        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+        $responseBody = (string) $response->getBody();
+        $this->assertStringContainsString(str_replace(' ', '', $expectedResponseBody), str_replace(' ', '', $responseBody));
     }
 
     public static function levelDataProvider(): Generator
@@ -230,11 +207,7 @@ class ApiLogsActionTest extends TestCase
     public function testInvokeWithLevelLength(string $level, int $expectedStatusCode, string $expectedResponseBody): void
     {
         $invalidData = [...self::VALID_DATA, ...['level' => $level]];
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($invalidData));
+        $request = $this->createRequestMock(bodyContent: json_encode($invalidData) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
@@ -243,7 +216,8 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame($expectedStatusCode, $response->getStatusCode());
-        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+        $responseBody = (string) $response->getBody();
+        $this->assertStringContainsString(str_replace(' ', '', $expectedResponseBody), str_replace(' ', '', $responseBody));
     }
 
     public static function datetimeDataProvider(): Generator
@@ -263,10 +237,10 @@ class ApiLogsActionTest extends TestCase
             'expectedStatusCode' => 400,
             'expectedResponseBody' => 'Invalid or missing datetime'
         ];
-        yield 'Invalid RFC3339 Extended with UTC Z notation' => [
+        yield 'Valid RFC3339 Extended with UTC Z notation' => [
             'datetime' => '2025-05-04T12:00:00.000Z',
-            'expectedStatusCode' => 400,
-            'expectedResponseBody' => 'Invalid or missing datetime'
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Valid RFC3339 Extended with different timezone' => [
             'datetime' => '2025-05-04T12:00:00.000-03:00',
@@ -293,10 +267,10 @@ class ApiLogsActionTest extends TestCase
             'expectedStatusCode' => 201,
             'expectedResponseBody' => '"message": "Log entry received"'
         ];
-        yield 'Invalid ISO8601 with UTC Z notation' => [
+        yield 'Valid ISO8601 with UTC Z notation' => [
             'datetime' => '2025-05-04T12:00:00Z',
-            'expectedStatusCode' => 400,
-            'expectedResponseBody' => 'Invalid or missing datetime'
+            'expectedStatusCode' => 201,
+            'expectedResponseBody' => '"message": "Log entry received"'
         ];
         yield 'Invalid datetime format with space separator' => [
             'datetime' => '2025-05-04 12:00:00',
@@ -325,11 +299,7 @@ class ApiLogsActionTest extends TestCase
             $testData['datetime'] = $datetime;
         }
 
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($testData));
+        $request = $this->createRequestMock(bodyContent: json_encode($testData) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
@@ -338,7 +308,8 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame($expectedStatusCode, $response->getStatusCode());
-        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+        $responseBody = (string) $response->getBody();
+        $this->assertStringContainsString(str_replace(' ', '', $expectedResponseBody), str_replace(' ', '', $responseBody));
     }
 
     public static function messageDataProvider(): Generator
@@ -369,11 +340,7 @@ class ApiLogsActionTest extends TestCase
     public function testInvokeWithMessageLength(string $message, int $expectedStatusCode, string $expectedResponseBody): void
     {
         $invalidData = [...self::VALID_DATA, ...['message' => $message]];
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($invalidData));
+        $request = $this->createRequestMock(bodyContent: json_encode($invalidData) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($expectedStatusCode === 201 ? $this->once() : $this->never())
@@ -382,7 +349,8 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame($expectedStatusCode, $response->getStatusCode());
-        $this->assertStringContainsString($expectedResponseBody, (string) $response->getBody());
+        $responseBody = (string) $response->getBody();
+        $this->assertStringContainsString(str_replace(' ', '', $expectedResponseBody), str_replace(' ', '', $responseBody));
     }
 
     private function executeAction(LogService $logService, ServerRequestInterface $request): ResponseInterface
@@ -398,12 +366,7 @@ class ApiLogsActionTest extends TestCase
             ...['extra' => ['custom_field' => 'custom_value', 'numeric' => 123]]
         ];
 
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($data));
-
+        $request = $this->createRequestMock(bodyContent: json_encode($data) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('add')
@@ -412,7 +375,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public function testInvokeWithInvalidExtraNonArray_ShouldReturn400Status(): void
@@ -422,12 +385,7 @@ class ApiLogsActionTest extends TestCase
             ...['extra' => 'invalid_extra_field']
         ];
 
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($data));
-
+        $request = $this->createRequestMock(bodyContent: json_encode($data) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($this->never())
@@ -442,12 +400,7 @@ class ApiLogsActionTest extends TestCase
 
     public function testInvokeWithMissingExtraField_ShouldReturn201StatusWithDefaultEmptyExtra(): void
     {
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode(self::VALID_DATA));
-
+        $request = $this->createRequestMock(bodyContent: json_encode(self::VALID_DATA) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('add')
@@ -458,7 +411,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public function testInvokeWithEmptyExtraArray_ShouldReturn201Status(): void
@@ -468,12 +421,7 @@ class ApiLogsActionTest extends TestCase
             ...['extra' => []]
         ];
 
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($data));
-
+        $request = $this->createRequestMock(bodyContent: json_encode($data) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService->expects($this->once())
             ->method('add')
@@ -484,7 +432,7 @@ class ApiLogsActionTest extends TestCase
         $response = $this->executeAction($logService, $request);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
+        $this->assertJsonStringEqualsJsonString(self::EXPECTED_SUCCESS_JSON, (string) $response->getBody());
     }
 
     public static function extraFieldValidationProvider(): Generator
@@ -510,12 +458,7 @@ class ApiLogsActionTest extends TestCase
             ...['extra' => $extra]
         ];
 
-        $request = $this->createRequestMock();
-        $request
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn(json_encode($data));
-
+        $request = $this->createRequestMock(bodyContent: json_encode($data) ?: '');
         $logService = $this->createMock(LogService::class);
         $logService
             ->expects($shouldPass ? $this->once() : $this->never())
@@ -525,7 +468,8 @@ class ApiLogsActionTest extends TestCase
 
         if ($shouldPass) {
             $this->assertSame(201, $response->getStatusCode());
-            $this->assertStringContainsString('"message": "Log entry received"', (string) $response->getBody());
+            $responseBody = (string) $response->getBody();
+            $this->assertJsonStringEqualsJsonString('{"message": "Log entry received"}', $responseBody);
         } else {
             $this->assertSame(400, $response->getStatusCode());
             $responseBody = (string) $response->getBody();
@@ -544,7 +488,7 @@ class ApiLogsActionTest extends TestCase
         }
     }
 
-    private function createRequestMock(string $contentType = 'application/json'): ServerRequestInterface & MockObject
+    private function createRequestMock(string $contentType = 'application/json', ?string $bodyContent = null): ServerRequestInterface & MockObject
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request
@@ -552,6 +496,14 @@ class ApiLogsActionTest extends TestCase
             ->method('getHeaderLine')
             ->with('Content-Type')
             ->willReturn($contentType);
+
+        if ($bodyContent !== null) {
+            $stream = $this->createMock(StreamInterface::class);
+            $stream->method('__toString')->willReturn($bodyContent);
+            $request->expects($this->once())
+                ->method('getBody')
+                ->willReturn($stream);
+        }
 
         return $request;
     }

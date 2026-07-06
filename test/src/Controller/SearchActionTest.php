@@ -22,7 +22,7 @@ class SearchActionTest extends TestCase
             <div class="sr-only" aria-live="polite" aria-atomic="true">
                 Showing 1 log entries
             </div>
-            <div class="row" role="row">
+            <div class="row fixed-header" role="row">
                 <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
                 <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>

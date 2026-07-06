@@ -507,8 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
  * Scroll smoothly to the top of the page
  */
 function scrollToTop() {
+    const resultsEl = document.getElementById('search-results');
+    if (!resultsEl) return;
+
     const Behavior = prefersReducedMotion ? 'instant' : 'smooth';
-    window.scrollTo({ top: 0, left: 0, behavior: Behavior });
+    resultsEl.scrollTo({ top: 0, left: 0, behavior: Behavior });
 }
 
 /**
@@ -518,8 +521,11 @@ function handleBackToTopScroll() {
     const backToTopBtn = document.getElementById('back-to-top');
     if (!backToTopBtn) return;
 
+    const resultsEl = document.getElementById('search-results');
+    if (!resultsEl) return;
+
     const scrollThreshold = 200;
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollY = resultsEl.scrollTop;
 
     if (scrollY > scrollThreshold) {
         backToTopBtn.classList.add('visible');
@@ -536,8 +542,11 @@ document.addEventListener('DOMContentLoaded', () => {
         backToTopBtn.addEventListener('click', scrollToTop);
 
         // Add scroll listener (throttled for performance)
+        const resultsEl = document.getElementById('search-results');
+        if (!resultsEl) return;
+
         let scrollTimeout;
-        window.addEventListener('scroll', () => {
+        resultsEl.addEventListener('scroll', () => {
             if (scrollTimeout) {
                 clearTimeout(scrollTimeout);
             }

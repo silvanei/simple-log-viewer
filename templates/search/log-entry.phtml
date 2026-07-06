@@ -9,7 +9,7 @@
         No log entries found matching your search
     </div>
 <?php endif; ?>
-    <div class="row" role="row">
+    <div class="row fixed-header" role="row">
         <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
@@ -56,7 +56,7 @@
             <div class="cell message" role="cell"><span><?= $this->escape($entry->message) ?></span></div>
             <?php foreach ($this->fields as $field) : ?>
                 <div class="cell cell-field" role="cell">
-                    <span><?= $this->renderAdidionalField($flattenWithDotsentry, $field) ?></span>
+                    <span class="white-space-pre"><?= $this->renderAdidionalField($flattenWithDotsentry, $field) ?></span>
                 </div>
             <?php endforeach; ?>
         </div>

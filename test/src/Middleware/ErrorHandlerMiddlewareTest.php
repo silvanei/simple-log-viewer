@@ -24,10 +24,6 @@ final class ErrorHandlerMiddlewareTest extends TestCase
     private ServerRequestInterface&MockObject $request;
     private UriInterface&MockObject $uri;
 
-    private const string EXPECTED_HTML_ERROR = <<<'HTML'
-    <h1>An error occurred</h1>
-    HTML;
-
     #[Before]
     protected function init(): void
     {
@@ -292,6 +288,8 @@ final class ErrorHandlerMiddlewareTest extends TestCase
         $response = ($this->middleware)($this->request, $next);
 
         $this->assertSame(500, $response->getStatusCode());
-        $this->assertSame(self::EXPECTED_HTML_ERROR, (string) $response->getBody());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('An error occurred', $body);
+        $this->assertStringContainsString('text/html', $response->getHeaderLine('Content-Type'));
     }
 }

@@ -145,6 +145,60 @@ $next = function () {
 - **Use PHPUnit attributes** for setup/teardown: `#[Before]` and `#[After]` instead of `setUp()` and `tearDown()` methods
 - When using `#[Before]`/`#[After]`, methods must be `protected` or `public`
 
+### Fragile HTML Test Patterns (Anti-Patterns to Avoid)
+
+When testing controllers that return HTML responses, avoid these fragile patterns:
+
+#### Anti-pattern #1: `assertSame()` with full HTML heredoc
+```php
+// ❌ FRÁGIL — qualquer mudança de indentação ou classe quebra o teste
+$expectedBody = <<<HTML
+<div class="wraper" role="table">
+    <div class="row" role="row">
+        ...
+    </div>
+</div>
+HTML;
+$this->assertSame($expectedBody, (string) $response->getBody());
+```
+
+**✅ Correto:** Usar `assertStringContainsString()` para partes específicas e `substr_count()` para contagens:
+```php
+$body = (string) $response->getBody();
+
+$this->assertStringContainsString('<div class="wraper" role="table"', $body);
+$this->assertStringContainsString('Datetime', $body);
+$this->assertStringContainsString('aria-label="Expand"', $body);
+
+$this->assertSame(1, substr_count($body, 'row-main'));
+$this->assertGreaterThanOrEqual(4, substr_count($body, 'field-toggle-btn'));
+```
+
+#### Anti-pattern #2: Hardcoded strings para acessibilidade
+```php
+// ❌ FRÁGIL — novos botões exigem atualização manual do teste
+$hasAccessibleLabel = str_contains($srOnlyText, 'Toggle') || str_contains($srOnlyText, 'Remove');
+```
+
+**✅ Correto:** Usar `DOMXPath` para verificar genericamente se TODO botão com ícone tem `aria-label` ou `sr-only`:
+```php
+$xpath = new \DOMXPath($dom);
+$buttons = $xpath->query('//button[.//span[contains(@class, "i-")]]');
+
+foreach ($buttons as $button) {
+    $ariaLabel = $button->getAttribute('aria-label');
+    $srSpans = $button->getElementsByTagName('span');
+    $hasSrText = false;
+    foreach ($srSpans as $span) {
+        if (str_contains($span->getAttribute('class'), 'sr-only')) {
+            $hasSrText = true;
+            break;
+        }
+    }
+    $this->assertTrue(! empty($ariaLabel) || $hasSrText, 'Icon button should have aria-label or sr-only text');
+}
+```
+
 ### Common Pitfalls
 - **Trailing whitespace**: When adding new test methods or code blocks, ensure no spaces at end of lines. PHPCS will fail with "Whitespace found at end of line" error.
 - **Mutation testing**: Use `CI=true make infection` or `composer test-infection` to run Infection. Tests added for mutation testing should explicitly verify the behavior being mutated (e.g., boundary conditions, default parameter values).

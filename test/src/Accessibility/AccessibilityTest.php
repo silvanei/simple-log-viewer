@@ -299,13 +299,18 @@ class AccessibilityTest extends TestCase
         /** @var \DOMElement $button */
         foreach ($buttons as $button) {
             $ariaLabel = $button->getAttribute('aria-label');
-            $srOnlyText = $button->textContent;
-
-            $hasAccessibleLabel = ! empty($ariaLabel) || str_contains($srOnlyText, 'Toggle') || str_contains($srOnlyText, 'Remove');
+            $srSpans = $button->getElementsByTagName('span');
+            $hasSrText = false;
+            foreach ($srSpans as $span) {
+                if (str_contains($span->getAttribute('class'), 'sr-only')) {
+                    $hasSrText = true;
+                    break;
+                }
+            }
 
             $this->assertTrue(
-                $hasAccessibleLabel,
-                'Icon button should have aria-label or screen reader text'
+                ! empty($ariaLabel) || $hasSrText,
+                'Icon button should have aria-label or sr-only text'
             );
         }
     }

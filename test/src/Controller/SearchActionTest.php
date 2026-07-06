@@ -17,110 +17,6 @@ class SearchActionTest extends TestCase
     /** @throws Exception */
     public function test_invoke_with_search_filter_returns_valid_response(): void
     {
-        $expectedBody = <<<HTML
-        <div class="wraper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
-            <div class="sr-only" aria-live="polite" aria-atomic="true">
-                Showing 1 log entries
-            </div>
-            <div class="row fixed-header" role="row">
-                <div class="cell cell-header" role="columnheader" scope="col">&nbsp</div>
-                <div class="cell cell-header" role="columnheader" scope="col"><b>Datetime</b></div>
-                <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
-                <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b><span class="sr-only"> (Log severity level)</span></div>
-                <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
-                    </div>
-
-                            <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: ERROR from a at 2025-04-28T10:00:00Z">
-                    <div class="cell" role="cell">
-                        <button
-                            aria-label="Expand"
-                            aria-expanded="false"
-                            aria-controls="log-content-0"
-                            onclick="toggleLogEntry(this)"
-                        >
-                            <span class="i i-caret"></span>
-                            <span class="sr-only">Expand</span>
-                        </button>
-                    </div>
-                    <div class="cell datetime" role="cell"><span>2025-04-28T10:00:00Z</span></div>
-                    <div class="cell channel" role="cell"><span>[a]</span></div>
-                    <div class="cell level error" role="cell">
-                        <span class="i i-error" aria-hidden="true"></span>
-                        <span>ERROR</span>
-                        <span class="sr-only">Level: ERROR</span>
-                    </div>
-                    <div class="cell message" role="cell"><span>m1</span></div>
-                            </div>
-                <div id="log-content-0" class="row details log-content collapsed" role="row">
-                    <div class="cell" role="cell" colspan="5">
-                        <ul class="nested-list">
-                    <li>
-                    <span class="highlight-key">
-                        <button
-                            class="field-toggle-btn"
-                            data-field="datetime"
-                            onclick="toggleField(event, 'datetime')"
-                            aria-label="Toggle column"
-                            title="Toggle column in table"
-                        >
-                            <span class="i i-table"></span>
-                            <span class="sr-only">Toggle column</span>
-                        </button>
-                        datetime            </span>
-                    <span class="highlight-string">2025-04-28T10:00:00Z</span>
-                </li>
-                    <li>
-                    <span class="highlight-key">
-                        <button
-                            class="field-toggle-btn"
-                            data-field="channel"
-                            onclick="toggleField(event, 'channel')"
-                            aria-label="Toggle column"
-                            title="Toggle column in table"
-                        >
-                            <span class="i i-table"></span>
-                            <span class="sr-only">Toggle column</span>
-                        </button>
-                        channel            </span>
-                    <span class="highlight-string">a</span>
-                </li>
-                    <li>
-                    <span class="highlight-key">
-                        <button
-                            class="field-toggle-btn"
-                            data-field="level"
-                            onclick="toggleField(event, 'level')"
-                            aria-label="Toggle column"
-                            title="Toggle column in table"
-                        >
-                            <span class="i i-table"></span>
-                            <span class="sr-only">Toggle column</span>
-                        </button>
-                        level            </span>
-                    <span class="highlight-string">ERROR</span>
-                </li>
-                    <li>
-                    <span class="highlight-key">
-                        <button
-                            class="field-toggle-btn"
-                            data-field="message"
-                            onclick="toggleField(event, 'message')"
-                            aria-label="Toggle column"
-                            title="Toggle column in table"
-                        >
-                            <span class="i i-table"></span>
-                            <span class="sr-only">Toggle column</span>
-                        </button>
-                        message            </span>
-                    <span class="highlight-string">m1</span>
-                </li>
-            </ul>
-                    </div>
-                </div>
-            </div>
-
-        HTML;
-
         $testFilter = 'error';
         $request = $this->createMock(ServerRequestInterface::class);
         $request
@@ -141,7 +37,37 @@ class SearchActionTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(['text/html; charset=utf-8'], $response->getHeader('Content-Type'));
-        $this->assertSame($expectedBody, (string) $response->getBody());
+
+        $body = (string) $response->getBody();
+
+        $this->assertStringContainsString('<div class="wraper" role="table"', $body);
+        $this->assertStringContainsString('Showing 1 log entries', $body);
+        $this->assertStringContainsString('aria-live="polite"', $body);
+        $this->assertStringContainsString('aria-atomic="true"', $body);
+
+        $this->assertStringContainsString('Datetime', $body);
+        $this->assertStringContainsString('Channel', $body);
+        $this->assertStringContainsString('Level', $body);
+        $this->assertStringContainsString('Message', $body);
+
+        $this->assertStringContainsString('2025-04-28T10:00:00Z', $body);
+        $this->assertStringContainsString('[a]', $body);
+        $this->assertStringContainsString('ERROR', $body);
+        $this->assertStringContainsString('m1', $body);
+
+        $this->assertStringContainsString('field-toggle-btn', $body);
+        $this->assertStringContainsString('aria-label="Toggle column"', $body);
+
+        $this->assertStringContainsString('aria-label="Expand"', $body);
+        $this->assertStringContainsString('aria-expanded="false"', $body);
+
+        $this->assertStringContainsString('i-table', $body);
+        $this->assertStringContainsString('i-error', $body);
+        $this->assertStringContainsString('i-caret', $body);
+
+        $this->assertSame(1, substr_count($body, 'row-main'));
+        $this->assertGreaterThanOrEqual(4, substr_count($body, 'field-toggle-btn'));
+        $this->assertSame(4, substr_count($body, 'i-table'));
     }
 
     /** @throws Exception */

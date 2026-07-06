@@ -97,6 +97,91 @@ class SearchActionTest extends TestCase
     }
 
     /** @throws Exception */
+    public function test_invoke_with_fields_param_shows_move_buttons(): void
+    {
+        $testFields = ['datetime', 'message', 'custom'];
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn(['fields' => $testFields, 'search' => 'test']);
+
+        $logService = $this->createMock(LogService::class);
+        $logService
+            ->expects($this->once())
+            ->method('search')
+            ->with('test')
+            ->willReturn([
+                new LogEntryView(
+                    datetime: '2025-04-28T10:00:00Z',
+                    channel: 'app',
+                    level: 'ERROR',
+                    message: 'Test message',
+                    context: [],
+                ),
+            ]);
+
+        $action = new SearchAction($logService);
+        $response = $action->__invoke($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertStringContainsString('class="field-actions"', $body);
+        $this->assertStringContainsString('i-chevron-left', $body);
+        $this->assertStringContainsString('i-chevron-right', $body);
+
+        $this->assertSame(2, substr_count($body, 'aria-label="Move column left"'));
+        $this->assertSame(2, substr_count($body, 'aria-label="Move column right"'));
+        $this->assertSame(3, substr_count($body, 'aria-label="Remove column"'));
+
+        $this->assertStringContainsString('data-field="datetime"', $body);
+        $this->assertStringContainsString('data-field="message"', $body);
+        $this->assertStringContainsString('data-field="custom"', $body);
+
+        $this->assertStringContainsString('sr-only', $body);
+        $this->assertStringContainsString('Move column left', $body);
+        $this->assertStringContainsString('Move column right', $body);
+    }
+
+    /** @throws Exception */
+    public function test_invoke_with_single_field_hides_move_buttons(): void
+    {
+        $testFields = ['datetime'];
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn(['fields' => $testFields, 'search' => 'test']);
+
+        $logService = $this->createMock(LogService::class);
+        $logService
+            ->expects($this->once())
+            ->method('search')
+            ->with('test')
+            ->willReturn([
+                new LogEntryView(
+                    datetime: '2025-04-28T10:00:00Z',
+                    channel: 'app',
+                    level: 'ERROR',
+                    message: 'Test message',
+                    context: [],
+                ),
+            ]);
+
+        $action = new SearchAction($logService);
+        $response = $action->__invoke($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertSame(0, substr_count($body, 'aria-label="Move column left"'));
+        $this->assertSame(0, substr_count($body, 'aria-label="Move column right"'));
+        $this->assertSame(1, substr_count($body, 'aria-label="Remove column"'));
+        $this->assertStringContainsString('data-field="datetime"', $body);
+    }
+
+    /** @throws Exception */
     public function test_invoke_throws_exception_on_service_failure(): void
     {
         $errorMessage = 'Database connection failed';

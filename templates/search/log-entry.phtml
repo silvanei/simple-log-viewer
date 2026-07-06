@@ -15,20 +15,49 @@
         <div class="cell cell-header" role="columnheader" scope="col"><b>Channel</b></div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Level</b><span class="sr-only"> (Log severity level)</span></div>
         <div class="cell cell-header" role="columnheader" scope="col"><b>Message</b></div>
+        <?php $fieldCount = count($this->fields); ?>
+        <?php $fieldIndex = 0; ?>
         <?php foreach ($this->fields as $field) : ?>
             <div class="cell cell-header" role="columnheader" scope="col">
                 <b><?= $this->renderAdidionalKey($field) ?></b>
-                <button
-                    class="field-toggle-btn"
-                    data-field="<?= $this->renderAdidionalKey($field) ?>"
-                    onclick="toggleField(event, '<?= $field ?>')"
-                    aria-label="Remove column"
-                    title="Remove column"
-                >
-                    <span class="i i-close"></span>
-                    <span class="sr-only">Remove column</span>
-                </button>
+                <span class="field-actions">
+                    <button
+                        class="field-toggle-btn"
+                        data-field="<?= $this->renderAdidionalKey($field) ?>"
+                        onclick="toggleField(event, '<?= $field ?>')"
+                        aria-label="Remove column"
+                        title="Remove column"
+                    >
+                        <span class="i i-close"></span>
+                        <span class="sr-only">Remove column</span>
+                    </button>
+                    <?php if ($fieldCount > 1 && $fieldIndex > 0) : ?>
+                        <button
+                            class="field-toggle-btn field-move-left"
+                            data-field="<?= $this->renderAdidionalKey($field) ?>"
+                            onclick="moveFieldLeft(event, '<?= $field ?>')"
+                            aria-label="Move column left"
+                            title="Move column left"
+                        >
+                            <span class="i i-chevron-left"></span>
+                            <span class="sr-only">Move column left</span>
+                        </button>
+                    <?php endif; ?>
+                    <?php if ($fieldCount > 1 && $fieldIndex < $fieldCount - 1) : ?>
+                        <button
+                            class="field-toggle-btn field-move-right"
+                            data-field="<?= $this->renderAdidionalKey($field) ?>"
+                            onclick="moveFieldRight(event, '<?= $field ?>')"
+                            aria-label="Move column right"
+                            title="Move column right"
+                        >
+                            <span class="i i-chevron-right"></span>
+                            <span class="sr-only">Move column right</span>
+                        </button>
+                    <?php endif; ?>
+                </span>
             </div>
+            <?php $fieldIndex++; ?>
         <?php endforeach; ?>
     </div>
 

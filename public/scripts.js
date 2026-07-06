@@ -89,6 +89,26 @@ function createSelectedFieldsInput() {
   });
 }
 
+function moveFieldLeft(event, fieldName) {
+    event.stopPropagation();
+    const index = selectedFields.indexOf(fieldName);
+    if (index > 0) {
+        [selectedFields[index - 1], selectedFields[index]] = [selectedFields[index], selectedFields[index - 1]];
+        saveSelectedFields();
+        triggerSearch();
+    }
+}
+
+function moveFieldRight(event, fieldName) {
+    event.stopPropagation();
+    const index = selectedFields.indexOf(fieldName);
+    if (index < selectedFields.length - 1) {
+        [selectedFields[index], selectedFields[index + 1]] = [selectedFields[index + 1], selectedFields[index]];
+        saveSelectedFields();
+        triggerSearch();
+    }
+}
+
 function toggleField(event, fieldName) {
     event.stopPropagation();
     const isCurrentlySelected = isFieldSelected(fieldName);
@@ -279,6 +299,8 @@ window.toggleHighlight = toggleHighlight;
 window.toggleLogEntry = toggleLogEntry;
 window.triggerSearch = triggerSearch;
 window.clearLogs = clearLogs;
+window.moveFieldLeft = moveFieldLeft;
+window.moveFieldRight = moveFieldRight;
 
 // ==========================================================================
 // FOCUS MANAGEMENT & ACCESSIBILITY

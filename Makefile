@@ -57,8 +57,7 @@ build-production:
 
 changelog:
 	@echo "Generating changelog for v$(VERSION)..."
-	@command -v git-cliff >/dev/null 2>&1 && \
-		git cliff --tag v$(VERSION) --unreleased || \
-		docker run --rm -v $(PWD):/workspace -w /workspace \
-			orhun/git-cliff:latest \
-			git cliff --tag v$(VERSION) --unreleased
+	@$(DOCKER_CONTAINER_RUN) git-cliff --tag v$(VERSION) --unreleased 2>/dev/null \
+		|| $(DOCKER_CONTAINER_RUN) sh -c '\
+			FIRST=$$(git rev-list --max-parents=0 HEAD) && \
+			git-cliff --tag v$(VERSION) $$FIRST..HEAD'

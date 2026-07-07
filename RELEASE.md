@@ -5,33 +5,29 @@ Este documento descreve o processo completo para criar uma nova release do Simpl
 ## 📋 Pré-requisitos
 
 - Acesso de escrita ao repositório (`silvanei/simple-log-viewer`)
-- Docker instalado para build local (opcional)
-- Para gerar changelog: **git-cliff** (opcional — o Makefile resolve automaticamente)
+- Docker instalado para build local e geração de changelog
+- Imagem de desenvolvimento construída: `make image`
 
 ### 🔧 Instalação do git-cliff
 
-O `git-cliff` é uma ferramenta separada (não é um comando padrão do git). Escolha uma opção:
+O `git-cliff` já vem pré-instalado na imagem Docker de desenvolvimento (`silvanei/simple-log-viewer:dev`). Basta executar via Makefile:
 
-**Opção A — Via Makefile (recomendado, não precisa instalar nada):**
 ```bash
+# Recomendado — usa git-cliff da imagem Docker
 make changelog VERSION=1.4.0
-```
-O Makefile detecta automaticamente se o git-cliff está instalado localmente. Se não estiver, ele executa via Docker usando a imagem oficial `orhun/git-cliff:latest`.
 
-**Opção B — Instalar localmente (Linux/macOS):**
+# Ou diretamente no container
+make sh
+/app $ git-cliff --tag v1.4.0 --unreleased
+```
+
+Se quiser instalar localmente (alternativa):
 ```bash
 # Com cargo (Rust)
 cargo install git-cliff
 
-# Ou via gerenciador de pacotes
-# macOS: brew install git-cliff
-# Arch: pacman -S git-cliff
-```
-
-**Opção C — Direto via Docker (sem Makefile):**
-```bash
-docker run --rm -v $(pwd):/workspace -w /workspace orhun/git-cliff:latest \
-  git cliff --tag v1.4.0 --unreleased
+# macOS
+brew install git-cliff
 ```
 
 ## 🏷️ Convenção de Commits

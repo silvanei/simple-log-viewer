@@ -55,7 +55,7 @@ final class MakefileTargetTest extends TestCase
 
     public function testChangelog_ShouldUseGitCliff(): void
     {
-        $this->assertStringContainsString('git cliff', $this->makefileContent);
+        $this->assertStringContainsString('git-cliff', $this->makefileContent);
     }
 
     public function testChangelog_ShouldPassVersionArgument(): void

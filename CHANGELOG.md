@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-07-07
+
+### CI/CD
+- Added Docker semantic tags and conventional commits support
+  - CI generates Docker images with semantic tags on git tag pushes (`v*.*.*`)
+  - Adopted [Conventional Commits](https://www.conventionalcommits.org/) for all commits
+  - Added `cliff.toml` for automated changelog generation with [git-cliff](https://git-cliff.org)
+  - Created comprehensive `RELEASE.md` with step-by-step release guide
+  - Added `changelog` and `build-production` targets to Makefile
+
+### Fixed
+- Installed git-cliff v2.13.1 binary in Docker development image for reliable changelog generation
+  - Previously depended on external `orhunp/git-cliff` Docker image which failed with libgit2 errors
+  - Updated Makefile `changelog` target to run git-cliff via the project's own Docker container
+  - Updated RELEASE.md documentation for the new Docker-based workflow
+
 ## [1.3.0] - 2026-02-17
 
 ### Changed

@@ -9,7 +9,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -46,3 +46,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        run: |
+          VERSION="${{ github.ref_name }}"
+          NOTES=$(awk "/^## \\[${VERSION#v}\\]/,/^## \\[/" CHANGELOG.md | head -n -2)
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes "$NOTES"
+        env:
+          GH_TOKEN: ${{ github.token }}

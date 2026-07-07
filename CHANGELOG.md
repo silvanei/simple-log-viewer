@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-07-07
+
+### Added
+- GitHub Release is now automatically created when a git tag is pushed
+  - Uses `gh release create` (GitHub CLI) — no third-party actions required
+  - Release notes are extracted from `CHANGELOG.md` matching the version
+  - Only triggers on tags (`v*.*.*`), not on branch pushes
+
 ## [1.3.1] - 2026-07-07
 
 ### CI/CD

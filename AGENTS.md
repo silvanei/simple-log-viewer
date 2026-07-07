@@ -218,3 +218,84 @@ foreach ($buttons as $button) {
 - Return structured data via JSON for API endpoints
 - Use view models for HTML responses
 - Path parameters from request attributes, query params from request query params
+
+## 📝 Commit Convention (Conventional Commits)
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits.
+
+### Format
+```
+<tipo>: <descrição>
+
+[corpo opcional]
+```
+
+### Tipos permitidos
+| Tipo | Uso | Exemplo |
+|------|-----|---------|
+| `feat` | Nova funcionalidade | `feat: add column sorting` |
+| `fix` | Correção de bug | `fix: validate datetime format` |
+| `docs` | Documentação | `docs: update API docs` |
+| `test` | Testes | `test: add LogStorage unit tests` |
+| `refactor` | Refatoração | `refactor: extract LogService class` |
+| `style` | Formatação/código estilo | `style: fix PSR-12 indentation` |
+| `chore` | Manutenção | `chore: update PHPStan config` |
+| `perf` | Performance | `perf: optimize search query` |
+| `ci` | CI/CD | `ci: add Docker semantic tags` |
+
+### Escopo (opcional)
+Use parênteses para escopo: `feat(api): add log search endpoint`
+
+### Breaking changes
+Adicione `!` após tipo/escopo: `feat!: remove deprecated endpoint`
+
+## 🏷️ Release Process
+
+### Fluxo de Release
+
+1. **Desenvolva** features em branches separadas com commits seguindo Conventional Commits
+2. **Abra PRs** e faça merge para `main` (branch protegida, merge via PR)
+3. **Prepare o release** criando uma branch `release/vX.Y.Z`:
+   - Invoque o subagente `changelog-generator` ou execute `git cliff --tag vX.Y.Z --unreleased`
+   - Atualize `CHANGELOG.md` com as mudanças geradas + detalhes manuais
+   - Atualize `"version"` no `composer.json`
+   - Crie PR da branch de release para `main`
+4. **Após o merge**, crie a tag:
+   ```bash
+   git checkout main && git pull
+   git tag v1.4.0
+   git push origin v1.4.0
+   ```
+5. **CI detecta a tag** e constrói as imagens Docker:
+   - `silvanei/simple-log-viewer:1.4.0`
+   - `silvanei/simple-log-viewer:1.4`
+   - `silvanei/simple-log-viewer:1`
+   - `silvanei/simple-log-viewer:latest`
+
+### Comandos úteis
+
+```bash
+# Gerar changelog para release
+git cliff --tag vX.Y.Z --unreleased
+
+# Build local da imagem de produção
+make build-production VERSION=1.4.0
+```
+
+### Documentação de Release
+Consulte [RELEASE.md](RELEASE.md) para o guia completo passo a passo de como criar uma release.
+
+### Changelog (git-cliff)
+
+O projeto usa [git-cliff](https://git-cliff.org) para gerar changelogs. Configuração em `cliff.toml`.
+
+- Commits que seguem Conventional Commits são agrupados por tipo (Added, Fixed, etc.)
+- Commits antigos (sem padrão) são agrupados em "Changed"
+- Sempre revise e enriqueça o changelog gerado com detalhes técnicos e exemplos
+
+## 🤝 Available Subagents
+
+### changelog-generator
+**Specialty**: Changelog generation with git-cliff
+**When to Use**: Preparing a release, generating changelog entries
+**Invocation**: `task(subagent_type="changelog-generator", ...)`

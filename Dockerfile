@@ -15,6 +15,15 @@ RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
     && docker-php-ext-enable xdebug \
     && apk del $PHPIZE_DEPS
 
+# Install git-cliff for changelog generation
+RUN apk add --no-cache wget \
+    && wget -O /tmp/git-cliff.tar.gz \
+        https://github.com/orhun/git-cliff/releases/download/v2.13.1/git-cliff-2.13.1-x86_64-unknown-linux-musl.tar.gz \
+    && tar xzf /tmp/git-cliff.tar.gz -C /tmp/ \
+    && mv /tmp/git-cliff-2.13.1/git-cliff /usr/local/bin/ \
+    && rm -rf /tmp/git-cliff* /var/cache/* \
+    && apk del wget
+
 # Install dependencies
 COPY composer.json composer.lock /app/
 RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \

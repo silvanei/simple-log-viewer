@@ -49,3 +49,16 @@ infection:
 
 check:
 	$(DOCKER_CONTAINER_RUN) composer check
+
+build-production:
+	docker build --target production \
+		-t silvanei/simple-log-viewer:$(VERSION) \
+		-t silvanei/simple-log-viewer:latest .
+
+changelog:
+	@echo "Generating changelog for v$(VERSION)..."
+	@command -v git-cliff >/dev/null 2>&1 && \
+		git cliff --tag v$(VERSION) --unreleased || \
+		docker run --rm -v $(PWD):/workspace -w /workspace \
+			orhun/git-cliff:latest \
+			git cliff --tag v$(VERSION) --unreleased

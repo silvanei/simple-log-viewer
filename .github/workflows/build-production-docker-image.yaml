@@ -51,7 +51,11 @@ jobs:
         if: github.ref_type == 'tag'
         run: |
           VERSION="${{ github.ref_name }}"
-          NOTES=$(awk "/^## \\[${VERSION#v}\\]/,/^## \\[/" CHANGELOG.md | head -n -2)
+          STRIPPED="${VERSION#v}"
+
+          START=$(grep -n "^## \\[${STRIPPED}\\]" CHANGELOG.md | head -1 | cut -d: -f1)
+          END=$(tail -n +$((START+1)) CHANGELOG.md | grep -n "^## \\[" | head -1 | cut -d: -f1)
+          NOTES=$(tail -n +$START CHANGELOG.md | head -n $END)
 
           gh release create "$VERSION" \
             --title "$VERSION" \

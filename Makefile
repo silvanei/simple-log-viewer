@@ -14,7 +14,7 @@ DOCKER_CONTAINER_RUN=docker container run \
 	-v $(PROJECT_DIR):/app \
 	-w /app silvanei/simple-log-viewer:dev
 
-.PHONY: default test
+.PHONY: default test phpstan phpcs infection check test-coverage phpcbf audit outdated
 default: image;
 
 image:
@@ -49,6 +49,18 @@ infection:
 
 check:
 	$(DOCKER_CONTAINER_RUN) composer check
+
+test-coverage:
+	$(DOCKER_CONTAINER_RUN) composer test-coverage
+
+phpcbf:
+	$(DOCKER_CONTAINER_RUN) composer phpcbf
+
+audit:
+	$(DOCKER_CONTAINER_RUN) composer audit
+
+outdated:
+	$(DOCKER_CONTAINER_RUN) composer outdated
 
 build-production:
 	docker build --target production \

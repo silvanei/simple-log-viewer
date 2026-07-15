@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-07-15
+
+### Added
+- Add Makefile targets for test-coverage, phpcbf, audit, and outdated
+  - `make test-coverage` - Run tests with HTML coverage report
+  - `make phpcbf` - Run PHP Code Beautifier and Fixer
+  - `make audit` - Run Composer security audit
+  - `make outdated` - Check for outdated Composer dependencies
+
+### Fixed
+- Correct typos across CSS, PHP, templates, and docs
+  - `wraper` → `wrapper` (CSS class name, 12 occurrences)
+  - `renderAdidionalKey` → `renderAdditionalKey` (method name, 14 occurrences)
+  - `renderAdidionalField` → `renderAdditionalField` (method name, 2 occurrences)
+  - `$aditionalKey` → `$additionalKey` (parameter name, 2 occurrences)
+  - `$flattenWithDotsentry` → `$flattenWithDotsEntry` (variable name, 8 occurrences)
+  - `;;` → `;` (double semicolon in CSS, 1 occurrence)
+
 ## [1.3.2] - 2026-07-07
 
 ### Added

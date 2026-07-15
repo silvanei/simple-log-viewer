@@ -215,6 +215,8 @@ foreach ($buttons as $button) {
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits.
 
+**See skill `commit-conventions` for detailed patterns including body formats for dependency updates, releases, features, and bug fixes.**
+
 ### Format
 ```
 <tipo>: <descrição>
@@ -248,9 +250,10 @@ Adicione `!` após tipo/escopo: `feat!: remove deprecated endpoint`
 1. **Desenvolva** features em branches separadas com commits seguindo Conventional Commits
 2. **Abra PRs** e faça merge para `main` (branch protegida, merge via PR)
 3. **Prepare o release** criando uma branch `release/vX.Y.Z`:
-   - Invoque o subagente `changelog-generator` ou execute `git cliff --tag vX.Y.Z --unreleased`
+   - Invoque o subagente `changelog-generator` ou execute `CI=true make changelog VERSION=X.Y.Z`
    - Atualize `CHANGELOG.md` com as mudanças geradas + detalhes manuais
    - Atualize `"version"` no `composer.json`
+   - Faça **um único commit** seguindo o padrão da skill `commit-conventions`
    - Crie PR da branch de release para `main`
 4. **Após o merge**, crie a tag:
    ```bash

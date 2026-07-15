@@ -10,8 +10,14 @@ This guide helps agentic coding assistants work effectively with this PHP codeba
 - `make phpcs` - Run PHP CodeSniffer linting (supports args: `make phpcs args="--standard=PSR12 src/"`)
 - `make infection` - Run Infection mutation testing (supports args: `make infection args="--test-framework=phpunit --only-covering-test-cases"`)
 - `make check` - Run all checks (test, phpstan, phpcs)
+- `make test-coverage` - Run tests with HTML coverage report (saved to storage/coverage/)
+- `make phpcbf` - Run PHP Code Beautifier and Fixer (auto-fix coding standards)
+- `make audit` - Run Composer security audit
+- `make outdated` - Check for outdated Composer dependencies
 - `make serve` - Start application via Docker Compose
 - `make sh` - Open shell in Docker container
+- `make build-production` - Build production Docker image (requires VERSION: `make build-production VERSION=1.4.0`)
+- `make changelog` - Generate changelog using git-cliff (requires VERSION: `CI=true make changelog VERSION=1.4.0`)
 
 **Note**: Makefile uses `-it` flags by default. For non-interactive TTY environments (CI/agents), use `CI=true make <target>`:
 ```bash
@@ -21,28 +27,14 @@ CI=true make phpcs args="--standard=PSR12 src/"
 CI=true make infection args="--test-framework=phpunit --only-covering-test-cases"
 CI=true make test args="--filter=testMethodName"
 CI=true make check
+CI=true make changelog VERSION=1.4.0
 ```
-Or run Composer scripts directly without Docker.
-
-### Running Commands (Composer scripts)
-- `composer test` - Run all PHPUnit tests
-- `composer test-coverage` - Run tests with HTML coverage report (saved to storage/coverage/)
-- `composer phpstan` - Run PHPStan at max level
-- `composer phpcs` - Run PHPCS with PSR-12 standard
-- `composer test-infection` - Run Infection mutation testing with HTML report (saved to storage/infection/)
-- `composer check` - Run all checks sequentially
 
 ### Running Single Test
 To run a specific test:
 ```bash
 # Via Docker with CI mode (recommended for agents)
 CI=true make test args="--filter=testMethodName"
-
-# Via Composer (direct, no Docker needed)
-composer test -- --filter=testMethodName
-
-# Run specific test file
-composer test -- test/src/Controller/HomeActionTest.php
 
 # Additional examples:
 CI=true make phpstan args="--level=0 --memory-limit=256M"
@@ -201,7 +193,7 @@ foreach ($buttons as $button) {
 
 ### Common Pitfalls
 - **Trailing whitespace**: When adding new test methods or code blocks, ensure no spaces at end of lines. PHPCS will fail with "Whitespace found at end of line" error.
-- **Mutation testing**: Use `CI=true make infection` or `composer test-infection` to run Infection. Tests added for mutation testing should explicitly verify the behavior being mutated (e.g., boundary conditions, default parameter values).
+- **Mutation testing**: Use `CI=true make infection` to run Infection. Tests added for mutation testing should explicitly verify the behavior being mutated (e.g., boundary conditions, default parameter values).
 - **Make test verification**: After completing a phase, always run `make test`, `make check`, and `CI=true make infection` to ensure all checks pass before proceeding.
 - **Command argument support**: All make commands support optional arguments via `args="..."` parameter for flexible usage in CI/automation workflows.
 
@@ -275,8 +267,8 @@ Adicione `!` após tipo/escopo: `feat!: remove deprecated endpoint`
 ### Comandos úteis
 
 ```bash
-# Gerar changelog para release
-git cliff --tag vX.Y.Z --unreleased
+# Gerar changelog para release (via Docker - recomendado)
+CI=true make changelog VERSION=X.Y.Z
 
 # Build local da imagem de produção
 make build-production VERSION=1.4.0
@@ -289,6 +281,8 @@ Consulte [RELEASE.md](RELEASE.md) para o guia completo passo a passo de como cri
 
 O projeto usa [git-cliff](https://git-cliff.org) para gerar changelogs. Configuração em `cliff.toml`.
 
+- **IMPORTANTE**: O git-cliff está instalado na imagem Docker, não localmente
+- Use sempre `CI=true make changelog VERSION=X.Y.Z` para gerar o changelog
 - Commits que seguem Conventional Commits são agrupados por tipo (Added, Fixed, etc.)
 - Commits antigos (sem padrão) são agrupados em "Changed"
 - Sempre revise e enriqueça o changelog gerado com detalhes técnicos e exemplos

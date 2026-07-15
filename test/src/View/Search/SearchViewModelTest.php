@@ -68,7 +68,7 @@ class SearchViewModelTest extends TestCase
 
     public function testRenderAdidionalKey_ShouldEscapeHTMLAndRemoveMarkers(): void
     {
-        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdidionalKey($this->key) ?>');
+        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdditionalKey($this->key) ?>');
 
         $viewModel = new SearchViewModel(template: 'test', params: ['key' => '<script>']);
         $result = $viewModel->render();
@@ -93,7 +93,7 @@ class SearchViewModelTest extends TestCase
 
     public function testRenderAdidionalKey_ShouldHandleOpeningMarkerOnly(): void
     {
-        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdidionalKey($this->key) ?>');
+        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdditionalKey($this->key) ?>');
 
         $viewModel = new SearchViewModel(template: 'test', params: ['key' => '⟦test']);
         $result = $viewModel->render();
@@ -104,7 +104,7 @@ class SearchViewModelTest extends TestCase
 
     public function testRenderAdidionalKey_ShouldEscapeQuotesProperly(): void
     {
-        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdidionalKey($this->key) ?>');
+        file_put_contents($this->testTemplatesDir . 'test.phtml', '<?= $this->renderAdditionalKey($this->key) ?>');
 
         $viewModel = new SearchViewModel(template: 'test', params: ['key' => "it's a \"test\""]);
         $result = $viewModel->render();

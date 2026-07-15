@@ -40,7 +40,7 @@ class SearchActionTest extends TestCase
 
         $body = (string) $response->getBody();
 
-        $this->assertStringContainsString('<div class="wraper" role="table"', $body);
+        $this->assertStringContainsString('<div class="wrapper" role="table"', $body);
         $this->assertStringContainsString('Showing 1 log entries', $body);
         $this->assertStringContainsString('aria-live="polite"', $body);
         $this->assertStringContainsString('aria-atomic="true"', $body);

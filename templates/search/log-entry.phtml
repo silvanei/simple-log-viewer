@@ -1,4 +1,4 @@
-<div class="wraper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
+<div class="wrapper" role="table" aria-label="Log entries showing datetime, channel, level, and message">
 <?php if ($this->totalResults !== null) : ?>
     <div class="sr-only" aria-live="polite" aria-atomic="true">
         Showing <?= $this->escape((string) $this->totalResults) ?> log entries
@@ -19,11 +19,11 @@
         <?php $fieldIndex = 0; ?>
         <?php foreach ($this->fields as $field) : ?>
             <div class="cell cell-header" role="columnheader" scope="col">
-                <b><?= $this->renderAdidionalKey($field) ?></b>
+                <b><?= $this->renderAdditionalKey($field) ?></b>
                 <span class="field-actions">
                     <button
                         class="field-toggle-btn"
-                        data-field="<?= $this->renderAdidionalKey($field) ?>"
+                        data-field="<?= $this->renderAdditionalKey($field) ?>"
                         onclick="toggleField(event, '<?= $field ?>')"
                         aria-label="Remove column"
                         title="Remove column"
@@ -34,7 +34,7 @@
                     <?php if ($fieldCount > 1 && $fieldIndex > 0) : ?>
                         <button
                             class="field-toggle-btn field-move-left"
-                            data-field="<?= $this->renderAdidionalKey($field) ?>"
+                            data-field="<?= $this->renderAdditionalKey($field) ?>"
                             onclick="moveFieldLeft(event, '<?= $field ?>')"
                             aria-label="Move column left"
                             title="Move column left"
@@ -46,7 +46,7 @@
                     <?php if ($fieldCount > 1 && $fieldIndex < $fieldCount - 1) : ?>
                         <button
                             class="field-toggle-btn field-move-right"
-                            data-field="<?= $this->renderAdidionalKey($field) ?>"
+                            data-field="<?= $this->renderAdditionalKey($field) ?>"
                             onclick="moveFieldRight(event, '<?= $field ?>')"
                             aria-label="Move column right"
                             title="Move column right"
@@ -62,7 +62,7 @@
     </div>
 
     <?php foreach ($this->entries as $index => $entry) : ?>
-        <?php $flattenWithDotsentry = $this->flattenWithDots((array)$entry); ?>
+        <?php $flattenWithDotsEntry = $this->flattenWithDots((array)$entry); ?>
         <div class="row row-main" role="row" tabindex="0" aria-label="Log entry: <?= $this->cleanFts5Markers($entry->level) ?> from <?= $this->cleanFts5Markers($entry->channel) ?> at <?= $this->cleanFts5Markers($entry->datetime) ?>">
             <div class="cell" role="cell">
                 <button
@@ -85,13 +85,13 @@
             <div class="cell message" role="cell"><span><?= $this->escape($entry->message) ?></span></div>
             <?php foreach ($this->fields as $field) : ?>
                 <div class="cell cell-field" role="cell">
-                    <span class="white-space-pre"><?= $this->renderAdidionalField($flattenWithDotsentry, $field) ?></span>
+                    <span class="white-space-pre"><?= $this->renderAdditionalField($flattenWithDotsEntry, $field) ?></span>
                 </div>
             <?php endforeach; ?>
         </div>
         <div id="log-content-<?= $index ?>" class="row details log-content collapsed" role="row">
             <div class="cell" role="cell" colspan="<?= 5 + count($this->fields) ?>">
-                <?= $this->partial('search/partials/item', ['entry' => $flattenWithDotsentry, 'fields' => $this->fields]) ?>
+                <?= $this->partial('search/partials/item', ['entry' => $flattenWithDotsEntry, 'fields' => $this->fields]) ?>
             </div>
         </div>
     <?php endforeach; ?>

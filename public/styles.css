@@ -47,7 +47,7 @@ html {
 html.dark {
     --background: #0D1117;
     --surface: #161B22;
-    --text: #d1d7e0;;
+    --text: #d1d7e0;
     --border: #30363D;
     --secondary-text: #B1BAC4;
 
@@ -600,7 +600,7 @@ body.htmx-request #progress-bar {
 }
 
 /* GRID PRINCIPAL */
-.wraper {
+.wrapper {
   display: grid;
   grid-template-columns: repeat(5, auto) repeat(50, auto);
   gap: 4px 0;
@@ -682,7 +682,7 @@ body.htmx-request #progress-bar {
     border-radius: 4px;
 }
 
-.wraper button {
+.wrapper button {
     background: none;
     border: none;
     margin-left: auto;
@@ -691,7 +691,7 @@ body.htmx-request #progress-bar {
     transition: transform 0.2s ease;
 }
 
-.wraper button:hover {
+.wrapper button:hover {
     color: var(--text);
 }
 
@@ -843,7 +843,7 @@ html.dark .field-toggle-btn:focus-visible {
 }
 
 /* Log Entry Expand Button Focus */
-.wraper button:focus-visible {
+.wrapper button:focus-visible {
     outline: 3px solid var(--focus-color);
     outline-offset: var(--focus-ring-offset);
     border-radius: 2px;
@@ -851,13 +851,13 @@ html.dark .field-toggle-btn:focus-visible {
 }
 
 /* Dark Mode - Log Entry Expand Button Focus */
-html.dark .wraper button:focus-visible {
+html.dark .wrapper button:focus-visible {
     outline-color: var(--focus-color);
     box-shadow: 0 0 0 4px var(--focus-ring-color);
 }
 
 /* Remove focus styles for mouse users on log entry buttons */
-.wraper button:focus:not(:focus-visible) {
+.wrapper button:focus:not(:focus-visible) {
     outline: none;
     border-radius: 0;
     box-shadow: none;
@@ -910,7 +910,7 @@ html.dark .clear-button:focus:not(:focus-visible),
 html.dark .pause-button:focus:not(:focus-visible),
 html.dark .theme-toggle:focus:not(:focus-visible),
 html.dark .field-toggle-btn:focus:not(:focus-visible),
-html.dark .wraper button:focus:not(:focus-visible),
+html.dark .wrapper button:focus:not(:focus-visible),
 html.dark .log-content button:focus:not(:focus-visible),
 html.dark .row-main:focus:not(:focus-visible) {
     outline: none;
@@ -1282,7 +1282,7 @@ html.dark kbd {
     /* Log entry expand/collapse buttons - disable transform transition */
     .log-header button,
     .log-content button,
-    .wraper button {
+    .wrapper button {
         transition: none;
     }
 

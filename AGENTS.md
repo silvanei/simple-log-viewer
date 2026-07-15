@@ -153,7 +153,7 @@ When testing controllers that return HTML responses, avoid these fragile pattern
 ```php
 // ❌ FRÁGIL — qualquer mudança de indentação ou classe quebra o teste
 $expectedBody = <<<HTML
-<div class="wraper" role="table">
+<div class="wrapper" role="table">
     <div class="row" role="row">
         ...
     </div>
@@ -166,7 +166,7 @@ $this->assertSame($expectedBody, (string) $response->getBody());
 ```php
 $body = (string) $response->getBody();
 
-$this->assertStringContainsString('<div class="wraper" role="table"', $body);
+$this->assertStringContainsString('<div class="wrapper" role="table"', $body);
 $this->assertStringContainsString('Datetime', $body);
 $this->assertStringContainsString('aria-label="Expand"', $body);
 

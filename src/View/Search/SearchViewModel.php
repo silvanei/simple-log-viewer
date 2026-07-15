@@ -34,21 +34,21 @@ final readonly class SearchViewModel
         return str_replace(['⟦', '⟧'], '', $value);
     }
 
-    protected function renderAdidionalKey(string $aditionalKey): string
+    protected function renderAdditionalKey(string $additionalKey): string
     {
-        return $this->escape($this->cleanFts5Markers($aditionalKey));
+        return $this->escape($this->cleanFts5Markers($additionalKey));
     }
 
-    /** @param array<string, string> $flattenWithDotsentry */
-    protected function renderAdidionalField(array $flattenWithDotsentry, string $field): string
+    /** @param array<string, string> $flattenWithDotsEntry */
+    protected function renderAdditionalField(array $flattenWithDotsEntry, string $field): string
     {
-        if (array_key_exists($field, $flattenWithDotsentry)) {
-            return $this->escape($flattenWithDotsentry[$field]);
+        if (array_key_exists($field, $flattenWithDotsEntry)) {
+            return $this->escape($flattenWithDotsEntry[$field]);
         }
 
         $indexed = [];
-        foreach ($flattenWithDotsentry as $key => $value) {
-            $indexed[$this->renderAdidionalKey($key)] = $value;
+        foreach ($flattenWithDotsEntry as $key => $value) {
+            $indexed[$this->renderAdditionalKey($key)] = $value;
         }
 
         return $this->escape($indexed[$field] ?? '-');

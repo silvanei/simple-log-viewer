@@ -6,7 +6,7 @@ namespace S3\Log\Viewer\Dto;
 
 use DateTimeInterface;
 use JsonException;
-use Respect\Validation\Validator as v;
+use Respect\Validation\ValidatorBuilder as v;
 use S3\Log\Viewer\Dto\InvalidLogEntryDataException;
 use S3\Log\Viewer\Dto\LogEntry;
 use Throwable;
@@ -33,34 +33,36 @@ final class LogEntryParser
     {
         $errors = [];
 
-        $datetimeValid = v::dateTime('Y-m-d\TH:i:sP')->validate($data['datetime'] ?? null) ||
-                       v::dateTime(DateTimeInterface::RFC3339_EXTENDED)->validate($data['datetime'] ?? null);
+        $datetimeValid = v::dateTime('Y-m-d\TH:i:sP')->isValid($data['datetime'] ?? null) ||
+                       v::dateTime(DateTimeInterface::RFC3339_EXTENDED)->isValid($data['datetime'] ?? null) ||
+                       v::dateTime('Y-m-d\TH:i:s\Z')->isValid($data['datetime'] ?? null) ||
+                       v::dateTime('Y-m-d\TH:i:s.v\Z')->isValid($data['datetime'] ?? null);
 
         if (! $datetimeValid) {
             $errors['datetime'] = 'Invalid or missing datetime';
         }
 
-        if (! v::stringType()->length(3, 255)->validate($data['channel'] ?? null)) {
+        if (! v::stringType()->length(v::between(3, 255))->isValid($data['channel'] ?? null)) {
             $errors['channel'] = 'Invalid or missing channel';
         }
 
         $validLevels = ['DEBUG', 'INFO', 'NOTICE', 'WARNING', 'ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'];
         if (! isset($data['level']) || ! is_string($data['level'])) {
             $errors['level'] = 'Invalid or missing level';
-        } elseif (! v::stringType()->in($validLevels)->validate(strtoupper($data['level']))) {
+        } elseif (! v::stringType()->in($validLevels)->isValid(strtoupper($data['level']))) {
             $errors['level'] = 'Invalid or missing level';
         }
         $level = $data['level'] ?? '';
 
-        if (! v::stringType()->length(3, 255)->validate($data['message'] ?? null)) {
+        if (! v::stringType()->length(v::between(3, 255))->isValid($data['message'] ?? null)) {
             $errors['message'] = 'Invalid or missing message';
         }
 
-        if (! v::arrayType()->validate($data['context'] ?? null)) {
+        if (! v::arrayType()->isValid($data['context'] ?? null)) {
             $errors['context'] = 'Invalid or missing context';
         }
 
-        if (isset($data['extra']) && ! v::arrayType()->validate($data['extra'])) {
+        if (isset($data['extra']) && ! v::arrayType()->isValid($data['extra'])) {
             $errors['extra'] = 'Invalid extra field';
         }
 

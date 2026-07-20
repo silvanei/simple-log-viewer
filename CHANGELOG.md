@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-07-20
+
+### Changed
+- Update Docker image dependencies
+  - FrankenPHP 1.11.2 → 1.12.3
+  - Composer 2.9.2 → 2.10.2 (includes security fixes)
+
+### Security
+- Add multi-stage production build to remove composer binary from final image
+- Move `COMPOSER_ALLOW_SUPERUSER=1` to only RUN instructions (not global ENV)
+- Update `.dockerignore` with additional security patterns (`.git`, `.env*`, `*.pem`, `*.key`, `*.cert`, `*.log`, `.github`, `*.md`)
+
 ## [1.4.0] - 2026-07-15
 
 ### Changed

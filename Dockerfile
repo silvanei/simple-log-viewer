@@ -1,13 +1,12 @@
 # Development stage
-FROM dunglas/frankenphp:1.11.2-php8.5-alpine AS development
+FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS development
 
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    TZ="America/Sao_Paulo"
+ENV TZ="America/Sao_Paulo"
 
 WORKDIR /app
 
 # Install composer
-COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
 
 # Install xdebug for coverage and infection
 RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
@@ -26,7 +25,7 @@ RUN apk add --no-cache wget \
 
 # Install dependencies
 COPY composer.json composer.lock /app/
-RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --prefer-dist --no-scripts --no-dev --no-autoloader \
     && composer clear-cache \
     && rm -rf /var/cache/* \
     && rm -Rf /tmp/*
@@ -34,7 +33,7 @@ RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \
 COPY . /app
 
 # Finish composer
-RUN composer dump-autoload --no-scripts --no-dev --optimize \
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-dev --optimize \
     && rm -Rf /tmp/* \
     && composer clear-cache
 
@@ -42,30 +41,37 @@ EXPOSE 8080 443 443/udp
 
 CMD ["frankenphp", "run", "--config", "/app/Caddyfile.dev"]
 
-# Production stage
-FROM dunglas/frankenphp:1.11.2-php8.5-alpine AS production
+# Production builder stage
+FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS builder
 
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    TZ="America/Sao_Paulo"
+WORKDIR /build
+
+# Install composer
+COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
+
+# Install dependencies
+COPY composer.json composer.lock /build/
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader \
+    && composer clear-cache \
+    && rm -rf /var/cache/* /tmp/*
+
+COPY . /build
+
+# Generate optimized autoloader
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-dev --optimize
+
+# Production stage
+FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS production
+
+ENV TZ="America/Sao_Paulo"
 
 WORKDIR /app
 
-# Install composer
-COPY --from=composer:2.9.2 /usr/bin/composer /usr/local/bin/composer
+# Copy only vendor and autoloader from builder (no composer binary)
+COPY --from=builder /build/vendor/ /app/vendor/
 
-# Install dependencies
-COPY composer.json composer.lock /app/
-RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader \
-    && composer clear-cache \
-    && rm -rf /var/cache/* \
-    && rm -Rf /tmp/*
-
+# Copy application files
 COPY . /app
-
-# Finish composer
-RUN composer dump-autoload --no-scripts --no-dev --optimize \
-    && rm -Rf /tmp/* \
-    && composer clear-cache
 
 # Give www-data ownership of directories needed by Caddy/Mercure
 RUN chown -R www-data:www-data /data/caddy /config/caddy

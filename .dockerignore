@@ -3,3 +3,12 @@
 /.idea
 *.override.yml
 /storage
+.git
+.gitignore
+.env*
+*.pem
+*.key
+*.cert
+*.log
+.github
+*.md

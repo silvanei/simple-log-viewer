@@ -1,6 +1,4 @@
 PROJECT_DIR=$(shell pwd)
-USER_ID=$(shell id -u)
-USER_GROUP=$(shell id -g)
 ITERATIVE=-it
 ifdef CI
 	ITERATIVE=
@@ -10,7 +8,6 @@ DOCKER_CONTAINER_RUN=docker container run \
 	--rm \
 	--network host \
 	-m 1024m \
-	-u $(USER_ID):$(USER_GROUP) \
 	-v $(PROJECT_DIR):/app \
 	-w /app silvanei/simple-log-viewer:dev
 

@@ -1,6 +1,7 @@
 /.phpunit.cache
 /vendor
 /.idea
+/.zed
 *.override.yaml
 /storage
 !.gitkeep

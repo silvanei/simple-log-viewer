@@ -1,12 +1,12 @@
 # Development stage
-FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS development
+FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS development
 
 ENV TZ="America/Sao_Paulo"
 
 WORKDIR /app
 
 # Install composer
-COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 
 # Install xdebug for coverage and infection
 RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
@@ -17,9 +17,9 @@ RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
 # Install git-cliff for changelog generation
 RUN apk add --no-cache wget \
     && wget -O /tmp/git-cliff.tar.gz \
-        https://github.com/orhun/git-cliff/releases/download/v2.13.1/git-cliff-2.13.1-x86_64-unknown-linux-musl.tar.gz \
+        https://github.com/orhun/git-cliff/releases/download/v2.14.2/git-cliff-2.14.2-x86_64-unknown-linux-musl.tar.gz \
     && tar xzf /tmp/git-cliff.tar.gz -C /tmp/ \
-    && mv /tmp/git-cliff-2.13.1/git-cliff /usr/local/bin/ \
+    && mv /tmp/git-cliff-2.14.2/git-cliff /usr/local/bin/ \
     && rm -rf /tmp/git-cliff* /var/cache/* \
     && apk del wget
 
@@ -42,12 +42,12 @@ EXPOSE 8080 443 443/udp
 CMD ["frankenphp", "run", "--config", "/app/Caddyfile.dev"]
 
 # Production builder stage
-FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS builder
+FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS builder
 
 WORKDIR /build
 
 # Install composer
-COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 
 # Install dependencies
 COPY composer.json composer.lock /build/
@@ -61,7 +61,7 @@ COPY . /build
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-dev --optimize
 
 # Production stage
-FROM dunglas/frankenphp:1.12.3-php8.5-alpine AS production
+FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS production
 
 ENV TZ="America/Sao_Paulo"
 

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-09-23
+
+### Changed
+- Update Docker image dependencies
+  - FrankenPHP 1.12.3 → 1.12.7 (all 3 stages: development, builder, production)
+  - Composer 2.10.2 → 2.10.3
+  - git-cliff 2.13.1 → 2.14.2
+- Update composer dev dependencies
+  - `infection/infection` 0.34.0 → 0.35.4 (major)
+  - `phpstan/phpstan` 2.2.5 → 2.2.15
+  - `phpunit/phpunit` 13.2.4 → 13.3.4
+  - `squizlabs/php_codesniffer` 4.0.1 → 4.0.4
+- Remove user mapping from Makefile for rootless Docker
+- Add `.zed` directory to `.gitignore`
+
+### Security
+- Fix CVE-2026-67434 (OS command injection) in `squizlabs/php_codesniffer` — upgrade to `4.0.4`
+- `composer audit` now passes with zero vulnerabilities
+
+### Test
+- Rename redundant `#[Before]` hooks in `setUp()` template methods to dedicated method names (fixes PHPUnit warnings that blocked Infection)
+
 ## [1.4.1] - 2026-07-20
 
 ### Changed

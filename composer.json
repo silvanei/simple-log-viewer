@@ -38,7 +38,7 @@
     "squizlabs/php_codesniffer": "^4.0",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^13.2",
-    "infection/infection": "^0.34.0"
+    "infection/infection": "^0.35.0"
   },
   "scripts": {
     "check": [

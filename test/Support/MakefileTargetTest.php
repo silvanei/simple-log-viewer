@@ -15,9 +15,8 @@ final class MakefileTargetTest extends TestCase
     private string $makefileContent = '';
 
     #[Before]
-    protected function setUp(): void
+    protected function setUpMakefileContent(): void
     {
-        parent::setUp();
         $makefilePath = __DIR__ . '/../../Makefile';
         $content = file_get_contents($makefilePath);
 

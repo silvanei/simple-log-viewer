@@ -25,9 +25,8 @@ class AccessibilityTest extends TestCase
     private \DOMDocument $searchDom;
 
     #[Before]
-    protected function setUp(): void
+    protected function setUpHomeAndSearchDom(): void
     {
-        parent::setUp();
 
         // Get home page HTML
         $request = $this->createStub(ServerRequestInterface::class);

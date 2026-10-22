@@ -14,44 +14,28 @@ class MercurePublisher
      */
     public function publish(string $topic, string $message): bool
     {
-        if (function_exists('mercure_publish')) {
-            try {
-                mercure_publish($topic, $message);
-                return true;
-            } catch (\Throwable) {
-                return false;
-            }
+        if (! $this->isAvailable()) {
+            return false;
         }
 
-        // Fallback: try HTTP POST
-        return $this->publishViaHttp($topic, $message);
+        try {
+            mercure_publish($topic, $message);
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
-     * Fallback publish via HTTP.
+     * Whether FrankenPHP's native Mercure hub function is available.
+     *
+     * Publishing is only possible inside a FrankenPHP worker with a
+     * `mercure` directive configured in the Caddyfile. There is no HTTP
+     * fallback: the Mercure 1.0 protocol requires a signed JWT and the
+     * legacy `topic` form field is no longer accepted.
      */
-    private function publishViaHttp(string $topic, string $message): bool
+    public function isAvailable(): bool
     {
-        $url = 'http://localhost:5000/.well-known/mercure';
-
-        $postData = [
-            'topic' => $topic,
-            'data' => $message,
-        ];
-
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'POST',
-                'header' => [
-                    'Content-Type: application/x-www-form-urlencoded',
-                ],
-                'content' => http_build_query($postData),
-                'ignore_errors' => true,
-            ],
-        ]);
-
-        $result = @file_get_contents($url, false, $context);
-
-        return $result !== false;
+        return function_exists('mercure_publish');
     }
 }

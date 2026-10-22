@@ -191,7 +191,7 @@ The application supports real-time log updates via Server-Sent Events. When a ne
 #### SSE Endpoint
 
 ```
-/.well-known/mercure?topic=logs
+/.well-known/mercure?match=logs
 ```
 
 #### How It Works
@@ -204,7 +204,7 @@ The application supports real-time log updates via Server-Sent Events. When a ne
 #### Example (JavaScript)
 
 ```javascript
-const eventSource = new EventSource('/.well-known/mercure?topic=logs');
+const eventSource = new EventSource('/.well-known/mercure?match=logs');
 
 eventSource.onmessage = (event) => {
     console.log('New log received:', event.data);

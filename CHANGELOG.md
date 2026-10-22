@@ -142,7 +142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Server: FrankenPHP 1.11.2 with Caddy web server
 - HTTP Standard: PSR-7 (Nyholm\Psr7) and PSR-15
 - Real-time: Mercure Hub (built into FrankenPHP/Caddy)
-- SSE Endpoint: `/.well-known/mercure?topic=logs`
+- SSE Endpoint: `/.well-known/mercure?match=logs`
 - Worker mode enabled for persistent memory and better performance
 - Added `enable_full_duplex` configuration in Caddy for SSE support
 

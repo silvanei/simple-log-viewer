@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <div id="search-results" hx-ext="sse" sse-connect="/.well-known/mercure?topic=logs" sse-swap="message"></div>
+    <div id="search-results" hx-ext="sse" sse-connect="/.well-known/mercure?match=logs" sse-swap="message"></div>
 </main>
 <?= $this->partial('partials/keyboard-shortcuts') ?>
 

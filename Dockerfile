@@ -1,5 +1,5 @@
 # Development stage
-FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS development
+FROM dunglas/frankenphp:1.13.2-php8.5.12-alpine AS development
 
 ENV TZ="America/Sao_Paulo"
 
@@ -42,7 +42,7 @@ EXPOSE 8080 443 443/udp
 CMD ["frankenphp", "run", "--config", "/app/Caddyfile.dev"]
 
 # Production builder stage
-FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS builder
+FROM dunglas/frankenphp:1.13.2-php8.5.12-alpine AS builder
 
 WORKDIR /build
 
@@ -61,7 +61,7 @@ COPY . /build
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-dev --optimize
 
 # Production stage
-FROM dunglas/frankenphp:1.12.7-php8.5-alpine AS production
+FROM dunglas/frankenphp:1.13.2-php8.5.12-alpine AS production
 
 ENV TZ="America/Sao_Paulo"
 

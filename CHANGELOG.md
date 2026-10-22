@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-10-22
+
+### Security
+- **Critical:** Patch CVE-2026-109618 (RCE via OOM corruption) and CVE-2026-109619 (RCE via stale global state) — "PHP2Shell", CVSS v4.0 9.2, unauthenticated remote code execution in PHP core. Affects FrankenPHP, PHP-FPM, mod_php, php-cgi and LiteSpeed. Fixed in PHP 8.5.12; there is no complete configuration workaround
+- Require `php >= 8.5.12` in `composer.json` so vulnerable patches (8.5.0 – 8.5.11) are rejected at install time
+- Upgrade FrankenPHP 1.12.7 → 1.13.2, which carries 5 security fixes of its own (2 rated high: Windows document-root escape `GHSA-868c-7h7m-mmj9` and header spoofing through dot-form header names `GHSA-qcrp-8483-f2f2`)
+
+### Changed
+- Update Docker base image to `dunglas/frankenphp:1.13.2-php8.5.12-alpine` (all 3 stages: development, builder, production)
+  - PHP 8.5.11 → 8.5.12
+  - FrankenPHP 1.12.7 → 1.13.2
+  - Caddy 2.11.4 → 2.11.7 (Slowloris protection, 16 KiB default header limit, reverse proxy fixes)
+- Update composer dependencies (22 packages, no downgrades, no removals)
+  - `phpstan/phpstan` 2.2.15 → 2.3.1
+  - `phpunit/phpunit` 13.3.4 → 13.4.3
+  - `infection/infection` 0.35.4 → 0.35.8
+  - `phpunit/php-code-coverage` 14.3.3 → 14.4.1
+  - `symfony/console`, `symfony/filesystem`, `symfony/finder`, `symfony/process`, `symfony/string` 8.1.x → 8.1.9
+  - `symfony/polyfill-*` 1.41.0/1.42.0/1.38.2 → 1.43.0
+  - `sanmai/pipeline` 7.10 → 7.12, `webmozart/assert` 2.4.1 → 2.5.0
+  - `fidry/cpu-core-counter` 1.3.0 → 1.4.1, `justinrainbow/json-schema` 6.12.0 → 6.13.1
+  - `sebastian/environment`, `sebastian/git-state`, `sebastian/version`, `phpunit/php-text-template` patch/minor updates
+- Document the minimum supported runtime as PHP 8.5.12+ in `README.md`
+
+### Test
+- `make check`: 289 tests / 1010 assertions passing, PHPStan (max level) 0 errors, PHPCS PSR-12 clean (48 files)
+- `make infection`: 100% mutation code coverage, MSI 95%
+- `composer audit`: no security vulnerability advisories
+- Production image smoke test: `HTTP 200` on `/`, `X-Powered-By: PHP/8.5.12`, FrankenPHP 1.13.2 / Caddy 2.11.7 — no Caddy config errors (neither `num_threads` nor Mercure JWT is used, so the 1.13 upgrade notes do not apply)
+
 ## [1.4.2] - 2026-09-23
 
 ### Changed

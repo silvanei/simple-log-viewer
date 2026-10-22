@@ -89,7 +89,7 @@ For detailed information about sending logs to the viewer, see the [API Document
 ## Architecture
 
 The application is built using:
-- PHP 8.5
+- PHP 8.5.12+
 - FrankenPHP for HTTP server with worker mode
 - SQLite with FTS5 for full-text search
 - Server-Sent Events (SSE) via Mercure Hub for real-time updates

@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-10-22
+
+### Fixed
+- **SSE regression from 1.4.3:** restore real-time log updates broken by the FrankenPHP 1.13 / Mercure 1.0 upgrade
+  - The Mercure 1.0 hub changed the subscribe query parameter from `topic` to `match`; the legacy `topic` parameter is only honored by a hub built with the `deprecated_topic` compatibility tag, which FrankenPHP does not set
+  - Symptom: the browser `EventSource` failed with `HTTP 400` — `unknown topic matcher query parameter: "topic" (use "match" or "match_urlpattern")` — and automatic log refresh stopped working
+  - `templates/layout.phtml`: `sse-connect` now uses `/.well-known/mercure?match=logs`
+  - Log ingestion via `POST /api/logs` was never affected, because `MercurePublisher` uses FrankenPHP's native `mercure_publish()` rather than HTTP
+- Remove the unreachable HTTP fallback from `MercurePublisher`; it pointed at `http://localhost:5000` and used the Mercure 0.x form-post protocol
+
+### Changed
+- Document the corrected SSE endpoint in `docs/API.md`
+
+### Test
+- `HomeActionTest` hardcoded `sse-connect="...?topic=logs"`, so it kept passing while the SSE endpoint was broken. The assertion now expects `?match=logs`
+- Add `testInvokeSseEndpoint_ShouldNotUseLegacyTopicParameter`, rejecting `?topic=` anywhere in the rendered page
+- Add `testInvokeSseEndpoint_ShouldUseTopicMatcherParameter`, parsing every `sse-connect` attribute and requiring the `match` key with no `topic` key — validates the endpoint by shape instead of a literal string
+- `make check`: 291 tests / 1018 assertions, PHPStan (max level) 0 errors, PHPCS PSR-12 clean
+- `make infection`: 100% mutation code coverage, MSI 95%
+- Verified end-to-end against the built container: with `?match=logs` opened as `text/event-stream`, a log posted to `/api/logs` is delivered over the SSE stream
+
+### Notes
+- Version `1.4.3` remains published and tagged: it is the CVE fix release. Moving a published tag would break the tag-to-digest link of already-distributed images, so this fix ships as `1.4.4`
+- `POST /api/logs` returns `400` when the `context` field is missing. This is pre-existing behavior, identical on 1.4.2 and 1.4.3, not a regression — but `docs/API.md` does not mark `context` as required
+
 ## [1.4.3] - 2026-10-22
 
 ### Security

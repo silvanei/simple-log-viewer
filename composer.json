@@ -1,6 +1,6 @@
 {
   "name": "s3/simple-log-viewer",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Simple log viewer for development environment",
   "authors": [
     {
@@ -24,7 +24,7 @@
     }
   },
   "require": {
-    "php": ">=8.5",
+    "php": ">=8.5.12",
     "ext-pdo": "*",
     "psr/http-message": "^2.0",
     "psr/http-server-handler": "^1.0",
